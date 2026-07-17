@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>陈以舟 — 写技术学习，也写缓慢的思考</title>
+<meta name="description" content="计算机专业在读，记录技术学习与学业生活。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=Noto+Serif+SC:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F4EF;
+  --ink:#1B1E1C;
+  --accent:#3A5F52;
+  --hairline:rgba(27,30,28,.12);
+  --serif:"Source Serif 4","Noto Serif SC","Songti SC",serif;
+  --mono:"JetBrains Mono","SF Mono",ui-monospace,monospace;
+}
+:root[data-theme="dark"]{
+  --paper:#1A1C1B;
+  --ink:#E5E4DB;
+  --accent:#82A898;
+  --hairline:rgba(229,228,219,.14);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+::selection{background:var(--accent);color:var(--paper)}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--serif);
+  font-size:17.5px;
+  line-height:1.8;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  transition:background .3s ease,color .3s ease;
+}
+.wrap{max-width:660px;margin:0 auto;padding:0 24px}
+a{transition:color .2s ease}
+
+/* 头部 */
+header{
+  display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:12px;
+  padding:26px 0;border-bottom:1px solid var(--hairline);
+}
+.name{font-weight:600;font-size:18px;letter-spacing:.03em;text-decoration:none;color:inherit}
+.name em{font-style:normal;color:var(--accent)}
+nav{display:flex;gap:22px;align-items:baseline;flex-wrap:wrap}
+nav a{color:inherit;opacity:.6;text-decoration:none;font-size:15px}
+nav a:hover{opacity:1}
+#theme-toggle{
+  background:none;border:none;cursor:pointer;padding:0;
+  font-family:var(--mono);font-size:12.5px;color:inherit;opacity:.6;letter-spacing:.1em;
+}
+#theme-toggle:hover{opacity:1}
+
+/* Hero */
+.hero{padding:84px 0 68px}
+.hero h1{
+  font-size:clamp(30px,6vw,44px);
+  line-height:1.3;font-weight:600;letter-spacing:.01em;
+}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero p{margin-top:26px;opacity:.72;max-width:33em}
+
+/* 区块通用 */
+section{padding:52px 0;border-top:1px solid var(--hairline)}
+.label{
+  font-family:var(--mono);font-size:12px;letter-spacing:.2em;
+  text-transform:uppercase;opacity:.5;margin-bottom:10px;
+}
+h2{font-size:26px;font-weight:600;line-height:1.4;margin-bottom:22px}
+
+/* 文章 / 项目条目：无卡片，只有发丝线 */
+.row{display:block;text-decoration:none;color:inherit;padding:22px 2px;border-bottom:1px solid var(--hairline)}
+.row:last-child{border-bottom:none}
+.row .date{font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;opacity:.48}
+.row h3{font-size:21px;font-weight:600;line-height:1.5;margin:7px 0 3px}
+.row p{opacity:.62;font-size:15.5px}
+.row .arrow{
+  font-family:var(--mono);font-size:.8em;color:var(--accent);
+  display:inline-block;transform:translateX(0);transition:transform .25s ease;
+}
+.row:hover .arrow{transform:translateX(5px)}
+.u{
+  background-image:linear-gradient(currentColor,currentColor);
+  background-size:0% 1px;background-repeat:no-repeat;background-position:0 97%;
+  transition:background-size .35s ease;
+}
+.row:hover .u{background-size:100% 1px}
+
+/* 排版标本 */
+.specimen p{margin:16px 0;opacity:.88}
+code{
+  font-family:var(--mono);font-size:.84em;
+  background:rgba(127,120,110,.12);padding:.14em .42em;border-radius:3px;
+}
+blockquote{
+  margin:26px 0;padding-left:20px;
+  border-left:2px solid var(--accent);
+  font-style:italic;opacity:.85;
+}
+pre{
+  border:1px solid var(--hairline);
+  padding:20px 22px;overflow-x:auto;margin:26px 0;
+}
+pre code{background:none;padding:0;font-size:13.5px;line-height:1.7;border-radius:0}
+
+/* 页脚 */
+footer{
+  border-top:1px solid var(--hairline);
+  padding:30px 0 60px;
+  display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:14px;
+}
+footer nav a{font-size:14.5px}
+.fine{font-family:var(--mono);font-size:12px;opacity:.45;letter-spacing:.04em}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <a class="name" href="#">陈以舟<em>.</em></a>
+    <nav>
+      <a href="#">文章</a>
+      <a href="#">项目</a>
+      <a href="#">此刻</a>
+      <a href="#">关于</a>
+      <button id="theme-toggle" aria-label="切换明暗模式">暗</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- 文字即门面：一句话定位 -->
+    <div class="hero">
+      <h1>写技术学习，<br>也写<em>缓慢的思考</em>。</h1>
+      <p>计算机专业在读。这里记录我啃操作系统与编译原理的笔记、一个普通学生的学业生活，以及偶尔想清楚了一些事情的瞬间。</p>
+    </div>
+
+    <!-- 精选文章 -->
+    <section>
+      <p class="label">Writing · 精选</p>
+      <h2>最近写得认真的</h2>
+
+      <a class="row" href="#">
+        <span class="date">2026-06-30</span>
+        <h3><span class="u">从 0 写一个小型解释器</span></h3>
+        <p>词法分析到求值器，两千行 Rust 的完整踩坑笔记。</p>
+      </a>
+      <a class="row" href="#">
+        <span class="date">2026-05-18</span>
+        <h3><span class="u">虚拟内存不是魔法</span></h3>
+        <p>用三张图讲清页表、TLB 与缺页中断。</p>
+      </a>
+      <a class="row" href="#">
+        <span class="date">2026-04-02</span>
+        <h3><span class="u">大二这一年：课程、竞赛与取舍</span></h3>
+        <p>绩点、开源和睡眠，一个不可能三角的实践报告。</p>
+      </a>
+      <a class="row" href="#">
+        <span class="date">2026-02-11</span>
+        <h3><span class="u">我的终端工作流</span></h3>
+        <p>Neovim、Tmux，以及一套磨合了两年的键位。</p>
+      </a>
+    </section>
+
+    <!-- 项目：纯文字列表 -->
+    <section>
+      <p class="label">Projects · 造物</p>
+      <h2>做的东西</h2>
+
+      <a class="row" href="#">
+        <h3><span class="u">lumen</span> <span class="arrow">-&gt;</span></h3>
+        <p>玩具解释器，支持闭包与尾调用优化。</p>
+      </a>
+      <a class="row" href="#">
+        <h3><span class="u">course-notes</span> <span class="arrow">-&gt;</span></h3>
+        <p>操作系统 / 计网 / 编译原理的公开笔记仓库。</p>
+      </a>
+      <a class="row" href="#">
+        <h3><span class="u">dotfiles</span> <span class="arrow">-&gt;</span></h3>
+        <p>让一台新机器三十分钟进入工作状态。</p>
+      </a>
+    </section>
+
+    <!-- 排版标本：展示正文气质 -->
+    <section class="specimen">
+      <p class="label">Specimen · 排版标本</p>
+      <h2>正文的样子</h2>
+      <p>这个页面没有卡片、阴影和圆角组件，唯一的装饰是留白与发丝般细的分隔线。行宽被限制在 <code>66ch</code> 左右——这是中西文混排最舒适的阅读长度，再宽，目光就会走神。</p>
+      <p>标题与正文同属一个衬线字族，像书页而不是屏幕；代码则交给等宽字体处理，两种声音各司其职。全站唯一的强调色出现在链接、引文边缘和光标选区里，别处一概不用。</p>
+      <blockquote>清晰的写作，是清晰的思考落在纸面上的回声。</blockquote>
+      <pre><code>fn main() {
+    let thought = "slow &amp; clear";
+    println!("{}", thought);
+}</code></pre>
+    </section>
+  </main>
+
+  <footer>
+    <nav>
+      <a href="#">GitHub</a>
+      <a href="#">邮箱</a>
+      <a href="#">RSS</a>
+    </nav>
+    <p class="fine">© 2026 陈以舟 · 一个用文字搭建的地方</p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement,btn=document.getElementById('theme-toggle');
+  function apply(t){
+    root.dataset.theme=t;
+    root.style.colorScheme=t;
+    btn.textContent=(t==='dark')?'明':'暗';
+  }
+  var saved=localStorage.getItem('theme');
+  if(saved){apply(saved);}
+  else if(window.matchMedia('(prefers-color-scheme: dark)').matches){apply('dark');}
+  btn.addEventListener('click',function(){
+    var next=(root.dataset.theme==='dark')?'light':'dark';
+    localStorage.setItem('theme',next);
+    apply(next);
+  });
+})();
+</script>
+</body>
+</html>

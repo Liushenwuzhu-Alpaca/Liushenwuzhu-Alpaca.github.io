@@ -1,0 +1,44 @@
+---
+import type { Language } from '@/i18n/config'
+import { getTagPath } from '@/i18n/path'
+
+interface Props {
+  tags: string[]
+  currentTag?: string
+  lang: Language
+}
+
+const { tags, currentTag = '', lang } = Astro.props
+---
+
+<div class="no-heti mb-10.5 flex flex-wrap gap-x-3 gap-y-3.2">
+  {tags.map(tag => (
+    <a
+      href={getTagPath(tag, lang)}
+      class:list={[
+        'tag-link',
+        currentTag === tag ? 'tag-current' : '',
+      ]}
+    >
+      {tag}
+    </a>
+  ))}
+</div>
+
+<style>
+  /* Text tags with hairline underline, no pill borders. */
+  .tag-link {
+    color: inherit;
+    opacity: 0.6;
+    text-decoration: none;
+    font-size: 14px;
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: 1px;
+    transition: opacity 0.2s ease, border-color 0.2s ease;
+  }
+  .tag-link:hover,
+  .tag-link.tag-current {
+    opacity: 1;
+    border-bottom-color: var(--accent);
+  }
+</style>

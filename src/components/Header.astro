@@ -1,0 +1,45 @@
+---
+import type { Language } from '@/i18n/config'
+import Button from '@/components/Button.astro'
+import { getPageInfo } from '@/utils/page'
+
+interface Props {
+  supportedLangs?: Language[]
+}
+
+const { supportedLangs = [] } = Astro.props
+const { isHome, isPost, getLocalizedPath } = getPageInfo(Astro.url.pathname)
+const currentPath = Astro.url.pathname
+
+function getNavItemClass(href: string, isActive = false) {
+  const active = isActive || (currentPath.includes(href) && href !== '/')
+  return active ? 'nav-active' : ''
+}
+
+const navItems = [
+  { href: '/', label: '文章', active: isHome || isPost },
+  { href: '/archive/', label: '归档' },
+  { href: '/projects/', label: '项目' },
+  { href: '/now/', label: '此刻' },
+  { href: '/about/', label: '关于' },
+]
+---
+
+<header class="site-header">
+  <a class="site-name" href={getLocalizedPath('/')}>
+    alpaca<em>.</em>
+  </a>
+  <nav class="site-nav" aria-label="站点导航">
+    {navItems.map(item => (
+      <a
+        href={getLocalizedPath(item.href)}
+        class={getNavItemClass(item.href, item.active)}
+        aria-current={getNavItemClass(item.href, item.active) ? 'page' : undefined}
+      >
+        {item.label}
+      </a>
+    ))}
+    <a href={getLocalizedPath('/search/')} aria-label="搜索">搜索</a>
+    <Button supportedLangs={supportedLangs} />
+  </nav>
+</header>

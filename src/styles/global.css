@@ -1,0 +1,380 @@
+/* ============================================================
+   Paper & Ink — design tokens, base elements, shared layout
+   ============================================================ */
+
+/* Design Tokens >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+:root {
+  --paper: #F4F4EF;
+  --ink: #1B1E1C;
+  --accent: #3A5F52;
+  --hairline: rgba(27, 30, 28, 0.12);
+  --hl-alpha: 22%;
+  --serif: "Source Serif 4 Variable", "Noto Serif SC Variable", "Songti SC", serif;
+  --mono: "JetBrains Mono Variable", "JetBrains Mono", "SF Mono", ui-monospace, monospace;
+
+  /* Admonition colors, mirrored from uno.config.ts theme.colors */
+  --note: oklch(48.8% 0.243 264.376 / 0.8);
+  --tip: oklch(50.8% 0.118 165.612 / 0.8);
+  --important: oklch(49.6% 0.265 301.924 / 0.8);
+  --warning: oklch(55.5% 0.163 48.998 / 0.8);
+  --caution: oklch(50.5% 0.213 27.518 / 0.8);
+}
+
+html.dark {
+  --paper: #1A1C1B;
+  --ink: #E5E4DB;
+  --accent: #82A898;
+  --hairline: rgba(229, 228, 219, 0.12);
+  --hl-alpha: 26%;
+
+  /* Admonition colors, mirrored from uno.config.ts presetTheme dark */
+  --note: oklch(70.7% 0.165 254.624 / 0.8);
+  --tip: oklch(76.5% 0.177 163.223 / 0.8);
+  --important: oklch(71.4% 0.203 305.504 / 0.8);
+  --warning: oklch(82.8% 0.189 84.429 / 0.8);
+  --caution: oklch(70.4% 0.191 22.216 / 0.8);
+}
+
+/* Base >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+html {
+  color-scheme: light;
+  scrollbar-width: thin;
+  scrollbar-color: var(--hairline) transparent;
+  scrollbar-gutter: stable;
+  text-autospace: normal;
+}
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 17.5px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--paper);
+}
+
+/* Font Fallbacks >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+.font-serif,
+.font-title,
+.font-navbar {
+  font-family: var(--serif);
+}
+.font-time {
+  font-family: var(--mono);
+}
+
+/* Shared Layout Primitives >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+.site-wrap {
+  max-width: 660px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 26px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+.site-name {
+  font-weight: 600;
+  font-size: 18px;
+  text-decoration: none;
+  color: inherit;
+}
+.site-name em {
+  font-style: normal;
+  color: var(--accent);
+}
+.site-nav {
+  display: flex;
+  gap: 22px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.site-nav a {
+  color: inherit;
+  opacity: 0.6;
+  text-decoration: none;
+  font-size: 15px;
+}
+.site-nav a:hover,
+.site-nav a[aria-current="page"] {
+  opacity: 1;
+}
+.theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: inherit;
+  opacity: 0.6;
+  letter-spacing: 0.1em;
+}
+.theme-toggle:hover {
+  opacity: 1;
+}
+
+.hero {
+  padding: 84px 0 68px;
+}
+.hero h1 {
+  font-size: clamp(30px, 6vw, 44px);
+  line-height: 1.3;
+  font-weight: 600;
+}
+.hero h1 em {
+  font-style: italic;
+  color: var(--accent);
+}
+.hero p {
+  margin-top: 26px;
+  opacity: 0.72;
+  max-width: 33em;
+}
+
+.home-section {
+  padding: 52px 0;
+  border-top: 1px solid var(--hairline);
+}
+.label {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-bottom: 10px;
+}
+.page-title {
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 22px;
+}
+
+/* List rows: divided by hairlines and whitespace, never cards. */
+.row {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  padding: 22px 2px;
+  border-bottom: 1px solid var(--hairline);
+}
+.rows .row:last-child {
+  border-bottom: none;
+}
+.row .date {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  opacity: 0.48;
+  display: block;
+}
+.row h3 {
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 7px 0 3px;
+}
+.row p {
+  opacity: 0.62;
+  font-size: 15.5px;
+  margin: 0;
+}
+
+/* Underline that grows on row hover. */
+.u {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-repeat: no-repeat;
+  background-position: 0 97%;
+  transition: background-size 0.35s ease;
+}
+.row:hover .u {
+  background-size: 100% 1px;
+}
+
+.arrow {
+  font-family: var(--mono);
+  font-size: 0.8em;
+  color: var(--accent);
+  display: inline-block;
+  transition: transform 0.25s ease;
+}
+.row:hover .arrow {
+  transform: translateX(5px);
+}
+
+.site-footer {
+  border-top: 1px solid var(--hairline);
+  padding: 30px 0 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.site-footer nav a {
+  color: inherit;
+  opacity: 0.6;
+  text-decoration: none;
+  font-size: 14.5px;
+  transition: opacity 0.2s ease;
+}
+.site-footer nav a:hover {
+  opacity: 1;
+}
+.fine {
+  font-family: var(--mono);
+  font-size: 12px;
+  opacity: 0.45;
+  letter-spacing: 0.04em;
+}
+
+/* Highlight Links >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* Links are the only persistent color accent. */
+.highlight-static,
+.highlight-hover {
+  position: relative;
+  display: inline-block;
+}
+.highlight-static::after,
+.highlight-hover::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: 1px;
+  background: color-mix(in oklab, var(--accent) 40%, transparent);
+}
+.highlight-static::after,
+.highlight-hover:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+.highlight-hover::after {
+  transform: scaleX(0);
+  transform-origin: bottom right;
+  transition: transform 0.3s ease-out;
+}
+
+/* Heading Anchor Link >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+.heading-anchor-link {
+  display: inline-block;
+  transform: translateY(0.1em);
+}
+h1:hover .heading-anchor-link svg,
+h2:hover .heading-anchor-link svg,
+h3:hover .heading-anchor-link svg,
+h4:hover .heading-anchor-link svg {
+  opacity: 0.4;
+}
+.heading-anchor-link svg {
+  margin-left: 0.4em;
+  aspect-ratio: 1;
+  width: 0.9em;
+  opacity: 0;
+  transition: opacity 0.15s ease-out;
+}
+h1:hover .heading-anchor-link svg:hover,
+h2:hover .heading-anchor-link svg:hover,
+h3:hover .heading-anchor-link svg:hover,
+h4:hover .heading-anchor-link svg:hover {
+  opacity: 0.8;
+}
+.heading-anchor-link svg:active {
+  transform: scale(0.9);
+}
+
+/* Image Zoom >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+.zoom-overlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 999;
+  display: none;
+  height: 100%;
+  width: 100%;
+  cursor: zoom-out;
+  background: color-mix(in oklab, var(--paper) 95%, transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.zoom-img {
+  position: fixed;
+  z-index: 1000;
+  cursor: zoom-out;
+  transition: transform 0.3s;
+}
+
+/* Code Copy Button >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+.code-copy-button {
+  position: absolute;
+  right: 0.55rem;
+  top: 0.55rem;
+  z-index: 99;
+  display: grid;
+  aspect-ratio: 1;
+  width: 2rem;
+  cursor: pointer;
+  place-items: center;
+  border: 1px solid var(--hairline);
+  background: var(--paper);
+  color: color-mix(in oklab, var(--ink) 55%, transparent);
+  opacity: 0;
+  transition: opacity 0.15s ease-out, background-color 0.15s ease-out;
+}
+.code-copy-button:hover {
+  color: color-mix(in oklab, var(--ink) 80%, transparent);
+}
+.code-block-wrapper:hover .code-copy-button {
+  opacity: 1;
+}
+.icon-copy,
+.icon-check {
+  grid-area: 1/1;
+  aspect-ratio: 1;
+  width: 50%;
+}
+.icon-check {
+  opacity: 0;
+}
+.code-copy-button.copied {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--paper);
+}
+.code-copy-button.copied .icon-copy {
+  opacity: 0;
+}
+.code-copy-button.copied .icon-check {
+  opacity: 1;
+}
+
+/* 1px hairline separator, the only allowed divider. */
+.hairline {
+  border: none;
+  border-top: 1px solid var(--hairline);
+  margin: 0;
+}

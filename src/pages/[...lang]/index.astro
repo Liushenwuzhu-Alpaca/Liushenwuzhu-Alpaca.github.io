@@ -1,0 +1,57 @@
+---
+import PostList from '@/components/PostList.astro'
+import { allLocales } from '@/config'
+import { getLangFromLocale, getLangRouteParam } from '@/i18n/lang'
+import Layout from '@/layouts/Layout.astro'
+import { getPinnedPosts, getRegularPosts } from '@/utils/content'
+
+export async function getStaticPaths() {
+  return allLocales.map(lang => ({
+    params: { lang: getLangRouteParam(lang) },
+  }))
+}
+
+const currentLang = getLangFromLocale(Astro.currentLocale)
+const pinnedPosts = (await getPinnedPosts(currentLang)).slice(0, 5)
+const recentPosts = (await getRegularPosts(currentLang)).slice(0, 5)
+const projects = [
+  ['个人博客', 'https://github.com/Liushenwuzhu-Alpaca/Liushenwuzhu-Alpaca.github.io', 'Astro 静态站点与学习记录'],
+]
+---
+
+<Layout>
+  <section class="hero">
+    <h1>写技术学习，<br />也写<em>缓慢的思考</em>。</h1>
+    <p>你好，我是 alpaca，一名计算机专业学生。在这里整理技术学习笔记，也保留学业与生活中的片段。</p>
+  </section>
+
+  {pinnedPosts.length > 0 && (
+    <section class="home-section" aria-labelledby="featured-title">
+      <p class="label">Featured · 精选</p>
+      <h2 id="featured-title" class="page-title">精选文章</h2>
+      <PostList posts={pinnedPosts} lang={currentLang} pinned={true} />
+    </section>
+  )}
+
+  <section class="home-section" aria-labelledby="recent-title">
+    <p class="label">Recent · 更新</p>
+    <h2 id="recent-title" class="page-title">最近更新</h2>
+    <PostList posts={recentPosts} lang={currentLang} />
+    <a class="row" href="/archive/">
+      <h3><span class="u">全部文章</span> <span class="arrow">-&gt;</span></h3>
+    </a>
+  </section>
+
+  <section class="home-section" aria-labelledby="projects-title">
+    <p class="label">Projects · 造物</p>
+    <h2 id="projects-title" class="page-title">项目</h2>
+    <div class="rows">
+      {projects.map(([name, href, description]) => (
+        <a class="row" href={href}>
+          <h3><span class="u">{name}</span> <span class="arrow">-&gt;</span></h3>
+          <p>{description}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+</Layout>

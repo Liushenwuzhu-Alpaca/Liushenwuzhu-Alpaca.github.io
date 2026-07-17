@@ -1,0 +1,30 @@
+---
+import { allLocales } from '@/config'
+import { getLangRouteParam } from '@/i18n/lang'
+import Layout from '@/layouts/Layout.astro'
+
+export async function getStaticPaths() {
+  return allLocales.map(lang => ({
+    params: { lang: getLangRouteParam(lang) },
+  }))
+}
+---
+
+<Layout>
+  <section class="heti" aria-labelledby="search-title">
+    <p class="mb-3 text-sm c-secondary">全文检索</p>
+    <h2 id="search-title" class="mb-10 text-6 font-bold c-primary">搜索</h2>
+    <div id="search" data-pagefind-ignore></div>
+  </section>
+</Layout>
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+<script is:inline src="/pagefind/pagefind-ui.js"></script>
+<script is:inline>
+  window.addEventListener('DOMContentLoaded', () => {
+    const PagefindUI = Reflect.get(window, 'PagefindUI')
+    if (PagefindUI) {
+      Reflect.construct(PagefindUI, [{ element: '#search', showSubResults: true, resetStyles: false }])
+    }
+  })
+</script>
