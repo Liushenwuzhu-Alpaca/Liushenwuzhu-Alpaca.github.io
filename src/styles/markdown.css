@@ -55,11 +55,11 @@
   --at-apply: 'mb-4 text-pretty cjk:text-justify';
 }
 
-/* Links: inherit ink with a hairline underline; accent only on hover. */
+/* Links: ink text with an accent hairline underline; full accent on hover. */
 .heti :where(a:not(.no-heti):not(.no-heti *)) {
   --at-apply: 'font-semibold tracking-normal underline underline-0.075em underline-offset-0.1em cjk:break-all lg:underline-0.1em';
   color: inherit;
-  text-decoration-color: var(--hairline);
+  text-decoration-color: var(--accent);
   transition: color 0.3s ease-out, text-decoration-color 0.3s ease-out;
 }
 .heti :where(a:not(.no-heti):not(.no-heti *)):hover {

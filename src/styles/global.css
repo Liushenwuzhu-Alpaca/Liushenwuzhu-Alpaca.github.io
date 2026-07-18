@@ -22,7 +22,7 @@
 :root[data-palette="paper"] {
   --paper: #F4F4EF;
   --ink: #1B1E1C;
-  --accent: #3A5F52;
+  --accent: #3F6B58;
   --hairline: rgba(27, 30, 28, 0.12);
   --hl-alpha: 22%;
 }
@@ -162,7 +162,7 @@ body {
 }
 .site-nav a[aria-current="page"] {
   opacity: 1;
-  box-shadow: inset 0 -1px 0 var(--ink);
+  box-shadow: inset 0 -1px 0 var(--accent);
 }
 .theme-toggle,
 .palette-toggle {
@@ -179,6 +179,7 @@ body {
 .theme-toggle:hover,
 .palette-toggle:hover {
   opacity: 1;
+  color: var(--accent);
 }
 
 .hero {
@@ -208,7 +209,7 @@ body {
   font-size: 12px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--secondary);
+  color: var(--accent);
   margin-bottom: 10px;
 }
 .page-title {
