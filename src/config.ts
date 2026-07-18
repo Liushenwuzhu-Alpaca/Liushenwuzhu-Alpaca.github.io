@@ -84,7 +84,7 @@ export const themeConfig: ThemeConfig = {
       baidu: '',
     },
     googleAnalyticsID: '',
-    umamiAnalyticsID: '',
+    umamiAnalyticsID: '73ba0587-7fd8-4ba8-9079-c9bc121d8e00',
     folo: {
       feedID: '',
       userID: '',
