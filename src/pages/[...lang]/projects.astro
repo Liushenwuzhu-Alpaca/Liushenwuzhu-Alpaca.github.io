@@ -29,6 +29,14 @@ const projects = repos
       stars: repo.stars,
     }))
   : fallbackProjects
+
+/*
+ * Repos you collaborate on but do not own. GitHub's public API only lists
+ * repos you own, so maintain this list manually:
+ * { name: 'owner/repo', description: '一句话说明', url: 'https://github.com/owner/repo', role: '协作' }
+ * An empty array hides the whole section.
+ */
+const collaborations: { name: string, description: string, url: string, role?: string }[] = []
 ---
 
 <Layout>
@@ -44,5 +52,18 @@ const projects = repos
         </a>
       ))}
     </div>
+
+    {collaborations.length > 0 && (
+      <h2 class="label mt-12">Collaborations · 协作</h2>
+      <div class="rows">
+        {collaborations.map(repo => (
+          <a class="row" href={repo.url} target="_blank" rel="noopener">
+            <h3><span class="u">{repo.name}</span> <span class="arrow">-&gt;</span></h3>
+            <p>{repo.description}</p>
+            {repo.role && <p class="font-time text-3.5 c-secondary">{repo.role}</p>}
+          </a>
+        ))}
+      </div>
+    )}
   </section>
 </Layout>
