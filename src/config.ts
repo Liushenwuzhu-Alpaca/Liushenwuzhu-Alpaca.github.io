@@ -4,11 +4,11 @@ export const themeConfig: ThemeConfig = {
   // SITE INFORMATION >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> START
   site: {
     // site title
-    title: 'alpaca 的 Blog',
+    title: 'Liushenwuzhu-Alpaca 的 Blog',
     subtitle: '计算机学习笔记与生活记录',
-    description: 'alpaca 的个人博客，记录计算机专业学习、项目实践与日常思考。',
+    description: 'Liushenwuzhu-Alpaca 的个人博客，记录计算机专业学习、项目实践与日常思考。',
     i18nTitle: false,
-    author: 'alpaca',
+    author: 'Liushenwuzhu-Alpaca',
     url: 'https://liushenwuzhu-alpaca.github.io',
     base: '/',
     favicon: '/icons/favicon.svg',
