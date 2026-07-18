@@ -15,9 +15,17 @@ export async function getStaticPaths() {
  *   name: '站点名称',
  *   url: 'https://example.com',
  *   desc: '站点描述（可选，留空则不显示）',
+ *   avatar: 'https://example.com/avatar.png（可选，留空则不显示头像）',
  * }
  */
-const friends: { name: string, url: string, desc?: string }[] = []
+const friends: { name: string, url: string, desc?: string, avatar?: string }[] = [
+  {
+    name: 'Mirawind\'s Blog',
+    url: 'https://mirawind.top/',
+    desc: '相寻梦里路，飞雨落花中',
+    avatar: 'https://avatars.githubusercontent.com/u/53815918?v=4',
+  },
+]
 ---
 
 <Layout>
@@ -28,11 +36,25 @@ const friends: { name: string, url: string, desc?: string }[] = []
       {friends.length > 0
 ? (
         friends.map(friend => (
-          <a class="row" href={friend.url}>
-            <h3>
-              <span class="u">{friend.name}</span> <span class="arrow">-&gt;</span>
-            </h3>
-            {friend.desc && <p>{friend.desc}</p>}
+          <a class="row friend-row" href={friend.url}>
+            <div class="friend-main">
+              {friend.avatar && (
+                <img
+                  class="friend-avatar"
+                  src={friend.avatar}
+                  alt=""
+                  loading="lazy"
+                  width="48"
+                  height="48"
+                />
+              )}
+              <div class="friend-text">
+                <h3>
+                  <span class="u">{friend.name}</span> <span class="arrow">-&gt;</span>
+                </h3>
+                {friend.desc && <p>{friend.desc}</p>}
+              </div>
+            </div>
           </a>
         ))
       )
@@ -46,3 +68,24 @@ const friends: { name: string, url: string, desc?: string }[] = []
     </div>
   </section>
 </Layout>
+
+<style>
+  .friend-row {
+    padding: 18px 2px;
+  }
+  .friend-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .friend-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .friend-text h3 {
+    margin: 0 0 3px;
+  }
+</style>
