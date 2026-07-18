@@ -1,7 +1,7 @@
 ---
 import { ClientRouter } from 'astro:transitions'
 import katexCSS from 'katex/dist/katex.min.css?url'
-import { allLocales, base, defaultLocale, themeConfig, themePalettes } from '@/config'
+import { allLocales, base, defaultLocale, secretPalettes, themeConfig, themePalettes } from '@/config'
 import { ui } from '@/i18n/ui'
 import { getPageInfo } from '@/utils/page'
 
@@ -100,7 +100,8 @@ const pageImage = postSlug
     defaultMode,
     reduceMotion,
     themePalettes,
- }}
+    secretPalettes,
+  }}
 >
 (function () {
   // Check if current theme is dark
@@ -118,11 +119,14 @@ const pageImage = postSlug
     // If defaultMode is auto, follow system preference
     return window.matchMedia('(prefers-color-scheme: dark)').matches
   }
+  function allPalettes() {
+    return [...themePalettes, ...secretPalettes]
+  }
 
   // Read the saved palette id, falling back to the first configured palette
   function currentPaletteId() {
     const saved = localStorage.getItem('palette')
-    return themePalettes.some(p => p.id === saved) ? saved : themePalettes[0].id
+    return allPalettes().some(p => p.id === saved) ? saved : allPalettes()[0].id
   }
 
   // Initialize palette
@@ -136,9 +140,8 @@ const pageImage = postSlug
     doc.documentElement.classList.toggle('dark', isDark)
     initPalette(doc)
 
-    // Update meta theme-color tag
     const metaThemeColor = doc.head.querySelector('meta[name="theme-color"]')
-    const palette = themePalettes.find(p => p.id === currentPaletteId()) || themePalettes[0]
+    const palette = allPalettes().find(p => p.id === currentPaletteId()) || allPalettes()[0]
     if (metaThemeColor) {
       metaThemeColor.setAttribute('content', isDark ? palette.dark : palette.light)
     }

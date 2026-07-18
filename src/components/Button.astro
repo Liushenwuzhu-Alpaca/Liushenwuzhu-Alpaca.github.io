@@ -49,12 +49,23 @@ const nextUrl = supportedLangs.length > 0
 
 <!-- Theme Toggle Script >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> -->
 <script>
-import { themePalettes } from '@/config'
+import { secretPalettes, themePalettes } from '@/config'
+
+// Whether the user has unlocked secret palettes via Konami code
+function isSecretUnlocked() {
+  return localStorage.getItem('palette-secret') === '1'
+}
+
+// Combined palette list: secret palettes only available after unlock
+function getCyclePalettes() {
+  return isSecretUnlocked() ? [...themePalettes, ...secretPalettes] : themePalettes
+}
 
 // Resolve the active palette, falling back to the first configured one
 function currentPalette() {
   const saved = document.documentElement.dataset.palette || localStorage.getItem('palette')
-  return themePalettes.find(p => p.id === saved) ?? themePalettes[0]
+  const all = getCyclePalettes()
+  return all.find(p => p.id === saved) ?? all[0]
 }
 
 // Sync meta theme-color with the current palette and mode
@@ -85,10 +96,11 @@ function toggleTheme() {
   applyTheme(isDark)
 }
 
-// Cycle to the next palette
+// Cycle to the next palette (includes secret palettes when unlocked)
 function cyclePalette() {
-  const index = themePalettes.findIndex(p => p.id === currentPalette().id)
-  const next = themePalettes[(index + 1) % themePalettes.length]
+  const all = getCyclePalettes()
+  const index = all.findIndex(p => p.id === currentPalette().id)
+  const next = all[(index + 1) % all.length]
   document.documentElement.dataset.palette = next.id
   localStorage.setItem('palette', next.id)
   updateMetaThemeColor()
@@ -147,6 +159,49 @@ function handleSystemChange(event: MediaQueryListEvent) {
 
 document.addEventListener('click', handleThemeToggle)
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', handleSystemChange)
+
+// Konami code unlocks secret palettes (↑↑↓↓←→←→BA).
+// Once unlocked, secretPalettes are merged into the cycle sequence permanently.
+// Re-entering the code again is a no-op.
+;(function initKonami() {
+  const konami = [
+    'ArrowUp',
+    'ArrowUp',
+    'ArrowDown',
+    'ArrowDown',
+    'ArrowLeft',
+    'ArrowRight',
+    'ArrowLeft',
+    'ArrowRight',
+    'b',
+    'a',
+  ]
+  let index = 0
+  document.addEventListener('keydown', (e) => {
+    if (e.key === konami[index]) {
+      index++
+      if (index === konami.length) {
+        if (!isSecretUnlocked()) {
+          localStorage.setItem('palette-secret', '1')
+          runWithViewTransition(() => {
+            document.documentElement.dataset.palette = secretPalettes[0].id
+            localStorage.setItem('palette', secretPalettes[0].id)
+            updateMetaThemeColor()
+            const paletteButton = document.getElementById('palette-button')
+            if (paletteButton) {
+              paletteButton.textContent = secretPalettes[0].label
+            }
+          })
+        }
+        index = 0
+      }
+    }
+    else {
+      index = 0
+    }
+  })
+})()
+
 // Initialize button text
 ;(function initThemeButton() {
   const themeButton = document.getElementById('theme-toggle-button')

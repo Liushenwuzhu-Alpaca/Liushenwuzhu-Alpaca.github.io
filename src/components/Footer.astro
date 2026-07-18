@@ -1,10 +1,13 @@
 ---
+import Seal from '@/components/Seal.astro'
 import { themeConfig } from '@/config'
 import { getLangFromPath } from '@/i18n/lang'
 import { getLocalizedPath } from '@/i18n/path'
+import { getWritingStats } from '@/utils/stats'
 
 const { author } = themeConfig.site
 const { links, startYear } = themeConfig.footer
+const { totalChars, daysSinceLaunch } = await getWritingStats()
 
 const currentYear = new Date().getFullYear()
 const year = Number(startYear) === currentYear
@@ -60,4 +63,8 @@ const socialLinks = links.map(({ name, url }) => {
     ))}
   </nav>
   <p class="fine">© {year} {author} · Powered by Astro</p>
+  <div class="footer-stats">
+    <p>已书写 {totalChars.toLocaleString('zh-CN')} 字 · 建站第 {daysSinceLaunch} 天</p>
+    <Seal />
+  </div>
 </footer>

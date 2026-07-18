@@ -13,7 +13,7 @@ const metaCache = new Map<string, { minutes: number }>()
  * @param post The post to enhance with metadata
  * @returns Enhanced post with reading time information
  */
-async function addMetaToPost(post: CollectionEntry<'posts'>): Promise<Post> {
+export async function addMetaToPost(post: CollectionEntry<'posts'>): Promise<Post> {
   const cacheKey = `${post.id}-${post.data.lang || 'universal'}`
   const cachedMeta = metaCache.get(cacheKey)
   if (cachedMeta) {
@@ -236,3 +236,61 @@ async function _getTagSupportedLangs(tag: string): Promise<Language[]> {
 }
 
 export const getTagSupportedLangs = memoize(_getTagSupportedLangs)
+
+/**
+ * Get adjacent (previous and next) posts relative to a given post.
+ *
+ * "Previous" is the newer post (closer to today), "next" is the older post (farther from today).
+ * Returns null if no adjacent post exists in either direction.
+ *
+ * @param slug The abbrlink or id of the current post
+ * @param lang The language code to filter by
+ * @returns An object with `prev` and `next` posts, or null for either
+ */
+export async function getAdjacentPosts(slug: string, lang?: Language): Promise<{ prev: Post | null, next: Post | null }> {
+  const posts = await getPosts(lang)
+  const currentIndex = posts.findIndex(post => (post.data.abbrlink || post.id) === slug)
+  if (currentIndex === -1)
+    return { prev: null, next: null }
+
+  return {
+    prev: currentIndex > 0 ? posts[currentIndex - 1] : null,
+    next: currentIndex < posts.length - 1 ? posts[currentIndex + 1] : null,
+  }
+}
+
+/**
+ * Get related posts that share tags with the current post.
+ *
+ * Results are sorted by the number of shared tags (descending), then by published date (descending).
+ * The current post itself is excluded.
+ *
+ * @param slug The abbrlink or id of the current post
+ * @param lang The language code to filter by
+ * @param count Maximum number of related posts to return (default 3)
+ * @returns An array of related posts
+ */
+export async function getRelatedPosts(slug: string, lang?: Language, count: number = 3): Promise<Post[]> {
+  const posts = await getPosts(lang)
+  const currentPost = posts.find(post => (post.data.abbrlink || post.id) === slug)
+  if (!currentPost || !currentPost.data.tags?.length)
+    return []
+
+  const currentTags = new Set(currentPost.data.tags)
+
+  return posts
+    .filter(post => (post.data.abbrlink || post.id) !== slug)
+    .map(post => ({
+      post,
+      sharedTagCount: post.data.tags ? post.data.tags.filter(tag => currentTags.has(tag)).length : 0,
+    }))
+    .filter(entry => entry.sharedTagCount > 0)
+    .sort((a, b) => {
+      const tagDiff = b.sharedTagCount - a.sharedTagCount
+      if (tagDiff !== 0)
+        return tagDiff
+      return b.post.data.published.valueOf() - a.post.data.published.valueOf()
+    })
+    .slice(0, count)
+    .map(entry => entry.post)
+}

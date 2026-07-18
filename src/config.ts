@@ -50,12 +50,12 @@ export const themeConfig: ThemeConfig = {
   // COMMENT SETTINGS >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> START
   comment: {
     // enable comment system
-    enabled: false,
+    enabled: true,
     giscus: {
-      repo: '',
-      repoId: '',
-      category: '',
-      categoryId: '',
+      repo: 'Liushenwuzhu-Alpaca/Liushenwuzhu-Alpaca.github.io',
+      repoId: 'R_kgDOTbsCfg',
+      category: 'General',
+      categoryId: 'DIC_kwDOTbsCfs4DBbrr',
       mapping: 'pathname',
       strict: '0',
       reactionsEnabled: '1',
@@ -127,4 +127,9 @@ export const themePalettes = [
   { id: 'paper', label: '纸', light: '#F4F4EF', dark: '#1A1C1B' },
   { id: 'silk', label: '绢', light: '#F4EBDB', dark: '#201913' },
   { id: 'indigo', label: '黛', light: '#EDF0F2', dark: '#131A21' },
+] as const
+
+// Hidden switchable color palettes. Unlocked via Konami code (↑↑↓↓←→←→BA).
+export const secretPalettes = [
+  { id: 'cinnabar', label: '砂', light: '#F5E8E0', dark: '#1F1310' },
 ] as const

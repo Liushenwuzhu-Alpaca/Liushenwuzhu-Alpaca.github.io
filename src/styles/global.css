@@ -73,6 +73,21 @@ html.dark[data-palette="indigo"] {
   --hairline: rgba(220, 227, 233, 0.2);
 }
 
+/* Palette: 砂 Cinnabar — warm clay, vermilion accent */
+:root[data-palette="cinnabar"] {
+  --paper: #F5E8E0;
+  --ink: #2B1B16;
+  --accent: #B13B2E;
+  --hairline: rgba(43, 27, 22, 0.12);
+}
+
+html.dark[data-palette="cinnabar"] {
+  --paper: #1F1310;
+  --ink: #E8D5CC;
+  --accent: #D96A55;
+  --hairline: rgba(232, 213, 204, 0.2);
+}
+
 /* Base >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
 html {
   color-scheme: light;
@@ -472,4 +487,21 @@ h4:hover .heading-anchor-link svg:hover {
   color: var(--secondary);
   text-decoration: none;
   margin-bottom: 14px;
+}
+
+/* Writing stats row below the footer links; spans the full footer width. */
+.footer-stats {
+  flex-basis: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 2px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: var(--secondary);
+}
+.footer-stats p {
+  margin: 0;
 }

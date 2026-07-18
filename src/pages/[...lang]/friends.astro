@@ -1,0 +1,48 @@
+---
+import { allLocales } from '@/config'
+import { getLangRouteParam } from '@/i18n/lang'
+import Layout from '@/layouts/Layout.astro'
+
+export async function getStaticPaths() {
+  return allLocales.map(lang => ({
+    params: { lang: getLangRouteParam(lang) },
+  }))
+}
+
+/*
+ * 添加友链格式：
+ * {
+ *   name: '站点名称',
+ *   url: 'https://example.com',
+ *   desc: '站点描述（可选，留空则不显示）',
+ * }
+ */
+const friends: { name: string, url: string, desc?: string }[] = []
+---
+
+<Layout>
+  <section aria-labelledby="friends-title">
+    <p class="label">Links · 友邻</p>
+    <h1 id="friends-title" class="page-title">友链</h1>
+    <div class="rows">
+      {friends.length > 0
+? (
+        friends.map(friend => (
+          <a class="row" href={friend.url}>
+            <h3>
+              <span class="u">{friend.name}</span> <span class="arrow">-&gt;</span>
+            </h3>
+            {friend.desc && <p>{friend.desc}</p>}
+          </a>
+        ))
+      )
+: (
+        <a class="row" href="/about/">
+          <h3>
+            <span class="u">还没有友链，欢迎到关于页找我交换。</span> <span class="arrow">-&gt;</span>
+          </h3>
+        </a>
+      )}
+    </div>
+  </section>
+</Layout>
