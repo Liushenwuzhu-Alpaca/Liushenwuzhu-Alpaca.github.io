@@ -1,0 +1,135 @@
+---
+import { allLocales } from '@/config'
+import { getLangRouteParam } from '@/i18n/lang'
+import Layout from '@/layouts/Layout.astro'
+
+export async function getStaticPaths() {
+  return allLocales.map(lang => ({
+    params: { lang: getLangRouteParam(lang) },
+  }))
+}
+
+/*
+ * Shelf list format:
+ * Add an entry by appending an object to `entries`:
+ * {
+ *   title: '书名/影名',
+ *   type: 'book' | 'movie',  // used for grouping
+ *   review: '一句短评',
+ *   rating: 4,  // 1-5, optional; hidden when omitted
+ * }
+ */
+interface Entry {
+  title: string
+  type: 'book' | 'movie'
+  review: string
+  rating?: number // 1-5
+}
+
+const entries: Entry[] = []
+const books = entries.filter(e => e.type === 'book')
+const movies = entries.filter(e => e.type === 'movie')
+const hasBooks = books.length > 0
+const hasMovies = movies.length > 0
+const isEmpty = !hasBooks && !hasMovies
+
+function stars(n?: number) {
+  if (n === undefined || n === null)
+return ''
+  const clamped = Math.max(1, Math.min(5, n))
+  return '\u2605'.repeat(clamped)
+}
+---
+
+<Layout>
+  <section aria-labelledby="shelf-title">
+    <p class="label">Shelf · 书单影单</p>
+    <h1 id="shelf-title" class="page-title">书单影单</h1>
+
+    {isEmpty
+? (
+      <div class="empty-state">
+        <p>清单整理中，欢迎到<a href="/about/">关于页</a>问我最近在读什么。</p>
+      </div>
+    )
+: (
+      <>
+        {hasBooks && (
+          <>
+            <p class="group-heading">书</p>
+            <div class="rows">
+              {books.map(item => (
+                <div class="row">
+                  <h3 class="entry-title">{item.title}</h3>
+                  {item.review && <p class="entry-review">{item.review}</p>}
+                  {item.rating !== undefined && <p class="entry-rating mono">{stars(item.rating)}</p>}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+        {hasMovies && (
+          <>
+            <p class="group-heading">影</p>
+            <div class="rows">
+              {movies.map(item => (
+                <div class="row">
+                  <h3 class="entry-title">{item.title}</h3>
+                  {item.review && <p class="entry-review">{item.review}</p>}
+                  {item.rating !== undefined && <p class="entry-rating mono">{stars(item.rating)}</p>}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </>
+    )}
+  </section>
+</Layout>
+
+<style>
+  .empty-state {
+    padding: 32px 0;
+    font-size: 15px;
+    line-height: 1.6;
+    opacity: 0.8;
+  }
+  .empty-state a {
+    color: var(--primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .group-heading {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+    margin-top: 32px;
+  }
+  .group-heading:first-of-type {
+    margin-top: 0;
+  }
+  .entry-title {
+    font-family: var(--serif);
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0;
+  }
+  .entry-review {
+    margin: 4px 0 0;
+    font-size: 14px;
+    opacity: 0.75;
+    line-height: 1.5;
+  }
+  .entry-rating {
+    margin: 2px 0 0;
+    font-size: 12.5px;
+    letter-spacing: 0.15em;
+    color: var(--secondary);
+  }
+  .mono {
+    font-family: var(--mono);
+  }
+</style>

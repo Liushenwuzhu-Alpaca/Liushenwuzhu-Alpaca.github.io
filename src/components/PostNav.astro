@@ -12,13 +12,13 @@ const { prev, next, lang } = Astro.props
 
 <div class="rows">
   {prev && (
-    <a class="row" href={`/${lang ? `${lang}/` : ''}posts/${prev.data.abbrlink || prev.id}`}>
+    <a class="row" href={`/${lang ? `${lang}/` : ''}posts/${prev.data.abbrlink || prev.id.replace(/\.(md|mdx)$/, '')}`}>
       <span class="post-nav-label">← 上一篇</span>
       <h3><span class="u">{prev.data.title}</span></h3>
     </a>
   )}
   {next && (
-    <a class="row" href={`/${lang ? `${lang}/` : ''}posts/${next.data.abbrlink || next.id}`}>
+    <a class="row" href={`/${lang ? `${lang}/` : ''}posts/${next.data.abbrlink || next.id.replace(/\.(md|mdx)$/, '')}`}>
       <span class="post-nav-label">→ 下一篇</span>
       <h3><span class="u">{next.data.title}</span></h3>
     </a>

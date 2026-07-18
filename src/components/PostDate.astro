@@ -2,6 +2,7 @@
 import type { ThemeConfig } from '@/types'
 import { themeConfig } from '@/config'
 import { isPostPage } from '@/utils/page'
+import { getSolarTerm } from '@/utils/solarterm'
 
 type DateFormat = ThemeConfig['global']['dateFormat']
 
@@ -15,6 +16,7 @@ const { date, updatedDate, minutes } = Astro.props
 const { dateFormat: format } = themeConfig.global
 const isPost = isPostPage(Astro.url.pathname)
 const timeSpacingClass = isPost ? 'ml-1.75' : 'ml-1.5'
+const solarTerm = getSolarTerm(date)
 
 function formatDate(date: Date, format: DateFormat) {
   if (format === 'YYYY-MM-DD') {
@@ -63,6 +65,10 @@ function formatDate(date: Date, format: DateFormat) {
 <time datetime={date.toISOString().split('T')[0]}>
   {formatDate(date, format)}
 </time>
+<!-- solar term -->
+{solarTerm && (
+  <span class="c-secondary">{' · '}{solarTerm}</span>
+)}
 
 <!-- updated date -->
 {updatedDate && (

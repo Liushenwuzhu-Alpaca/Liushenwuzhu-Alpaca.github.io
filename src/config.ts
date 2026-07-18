@@ -100,6 +100,18 @@ export const themeConfig: ThemeConfig = {
         url: '/rss.xml',
       },
       {
+        name: '装备',
+        url: '/uses/',
+      },
+      {
+        name: '书单',
+        url: '/books/',
+      },
+      {
+        name: '相册',
+        url: '/photos/',
+      },
+      {
         name: 'GitHub',
         url: 'https://github.com/Liushenwuzhu-Alpaca',
       },

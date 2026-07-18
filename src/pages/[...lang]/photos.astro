@@ -1,0 +1,126 @@
+---
+import type { ImageMetadata } from 'astro'
+import { allLocales } from '@/config'
+import { getLangRouteParam } from '@/i18n/lang'
+import Layout from '@/layouts/Layout.astro'
+
+export async function getStaticPaths() {
+  return allLocales.map(lang => ({
+    params: { lang: getLangRouteParam(lang) },
+  }))
+}
+
+/*
+ * Photo gallery page.
+ * import.meta.glob collects images from src/assets/photos/.
+ * File names are the sort keys; use numeric prefixes (01-, 02-) to order.
+ * Captions are matched in descMap by file name without extension.
+ * An empty directory yields an empty glob result and the empty state shows.
+ */
+type PhotoEntry = { default: ImageMetadata }
+const photoGlob = import.meta.glob('/src/assets/photos/*.{jpg,jpeg,png,webp,avif}', { eager: true })
+
+const photos = Object.entries(photoGlob as Record<string, PhotoEntry>)
+  .sort(([a], [b]) => a.localeCompare(b))
+
+/*
+ * Caption map: file name (without extension) -> { desc, date }.
+ * Delete entries that are no longer needed.
+ */
+const descMap: Record<string, { desc: string, date: string }> = {}
+
+const isEmpty = photos.length === 0
+---
+
+<Layout>
+  <section aria-labelledby="photos-title">
+    <p class="label">Photos · 相册</p>
+    <h1 id="photos-title" class="page-title">相册</h1>
+    {isEmpty
+? (
+      <div class="empty-state">
+        <p>相册整理中，照片还在冲洗。</p>
+      </div>
+    )
+: (
+      <div class="gallery">
+        {photos.map(([path, module]) => {
+          const key = path.split('/').pop()?.replace(/\.\w+$/, '') ?? ''
+          const meta = descMap[key]
+          const { default: img } = module
+          const caption = meta?.desc ?? ''
+          const date = meta?.date ?? ''
+          return (
+            <figure class="photo-item">
+              <div class="photo-frame">
+                <img src={img.src} alt={caption || key} width={img.width} height={img.height} loading="lazy" />
+              </div>
+              {(caption || date) && (
+                <figcaption>
+                  {date && <time class="photo-date mono">{date}</time>}
+                  {caption && <p class="photo-desc">{caption}</p>}
+                </figcaption>
+              )}
+            </figure>
+          )
+        })}
+      </div>
+    )}
+  </section>
+</Layout>
+
+<style>
+  .empty-state {
+    padding: 32px 0;
+    font-size: 15px;
+    line-height: 1.6;
+    opacity: 0.8;
+  }
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 0;
+    list-style: none;
+  }
+  .photo-item {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .photo-frame {
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--hairline);
+    aspect-ratio: 4 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .photo-frame img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .photo-item figcaption {
+    padding: 8px 2px;
+  }
+  .photo-date {
+    display: block;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.06em;
+    color: var(--secondary);
+    margin-bottom: 2px;
+  }
+  .photo-desc {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    opacity: 0.85;
+  }
+  .mono {
+    font-family: var(--mono);
+  }
+</style>

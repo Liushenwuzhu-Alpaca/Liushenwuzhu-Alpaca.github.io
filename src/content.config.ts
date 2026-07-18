@@ -25,6 +25,7 @@ const posts = defineCollection({
       abbrlink => !abbrlink || /^[a-z0-9\-]*$/.test(abbrlink),
       { message: 'Abbrlink can only contain lowercase letters, numbers and hyphens' },
     ),
+    series: z.string().optional().default(''),
   }),
 })
 
@@ -35,4 +36,11 @@ const about = defineCollection({
   }),
 })
 
-export const collections = { posts, about }
+const moments = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/moments' }),
+  schema: z.object({
+    date: z.coerce.date(),
+  }),
+})
+
+export const collections = { posts, about, moments }

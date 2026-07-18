@@ -17,7 +17,7 @@ const { posts, lang, pinned = false } = Astro.props
 
 <div class="rows">
   {posts.map((post) => {
-    const slug = post.data.abbrlink || post.id
+    const slug = post.data.abbrlink || post.id.replace(/\.(md|mdx)$/, '')
     const desc = getPostDescription(post, 'list')
     return (
       <a class="row" href={getPostPath(slug, lang)} transition:name={`post-${slug}${lang ? `-${lang}` : ''}`} data-disable-theme-toggle-transition>

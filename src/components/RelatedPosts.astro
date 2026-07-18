@@ -16,7 +16,7 @@ const { posts, lang } = Astro.props
     <h3 class="related-title">相关文章</h3>
     <div class="rows">
       {posts.map((post) => {
-        const slug = post.data.abbrlink || post.id
+        const slug = post.data.abbrlink || post.id.replace(/\.(md|mdx)$/, '')
         const desc = getPostDescription(post, 'list')
         return (
           <a class="row" href={`/${lang ? `${lang}/` : ''}posts/${slug}`}>

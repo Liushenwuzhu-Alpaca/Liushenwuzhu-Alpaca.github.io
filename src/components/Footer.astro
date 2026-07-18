@@ -1,4 +1,5 @@
 ---
+import RandomPost from '@/components/RandomPost.astro'
 import Seal from '@/components/Seal.astro'
 import { themeConfig } from '@/config'
 import { getLangFromPath } from '@/i18n/lang'
@@ -61,10 +62,17 @@ const socialLinks = links.map(({ name, url }) => {
         {index < socialLinks.length - 1 && <span aria-hidden="true"> / </span>}
       </>
     ))}
+    <span aria-hidden="true"> / </span>
+    <RandomPost />
   </nav>
   <p class="fine">© {year} {author} · Powered by Astro</p>
   <div class="footer-stats">
-    <p>已书写 {totalChars.toLocaleString('zh-CN')} 字 · 建站第 {daysSinceLaunch} 天</p>
+    <p>已书写 {totalChars.toLocaleString('zh-CN')} 字 · 建站第 {daysSinceLaunch} 天<span class="dark-greeting"> · 夜深了,写完这篇就睡</span></p>
     <Seal />
   </div>
 </footer>
+
+<style>
+  .dark-greeting { display: none }
+  html.dark .dark-greeting { display: inline }
+</style>

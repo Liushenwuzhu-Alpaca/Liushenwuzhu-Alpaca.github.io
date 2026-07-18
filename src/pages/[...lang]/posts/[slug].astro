@@ -5,7 +5,9 @@ import { getCollection, render } from 'astro:content'
 import Comment from '@/components/Comment/Index.astro'
 import PostDate from '@/components/PostDate.astro'
 import PostNav from '@/components/PostNav.astro'
+import ReadingProgress from '@/components/ReadingProgress.astro'
 import RelatedPosts from '@/components/RelatedPosts.astro'
+import SeriesBox from '@/components/SeriesBox.astro'
 import TagList from '@/components/TagList.astro'
 import BackButton from '@/components/Widgets/BackButton.astro'
 import TOC from '@/components/Widgets/TOC.astro'
@@ -14,6 +16,8 @@ import { getLangFromLocale, getLangRouteParam } from '@/i18n/lang'
 import Layout from '@/layouts/Layout.astro'
 import { checkPostSlugDuplication, getAdjacentPosts, getRelatedPosts } from '@/utils/content'
 import { getPostDescription } from '@/utils/description'
+import { getGrowthStage, getRevisionCount } from '@/utils/postmeta'
+
 
 export async function getStaticPaths() {
   const posts: CollectionEntry<'posts'>[] = await getCollection('posts')
@@ -30,7 +34,7 @@ export async function getStaticPaths() {
   const slugToLangsMap = new Map<string, Set<Language>>()
 
   for (const post of posts) {
-    const slug = post.data.abbrlink || post.id
+    const slug = post.data.abbrlink || post.id.replace(/\.(md|mdx)$/, '')
     const lang = post.data.lang
 
     let langSet = slugToLangsMap.get(slug)
@@ -61,7 +65,7 @@ export async function getStaticPaths() {
     // Match current language or universal posts
     .filter(post => post.data.lang === lang || post.data.lang === '')
     .map((post) => {
-      const slug = post.data.abbrlink || post.id
+      const slug = post.data.abbrlink || post.id.replace(/\.(md|mdx)$/, '')
       return {
         params: { lang: getLangRouteParam(lang), slug },
         props: { post, supportedLangs: slugToLangs[slug] },
@@ -77,17 +81,22 @@ interface Props {
 
 const { post, supportedLangs } = Astro.props
 const currentLang = getLangFromLocale(Astro.currentLocale)
-const slug = post.data.abbrlink || post.id
+const slug = post.data.abbrlink || post.id.replace(/\.(md|mdx)$/, '')
 const description = getPostDescription(post, 'meta')
 const { Content, headings, remarkPluginFrontmatter } = await render(post)
 const { prev, next } = await getAdjacentPosts(slug, currentLang)
 const relatedPosts = await getRelatedPosts(slug, currentLang)
+// Resolve the content file path for git-based revision counting.
+// The content loader uses `src/content/posts/` as base — reconstruct the path.
+const contentPath = `src/content/posts/${post.id}`
+const stage = getGrowthStage(post.data)
+const revisionCount = getRevisionCount(contentPath)
 ---
-
+<ReadingProgress />
 <Layout
   postTitle={post.data.title}
   postDescription={description}
-  postSlug={post.id}
+  postSlug={post.data.abbrlink || post.id.replace(/\.(md|mdx)$/, '')}
   supportedLangs={supportedLangs}
 >
   <article class="heti">
@@ -119,32 +128,42 @@ const relatedPosts = await getRelatedPosts(slug, currentLang)
         updatedDate={post.data.updated}
         minutes={remarkPluginFrontmatter.minutes}
       />
+      <span class="ml-3 text-3.5 c-secondary">{stage.icon} {stage.label}</span>
     </div>
+
     <!-- TOC -->
     {post.data.toc && <TOC headings={headings} />}
     <!-- Content -->
     <div id="post-content">
       <Content />
-      <!-- Copyright -->
-      <div id="post-copyright" />
-      <!-- Tag List -->
-      {post.data.tags?.length > 0 && (
-        <hr class="hairline mt-12.6" />
-        <TagList
-          tags={post.data.tags}
-          lang={currentLang}
-        />
-      )}
+    </div>
+    <!-- Copyright -->
+    <div id="post-copyright" />
+    <!-- Tag List -->
+    {post.data.tags?.length > 0 && (
+      <hr class="hairline mt-12.6" />
+      <TagList
+        tags={post.data.tags}
+        lang={currentLang}
+      />
+    )}
+    {post.data.series && (
+      <SeriesBox series={post.data.series} currentId={slug} lang={currentLang} />
+    )}
       {relatedPosts.length > 0 && (
         <hr class="hairline mt-12.6" />
         <RelatedPosts posts={relatedPosts} lang={currentLang} />
+      )}
+      {revisionCount !== null && revisionCount > 1 && (
+        <>
+          <hr class="hairline mt-12.6" />
+          <p class="mono text-3.5 c-secondary">{revisionCount} 次修订 · <a href={`https://github.com/Liushenwuzhu-Alpaca/Liushenwuzhu-Alpaca.github.io/commits/main/${contentPath}`} target="_blank" rel="noopener noreferrer" class="underline c-secondary">查看修订历史</a></p>
+        </>
       )}
       {(prev || next) && (
         <hr class="hairline mt-12.6" />
         <PostNav {prev} {next} lang={currentLang} />
       )}
-      <!-- Comment -->
       <Comment />
-    </div>
   </article>
 </Layout>

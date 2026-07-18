@@ -45,7 +45,7 @@ export async function checkPostSlugDuplication(posts: CollectionEntry<'posts'>[]
 
   posts.forEach((post) => {
     const lang = post.data.lang
-    const slug = post.data.abbrlink || post.id
+    const slug = post.data.abbrlink || post.id.replace(/\.(md|mdx)$/, '')
 
     let slugSet = slugMap.get(lang)
     if (!slugSet) {
@@ -249,7 +249,7 @@ export const getTagSupportedLangs = memoize(_getTagSupportedLangs)
  */
 export async function getAdjacentPosts(slug: string, lang?: Language): Promise<{ prev: Post | null, next: Post | null }> {
   const posts = await getPosts(lang)
-  const currentIndex = posts.findIndex(post => (post.data.abbrlink || post.id) === slug)
+  const currentIndex = posts.findIndex(post => (post.data.abbrlink || post.id.replace(/\.(md|mdx)$/, '')) === slug)
   if (currentIndex === -1)
     return { prev: null, next: null }
 
@@ -272,14 +272,14 @@ export async function getAdjacentPosts(slug: string, lang?: Language): Promise<{
  */
 export async function getRelatedPosts(slug: string, lang?: Language, count: number = 3): Promise<Post[]> {
   const posts = await getPosts(lang)
-  const currentPost = posts.find(post => (post.data.abbrlink || post.id) === slug)
+  const currentPost = posts.find(post => (post.data.abbrlink || post.id.replace(/\.(md|mdx)$/, '')) === slug)
   if (!currentPost || !currentPost.data.tags?.length)
     return []
 
   const currentTags = new Set(currentPost.data.tags)
 
   return posts
-    .filter(post => (post.data.abbrlink || post.id) !== slug)
+    .filter(post => (post.data.abbrlink || post.id.replace(/\.(md|mdx)$/, '')) !== slug)
     .map(post => ({
       post,
       sharedTagCount: post.data.tags ? post.data.tags.filter(tag => currentTags.has(tag)).length : 0,
@@ -293,4 +293,34 @@ export async function getRelatedPosts(slug: string, lang?: Language, count: numb
     })
     .slice(0, count)
     .map(entry => entry.post)
+}
+
+/**
+ * Get all posts that belong to the same series, sorted by published date.
+ * The current post is included with an `isCurrent` flag.
+ * Returns null if the post has no series or no other posts share the series.
+ *
+ * @param slug The abbrlink or id of the current post
+ * @param lang The language code to filter by
+ * @returns An object with series name and posts array, or null
+ */
+export async function getSeriesPosts(slug: string, lang?: Language): Promise<{ series: string, posts: Array<Post & { isCurrent: boolean }> } | null> {
+  const posts = await getPosts(lang)
+  const currentPost = posts.find(post => (post.data.abbrlink || post.id.replace(/\.(md|mdx)$/, '')) === slug)
+  if (!currentPost || !currentPost.data.series)
+    return null
+
+  const seriesName = currentPost.data.series
+  const seriesPosts = posts
+    .filter(post => post.data.series === seriesName)
+    .sort((a, b) => a.data.published.valueOf() - b.data.published.valueOf())
+    .map(post => ({
+      ...post,
+      isCurrent: (post.data.abbrlink || post.id.replace(/\.(md|mdx)$/, '')) === slug,
+    }))
+
+  if (seriesPosts.length < 2)
+    return null
+
+  return { series: seriesName, posts: seriesPosts }
 }

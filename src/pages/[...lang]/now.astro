@@ -1,4 +1,6 @@
 ---
+import type { CollectionEntry } from 'astro:content'
+import { getCollection, render } from 'astro:content'
 import { allLocales } from '@/config'
 import { getLangRouteParam } from '@/i18n/lang'
 import Layout from '@/layouts/Layout.astro'
@@ -8,6 +10,18 @@ export async function getStaticPaths() {
     params: { lang: getLangRouteParam(lang) },
   }))
 }
+
+const moments: CollectionEntry<'moments'>[] = await getCollection('moments')
+const sortedMoments = moments.sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+)
+// Pre-render markdown bodies for the timeline
+const renderedMoments = await Promise.all(
+  sortedMoments.map(async moment => ({
+    moment,
+    Content: (await render(moment)).Content,
+  })),
+)
 ---
 
 <Layout>
@@ -19,5 +33,75 @@ export async function getStaticPaths() {
       <p>正在构建这个博客与笔记体系。</p>
       <p>最近在意的事，是把笔记写清楚。</p>
     </div>
+    <div class="moments-list">
+      {renderedMoments.length === 0 && <p class="c-secondary">还没有动态，先去写一条。</p>}
+      {renderedMoments.map(({ moment, Content }) => (
+        <article class="moment-entry">
+          <span class="moment-marker"></span>
+          <div class="moment-body heti">
+            <time class="moment-date" datetime={moment.data.date.toISOString()}>
+              {moment.data.date.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long',
+              })}
+            </time>
+            <div class="moment-content">
+              <Content />
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+
   </section>
 </Layout>
+
+<style>
+  .moments-list {
+    margin-top: 32px;
+  }
+  .moment-entry {
+    display: flex;
+    gap: 12px;
+    padding-bottom: 24px;
+    position: relative;
+  }
+  .moment-entry:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 10px;
+    bottom: 0;
+    width: 1px;
+    background: var(--hairline);
+  }
+  .moment-marker {
+    display: block;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .moment-body {
+    flex: 1;
+  }
+  .moment-date {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--secondary);
+    display: block;
+    margin-bottom: 8px;
+  }
+  .moment-content {
+    line-height: 1.75;
+  }
+  .now-footer {
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid var(--hairline);
+  }
+</style>

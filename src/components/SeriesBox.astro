@@ -1,0 +1,69 @@
+---
+import type { Language } from '@/i18n/config'
+import { getSeriesPosts } from '@/utils/content'
+
+interface Props {
+  series: string
+  currentId: string
+  lang: Language
+}
+
+const { series, currentId, lang } = Astro.props
+const result = await getSeriesPosts(currentId, lang)
+// Render nothing when series has fewer than 2 posts
+if (!result || result.posts.length < 2) {
+  return
+}
+const { posts } = result
+---
+
+<section>
+  <h3 class="series-title">系列 · {series}</h3>
+  <div class="rows">
+    {posts.map((post) => {
+      const slug = post.data.abbrlink || post.id.replace(/\.(md|mdx)$/, '')
+      const index = String(posts.indexOf(post) + 1).padStart(2, '0')
+      if (post.isCurrent) {
+        return (
+          <div class="row current">
+            <span class="date"><span class="index">{index}.</span></span>
+            <h3>{post.data.title}</h3>
+          </div>
+        )
+      }
+      return (
+        <a class="row" href={`/${lang ? `${lang}/` : ''}posts/${slug}`}>
+          <span class="date"><span class="index">{index}.</span></span>
+          <h3><span class="u">{post.data.title}</span></h3>
+        </a>
+      )
+    })}
+  </div>
+</section>
+
+<style>
+  .series-title {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .index {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--secondary);
+    font-variant-numeric: tabular-nums;
+  }
+  .row.current {
+    opacity: 0.6;
+    cursor: default;
+  }
+  .row.current h3 {
+    font-weight: 700;
+  }
+  .rows .row:only-child {
+    border-bottom: none;
+  }
+</style>

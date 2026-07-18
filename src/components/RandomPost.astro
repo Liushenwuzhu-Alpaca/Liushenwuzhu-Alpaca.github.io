@@ -1,0 +1,74 @@
+<!--
+  RandomPost: jump to a random post.
+  Data source: /atom.xml feed already lists all posts, so nothing is
+  hard-coded here. Entry links are absolute URLs of the production
+  origin, so only their pathnames are compared and used.
+-->
+<a class="random-post" href="/archive/" id="random-post-btn">随便看看</a>
+<script>
+const btn = document.getElementById('random-post-btn')
+if (btn) {
+  btn.addEventListener('click', async (e) => {
+    e.preventDefault()
+
+    try {
+      // Cached path list first, feed fetch otherwise
+      let posts = sessionStorage.getItem('random:posts')
+      if (!posts) {
+        const res = await fetch('/atom.xml')
+        if (!res.ok)
+          throw new Error('fetch failed')
+        const text = await res.text()
+        const doc = new DOMParser().parseFromString(text, 'text/xml')
+        const paths: string[] = []
+        const seen = new Set<string>()
+
+        doc.querySelectorAll('entry link[href]').forEach((linkEl) => {
+          const href = linkEl.getAttribute('href')
+          if (!href)
+            return
+          try {
+            const path = new URL(href, location.origin).pathname
+            if (!path.includes('/posts/'))
+              return
+            if (seen.has(path))
+              return
+            seen.add(path)
+            paths.push(path)
+          }
+          catch {
+            // Ignore malformed URLs
+          }
+        })
+
+        if (paths.length === 0)
+          throw new Error('no posts found')
+        sessionStorage.setItem('random:posts', JSON.stringify(paths))
+        posts = JSON.stringify(paths)
+      }
+
+      const list: string[] = JSON.parse(posts)
+      // Exclude the current page
+      const filtered = list.filter(p => p !== location.pathname)
+      if (filtered.length === 0)
+        throw new Error('no other posts')
+
+      location.href = filtered[Math.floor(Math.random() * filtered.length)]
+    }
+    catch {
+      // Degrade to the archive on fetch/parse failure
+      location.href = '/archive/'
+    }
+  })
+}
+</script>
+
+<style>
+  .random-post {
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .random-post:hover {
+    text-decoration: underline;
+  }
+</style>

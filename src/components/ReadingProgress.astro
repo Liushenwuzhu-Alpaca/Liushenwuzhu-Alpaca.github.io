@@ -1,0 +1,47 @@
+<div class="reading-progress" aria-hidden="true"></div>
+
+<script is:inline>
+;(function () {
+  const bar = document.querySelector('.reading-progress')
+  if (!bar)
+    return
+
+  function update() {
+    const scrollY = window.scrollY
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight
+    const progress = docHeight > 0 ? Math.min(scrollY / docHeight, 1) : 0
+    bar.style.transform = `scaleX(${progress})`
+  }
+
+  let ticking = false
+  function onScroll() {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        update()
+        ticking = false
+      })
+      ticking = true
+    }
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+  })
+})()
+</script>
+
+<style is:global>
+  .reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--primary);
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+    z-index: 50;
+    pointer-events: none;
+  }
+</style>
