@@ -120,3 +120,11 @@ export const base = themeConfig.site.base === '/' ? '' : themeConfig.site.base.r
 export const defaultLocale = themeConfig.global.locale
 export const moreLocales = themeConfig.global.moreLocales
 export const allLocales = [defaultLocale, ...moreLocales]
+
+// Switchable color palettes. Each palette provides paper/ink/accent/hairline
+// tokens for both light and dark modes in src/styles/global.css.
+export const themePalettes = [
+  { id: 'paper', label: '纸', light: '#F4F4EF', dark: '#1A1C1B' },
+  { id: 'silk', label: '绢', light: '#F4EBDB', dark: '#201913' },
+  { id: 'indigo', label: '黛', light: '#EDF0F2', dark: '#131A21' },
+] as const

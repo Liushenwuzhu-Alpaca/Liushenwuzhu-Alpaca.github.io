@@ -3,18 +3,19 @@ import Layout from '@/layouts/Layout.astro'
 ---
 
 <Layout>
-  {/* Hairline separator */}
-  <hr class="hairline" />
-  <!-- Page Not Found -->
-  <h3 class="font-navbar mt--1.3 flex flex-col text-8 font-bold leading-1.2em c-primary lg:text-9">
-    <span>PAGE</span>
-    <span>NOT</span>
-    <span>FOUND</span>
-  </h3>
-  <p class="font-navbar mt-3.6 flex flex-col text-3.6 leading-1.4em lg:(mt-4 text-4)">
-    <span>It looks like the page you're looking for</span>
-    <span>does not exist or has been moved.</span>
-  </p>
-  <!-- Unused Div -->
-  <div class="" />
+  <section aria-labelledby="not-found-title">
+    <p class="label">404 · 迷路</p>
+    <h1 id="not-found-title" class="page-title">页面未找到</h1>
+    <p style="opacity: 0.75; margin-bottom: 34px;">
+      你要找的页面不存在，或已被移动。
+    </p>
+    <div class="rows">
+      <a class="row" href="/">
+        <h3><span class="u">回到首页</span> <span class="arrow">-&gt;</span></h3>
+      </a>
+      <a class="row" href="/archive/">
+        <h3><span class="u">浏览全部文章</span> <span class="arrow">-&gt;</span></h3>
+      </a>
+    </div>
+  </section>
 </Layout>

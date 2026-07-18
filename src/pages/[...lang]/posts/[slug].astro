@@ -90,6 +90,8 @@ const { Content, headings, remarkPluginFrontmatter } = await render(post)
     <div class="relative">
       <!-- Go Back Button On Desktop -->
       <BackButton />
+      <!-- Back Link On Mobile -->
+      <a href="/archive/" class="mobile-back lg:hidden">← 全部文章</a>
       <!-- Title -->
       <h1 class="post-title">
         <span

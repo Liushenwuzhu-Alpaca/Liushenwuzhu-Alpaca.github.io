@@ -15,7 +15,7 @@ const currentLang = getLangFromLocale(Astro.currentLocale)
 const pinnedPosts = (await getPinnedPosts(currentLang)).slice(0, 5)
 const recentPosts = (await getRegularPosts(currentLang)).slice(0, 5)
 const projects = [
-  ['个人博客', 'https://github.com/Liushenwuzhu-Alpaca/Liushenwuzhu-Alpaca.github.io', 'Astro 静态站点与学习记录'],
+  ['个人博客', 'https://github.com/Liushenwuzhu-Alpaca/Liushenwuzhu-Alpaca.github.io', '用 Astro 构建的静态个人站点，记录学习、项目与生活。'],
 ]
 ---
 
@@ -33,14 +33,16 @@ const projects = [
     </section>
   )}
 
-  <section class="home-section" aria-labelledby="recent-title">
-    <p class="label">Recent · 更新</p>
-    <h2 id="recent-title" class="page-title">最近更新</h2>
-    <PostList posts={recentPosts} lang={currentLang} />
-    <a class="row" href="/archive/">
-      <h3><span class="u">全部文章</span> <span class="arrow">-&gt;</span></h3>
-    </a>
-  </section>
+  {recentPosts.length > 0 && (
+    <section class="home-section" aria-labelledby="recent-title">
+      <p class="label">Recent · 更新</p>
+      <h2 id="recent-title" class="page-title">最近更新</h2>
+      <PostList posts={recentPosts} lang={currentLang} />
+      <a class="row" href="/archive/">
+        <h3><span class="u">全部文章</span> <span class="arrow">-&gt;</span></h3>
+      </a>
+    </section>
+  )}
 
   <section class="home-section" aria-labelledby="projects-title">
     <p class="label">Projects · 造物</p>

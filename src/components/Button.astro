@@ -1,17 +1,12 @@
 ---
 import type { Language } from '@/i18n/config'
 import LanguageSwitcherIcon from '@/assets/icons/language-switcher.svg'
-import { moreLocales, themeConfig } from '@/config'
+import { moreLocales } from '@/config'
 import { getNextGlobalLangPath, getNextSupportedLangPath } from '@/i18n/path'
 
 interface Props {
   supportedLangs: Language[]
 }
-
-const {
-  light: { background: lightMode },
-  dark: { background: darkMode },
-} = themeConfig.color
 
 const { supportedLangs } = Astro.props
 const currentPath = Astro.url.pathname
@@ -28,10 +23,15 @@ const nextUrl = supportedLangs.length > 0
 <button
   id="theme-toggle-button"
   class="theme-toggle"
-  data-light-mode={lightMode}
-  data-dark-mode={darkMode}
   aria-label="切换明暗模式"
 >暗</button>
+
+<!-- Palette Switcher -->
+<button
+  id="palette-button"
+  class="palette-toggle"
+  aria-label="切换配色主题"
+>纸</button>
 
 <!-- Language Switcher -->
 {showLanguageSwitcher && (
@@ -49,22 +49,31 @@ const nextUrl = supportedLangs.length > 0
 
 <!-- Theme Toggle Script >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> -->
 <script>
+import { themePalettes } from '@/config'
+
+// Resolve the active palette, falling back to the first configured one
+function currentPalette() {
+  const saved = document.documentElement.dataset.palette || localStorage.getItem('palette')
+  return themePalettes.find(p => p.id === saved) ?? themePalettes[0]
+}
+
+// Sync meta theme-color with the current palette and mode
+function updateMetaThemeColor() {
+  const metaThemeColor = document.head.querySelector('meta[name="theme-color"]')
+  const palette = currentPalette()
+  const isDark = document.documentElement.classList.contains('dark')
+  metaThemeColor?.setAttribute('content', isDark ? palette.dark : palette.light)
+}
+
 // Apply theme changes
 function applyTheme(isDark: boolean) {
   document.documentElement.classList.toggle('dark', isDark)
-
-  // Update meta theme-color tag
-  const metaThemeColor = document.head.querySelector('meta[name="theme-color"]')
-  const themeButton = document.getElementById('theme-toggle-button')
-  const lightMode = themeButton?.dataset.lightMode
-  const darkMode = themeButton?.dataset.darkMode
-
-  if (metaThemeColor && lightMode && darkMode) {
-    metaThemeColor.setAttribute('content', isDark ? darkMode : lightMode)
-  }
+  updateMetaThemeColor()
 
   localStorage.setItem('theme', isDark ? 'dark' : 'light')
   document.dispatchEvent(new Event('theme-changed'))
+
+  const themeButton = document.getElementById('theme-toggle-button')
   if (themeButton) {
     themeButton.textContent = isDark ? '明' : '暗'
   }
@@ -76,19 +85,25 @@ function toggleTheme() {
   applyTheme(isDark)
 }
 
-// Handle theme toggle click events
-function handleThemeToggle(e: MouseEvent) {
-  if (!(e.target instanceof Element)) {
-    return
-  }
+// Cycle to the next palette
+function cyclePalette() {
+  const index = themePalettes.findIndex(p => p.id === currentPalette().id)
+  const next = themePalettes[(index + 1) % themePalettes.length]
+  document.documentElement.dataset.palette = next.id
+  localStorage.setItem('palette', next.id)
+  updateMetaThemeColor()
 
-  if (!e.target.closest('#theme-toggle-button')) {
-    return
+  const paletteButton = document.getElementById('palette-button')
+  if (paletteButton) {
+    paletteButton.textContent = next.label
   }
+}
 
+// Run an update through the View Transitions API when motion is allowed
+function runWithViewTransition(update: () => void) {
   // If reduceMotion is enabled, update theme directly
   if (document.documentElement.classList.contains('reduce-motion')) {
-    toggleTheme()
+    update()
     return
   }
 
@@ -97,13 +112,27 @@ function handleThemeToggle(e: MouseEvent) {
   document.documentElement.setAttribute('data-theme-changing', '')
 
   // Use View Transitions API for theme toggle
-  const transition = document.startViewTransition(toggleTheme)
+  const transition = document.startViewTransition(update)
 
   // Remove temporary markers after view transition
   transition.finished.then(() => {
     document.documentElement.style.removeProperty('view-transition-name')
     document.documentElement.removeAttribute('data-theme-changing')
   })
+}
+
+// Handle theme toggle click events
+function handleThemeToggle(e: MouseEvent) {
+  if (!(e.target instanceof Element)) {
+    return
+  }
+
+  if (e.target.closest('#theme-toggle-button')) {
+    runWithViewTransition(toggleTheme)
+  }
+  else if (e.target.closest('#palette-button')) {
+    runWithViewTransition(cyclePalette)
+  }
 }
 
 // Listen to system theme changes in real time
@@ -124,6 +153,11 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', han
   if (themeButton) {
     const isDark = document.documentElement.classList.contains('dark')
     themeButton.textContent = isDark ? '明' : '暗'
+  }
+
+  const paletteButton = document.getElementById('palette-button')
+  if (paletteButton) {
+    paletteButton.textContent = currentPalette().label
   }
 })()
 </script>

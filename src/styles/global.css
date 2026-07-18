@@ -4,13 +4,10 @@
 
 /* Design Tokens >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
 :root {
-  --paper: #F4F4EF;
-  --ink: #1B1E1C;
-  --accent: #3A5F52;
-  --hairline: rgba(27, 30, 28, 0.12);
-  --hl-alpha: 22%;
   --serif: "Source Serif 4 Variable", "Noto Serif SC Variable", "Songti SC", serif;
   --mono: "JetBrains Mono Variable", "JetBrains Mono", "SF Mono", ui-monospace, monospace;
+  /* Secondary text: solid mix instead of opacity so contrast stays ~4.8:1. */
+  --secondary: color-mix(in srgb, var(--ink) 65%, var(--paper));
 
   /* Admonition colors, mirrored from uno.config.ts theme.colors */
   --note: oklch(48.8% 0.243 264.376 / 0.8);
@@ -20,11 +17,38 @@
   --caution: oklch(50.5% 0.213 27.518 / 0.8);
 }
 
-html.dark {
+/* Palette: 纸 Paper (default) — warm gray paper, pine-soot green accent */
+:root,
+:root[data-palette="paper"] {
+  --paper: #F4F4EF;
+  --ink: #1B1E1C;
+  --accent: #3A5F52;
+  --hairline: rgba(27, 30, 28, 0.12);
+  --hl-alpha: 22%;
+}
+
+/* Palette: 绢 Silk — warm sepia silk, ochre accent */
+:root[data-palette="silk"] {
+  --paper: #F4EBDB;
+  --ink: #2A2118;
+  --accent: #8C4A2B;
+  --hairline: rgba(42, 33, 24, 0.12);
+}
+
+/* Palette: 黛 Indigo — cool blue-gray, indigo accent */
+:root[data-palette="indigo"] {
+  --paper: #EDF0F2;
+  --ink: #18222B;
+  --accent: #2E5573;
+  --hairline: rgba(24, 34, 43, 0.12);
+}
+
+html.dark,
+html.dark[data-palette="paper"] {
   --paper: #1A1C1B;
   --ink: #E5E4DB;
   --accent: #82A898;
-  --hairline: rgba(229, 228, 219, 0.12);
+  --hairline: rgba(229, 228, 219, 0.2);
   --hl-alpha: 26%;
 
   /* Admonition colors, mirrored from uno.config.ts presetTheme dark */
@@ -33,6 +57,20 @@ html.dark {
   --important: oklch(71.4% 0.203 305.504 / 0.8);
   --warning: oklch(82.8% 0.189 84.429 / 0.8);
   --caution: oklch(70.4% 0.191 22.216 / 0.8);
+}
+
+html.dark[data-palette="silk"] {
+  --paper: #201913;
+  --ink: #E9DCC6;
+  --accent: #CD9060;
+  --hairline: rgba(233, 220, 198, 0.2);
+}
+
+html.dark[data-palette="indigo"] {
+  --paper: #131A21;
+  --ink: #DCE3E9;
+  --accent: #82A6C4;
+  --hairline: rgba(220, 227, 233, 0.2);
 }
 
 /* Base >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
@@ -81,7 +119,11 @@ body {
   padding: 0 24px;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100dvh;
+}
+/* Push the footer to the viewport bottom on short pages. */
+.site-wrap > main {
+  flex: 1;
 }
 
 .site-header {
@@ -115,11 +157,15 @@ body {
   text-decoration: none;
   font-size: 15px;
 }
-.site-nav a:hover,
-.site-nav a[aria-current="page"] {
+.site-nav a:hover {
   opacity: 1;
 }
-.theme-toggle {
+.site-nav a[aria-current="page"] {
+  opacity: 1;
+  box-shadow: inset 0 -1px 0 var(--ink);
+}
+.theme-toggle,
+.palette-toggle {
   background: none;
   border: none;
   cursor: pointer;
@@ -130,7 +176,8 @@ body {
   opacity: 0.6;
   letter-spacing: 0.1em;
 }
-.theme-toggle:hover {
+.theme-toggle:hover,
+.palette-toggle:hover {
   opacity: 1;
 }
 
@@ -161,7 +208,7 @@ body {
   font-size: 12px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  opacity: 0.5;
+  color: var(--secondary);
   margin-bottom: 10px;
 }
 .page-title {
@@ -186,7 +233,7 @@ body {
   font-family: var(--mono);
   font-size: 12.5px;
   letter-spacing: 0.06em;
-  opacity: 0.48;
+  color: var(--secondary);
   display: block;
 }
 .row h3 {
@@ -196,7 +243,7 @@ body {
   margin: 7px 0 3px;
 }
 .row p {
-  opacity: 0.62;
+  color: var(--secondary);
   font-size: 15.5px;
   margin: 0;
 }
@@ -377,4 +424,51 @@ h4:hover .heading-anchor-link svg:hover {
   border: none;
   border-top: 1px solid var(--hairline);
   margin: 0;
+}
+
+/* Pagefind search: absorb the input into the paper aesthetic. */
+.pagefind-ui__search-input {
+  background: transparent !important;
+  color: var(--ink) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--ink) !important;
+  border-radius: 0 !important;
+  font-family: var(--serif) !important;
+  font-size: 21px !important;
+  padding: 12px 0 !important;
+  outline: none !important;
+}
+.pagefind-ui__search-input:focus {
+  border-bottom-color: var(--accent) !important;
+}
+.pagefind-ui__search-input::placeholder {
+  color: var(--secondary);
+}
+.pagefind-ui__search-clear {
+  background: transparent !important;
+  color: var(--secondary) !important;
+  border: none !important;
+  font-family: var(--mono) !important;
+}
+.pagefind-ui__result {
+  border-top: 1px solid var(--hairline) !important;
+}
+.pagefind-ui__result-link {
+  color: var(--ink) !important;
+}
+.pagefind-ui__result-excerpt {
+  color: var(--secondary) !important;
+}
+.pagefind-ui__message {
+  color: var(--secondary) !important;
+}
+
+/* Mobile back link shown above the post title. */
+.mobile-back {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--secondary);
+  text-decoration: none;
+  margin-bottom: 14px;
 }

@@ -15,7 +15,7 @@ const { headings = [] } = Astro.props
 const filteredHeadings = headings.filter(heading => heading.depth >= 2 && heading.depth <= 4)
 ---
 
-{filteredHeadings.length > 0 && (
+{filteredHeadings.length > 1 && (
   // TOC Container
   <div
     id="toc-container"

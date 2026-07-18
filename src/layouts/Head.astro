@@ -1,7 +1,7 @@
 ---
 import { ClientRouter } from 'astro:transitions'
 import katexCSS from 'katex/dist/katex.min.css?url'
-import { allLocales, base, defaultLocale, themeConfig } from '@/config'
+import { allLocales, base, defaultLocale, themeConfig, themePalettes } from '@/config'
 import { ui } from '@/i18n/ui'
 import { getPageInfo } from '@/utils/page'
 
@@ -19,14 +19,14 @@ const lang = currentLang === defaultLocale ? '' : `${currentLang}/`
 
 // Site Configuration
 const { title, subtitle, description, i18nTitle, author, favicon } = themeConfig.site
-const { mode: defaultMode, light: { background: lightMode }, dark: { background: darkMode } } = themeConfig.color
+const { mode: defaultMode } = themeConfig.color
 const { katex: katexEnabled, reduceMotion } = themeConfig.global
 const { verification = {}, twitterID = '', googleAnalyticsID = '', umamiAnalyticsID = '', apiflashKey = '' } = themeConfig.seo ?? {}
 const { google = '', bing = '', yandex = '', baidu = '' } = verification
 const { customGoogleAnalyticsJS = '', customUmamiAnalyticsJS = '' } = themeConfig.preload ?? {}
 
 // Site Metadata
-const metaTheme = defaultMode === 'dark' ? darkMode : lightMode
+const metaTheme = defaultMode === 'dark' ? themePalettes[0].dark : themePalettes[0].light
 const siteTitle = i18nTitle ? currentUI.title : title
 const siteSubtitle = i18nTitle ? currentUI.subtitle : subtitle
 const siteDescription = i18nTitle ? currentUI.description : description
@@ -98,9 +98,8 @@ const pageImage = postSlug
   is:inline
   define:vars={{
     defaultMode,
-    lightMode,
-    darkMode,
     reduceMotion,
+    themePalettes,
  }}
 >
 (function () {
@@ -120,15 +119,28 @@ const pageImage = postSlug
     return window.matchMedia('(prefers-color-scheme: dark)').matches
   }
 
+  // Read the saved palette id, falling back to the first configured palette
+  function currentPaletteId() {
+    const saved = localStorage.getItem('palette')
+    return themePalettes.some(p => p.id === saved) ? saved : themePalettes[0].id
+  }
+
+  // Initialize palette
+  function initPalette(doc = document) {
+    doc.documentElement.dataset.palette = currentPaletteId()
+  }
+
   // Initialize theme
   function initTheme(doc = document) {
     const isDark = isCurrentDark()
     doc.documentElement.classList.toggle('dark', isDark)
+    initPalette(doc)
 
     // Update meta theme-color tag
     const metaThemeColor = doc.head.querySelector('meta[name="theme-color"]')
+    const palette = themePalettes.find(p => p.id === currentPaletteId()) || themePalettes[0]
     if (metaThemeColor) {
-      metaThemeColor.setAttribute('content', isDark ? darkMode : lightMode)
+      metaThemeColor.setAttribute('content', isDark ? palette.dark : palette.light)
     }
   }
 
