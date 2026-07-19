@@ -4,11 +4,10 @@ import Seal from '@/components/Seal.astro'
 import { themeConfig } from '@/config'
 import { getLangFromPath } from '@/i18n/lang'
 import { getLocalizedPath } from '@/i18n/path'
-import { getWritingStats } from '@/utils/stats'
+import { getPosts } from '@/utils/content'
 
 const { author } = themeConfig.site
 const { links, startYear } = themeConfig.footer
-const { totalChars, daysSinceLaunch } = await getWritingStats()
 
 const currentYear = new Date().getFullYear()
 const year = Number(startYear) === currentYear
@@ -16,6 +15,14 @@ const year = Number(startYear) === currentYear
   : `${startYear}-${currentYear}`
 
 const currentLang = getLangFromPath(Astro.url.pathname)
+const posts = await getPosts(currentLang)
+const latestDate = posts.reduce((latest, post) => {
+  const date = post.data.updated ?? post.data.published
+  return date > latest ? date : latest
+}, posts[0]?.data.updated ?? posts[0]?.data.published)
+const lastUpdated = latestDate
+  ? `最后更新于 ${latestDate.getFullYear()} 年 ${latestDate.getMonth() + 1} 月 ${latestDate.getDate()} 日`
+  : ''
 const socialLinks = links.map(({ name, url }) => {
   const isRSS = url === '/atom.xml' || url === '/rss.xml'
   const isEmail = /^[\w.-]+@[\w.-]+\.[a-z]{2,}$/i.test(url)
@@ -55,24 +62,68 @@ const socialLinks = links.map(({ name, url }) => {
 })
 ---
 <footer class="site-footer">
-  <nav>
-    {socialLinks.map((link, index) => (
-      <>
-        <a {...link}>{link.name}</a>
-        {index < socialLinks.length - 1 && <span aria-hidden="true"> / </span>}
-      </>
-    ))}
-    <span aria-hidden="true"> / </span>
-    <RandomPost />
-  </nav>
-  <p class="fine">© {year} {author} · Powered by Astro</p>
-  <div class="footer-stats">
-    <p>已书写 {totalChars.toLocaleString('zh-CN')} 字 · 建站第 {daysSinceLaunch} 天<span class="dark-greeting"> · 夜深了,写完这篇就睡</span></p>
-    <Seal />
+  <div class="footer-content">
+    <nav class="footer-links" aria-label="页脚链接">
+      {socialLinks.map((link, index) => (
+        <>
+          <a {...link}>{link.name}</a>
+          {index < socialLinks.length - 1 && <span aria-hidden="true"> / </span>}
+        </>
+      ))}
+      <span aria-hidden="true"> / </span>
+      <RandomPost />
+    </nav>
+    <p class="footer-credit">© {year} {author} · Powered by Astro</p>
+    {lastUpdated && <p class="footer-note">{lastUpdated}</p>}
   </div>
+  <Seal size={52} rotate={-2} />
 </footer>
 
 <style>
-  .dark-greeting { display: none }
-  html.dark .dark-greeting { display: inline }
+  .site-footer {
+    align-items: flex-end;
+    gap: 24px;
+    padding: 44px 0 60px;
+  }
+
+  .footer-content {
+    min-width: 0;
+  }
+
+  .footer-links {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--secondary);
+  }
+
+  .footer-links a,
+  .footer-links :global(.random-post) {
+    color: var(--secondary);
+    opacity: 1;
+    text-decoration: none;
+    transition: color 200ms ease-out;
+  }
+
+  .footer-links a:hover,
+  .footer-links :global(.random-post):hover {
+    color: var(--seal);
+    opacity: 1;
+    text-decoration: none;
+  }
+
+  .footer-credit,
+  .footer-note {
+    margin: 14px 0 0;
+    color: var(--secondary);
+  }
+
+  .footer-credit {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+
+  .footer-note {
+    font-size: 13.5px;
+  }
 </style>

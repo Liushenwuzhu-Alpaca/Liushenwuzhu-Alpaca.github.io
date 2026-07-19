@@ -1,9 +1,16 @@
 ---
-import PostList from '@/components/PostList.astro'
+import Seal from '@/components/Seal.astro'
 import { allLocales } from '@/config'
+import { friends } from '@/data/friends'
+import { projects } from '@/data/projects'
 import { getLangFromLocale, getLangRouteParam } from '@/i18n/lang'
+import { getLocalizedPath, getPostPath } from '@/i18n/path'
 import Layout from '@/layouts/Layout.astro'
 import { getPinnedPosts, getRegularPosts } from '@/utils/content'
+import { getPostDescription } from '@/utils/description'
+import { getGrowthStage } from '@/utils/postmeta'
+import { getSolarTerm } from '@/utils/solarterm'
+import { getWritingStats } from '@/utils/stats'
 
 export async function getStaticPaths() {
   return allLocales.map(lang => ({
@@ -12,48 +19,405 @@ export async function getStaticPaths() {
 }
 
 const currentLang = getLangFromLocale(Astro.currentLocale)
-const pinnedPosts = (await getPinnedPosts(currentLang)).slice(0, 5)
-const recentPosts = (await getRegularPosts(currentLang)).slice(0, 5)
-const projects = [
-  ['个人博客', 'https://github.com/Liushenwuzhu-Alpaca/Liushenwuzhu-Alpaca.github.io', '用 Astro 构建的静态个人站点，记录学习、项目与生活。'],
-]
+const [pinnedPosts, recentPosts, writingStats] = await Promise.all([
+  getPinnedPosts(currentLang),
+  getRegularPosts(currentLang),
+  getWritingStats(),
+])
+const allPostCount = pinnedPosts.length + recentPosts.length
+const featuredPost = allPostCount >= 3 ? pinnedPosts[0] : undefined
+const recentPostRows = recentPosts.slice(0, 5)
+const homeProjects = projects.slice(0, 4)
+const homeFriends = friends.slice(0, 3)
+const today = new Date()
+const solarTerm = getSolarTerm(today)
+const season = ['冬', '冬', '春', '春', '春', '夏', '夏', '夏', '秋', '秋', '秋', '冬'][today.getMonth()]
+const heroMeta = `${solarTerm ?? season} · 建站第 ${writingStats.daysSinceLaunch} 日`
+const formatDate = (date: Date) => date.toISOString().split('T')[0]
+function postTransitionName(post: typeof recentPostRows[number]) {
+  const slug = post.data.abbrlink || post.id.replace(/\.(md|mdx)$/, '')
+  return `post-${slug}${currentLang ? `-${currentLang}` : ''}`
+}
 ---
 
 <Layout>
-  <section class="hero">
-    <h1>写技术学习，<br />也写<em>缓慢的思考</em>。</h1>
-    <p>你好，我是 Liushenwuzhu-Alpaca，一名网络空间安全专业学生。在这里整理技术学习笔记，也保留学业与生活中的片段。</p>
+  <section class="hero" aria-labelledby="home-title">
+    <p class="hero-meta">{heroMeta}</p>
+    <h1 id="home-title">写技术学习,<br />也写<em>缓慢的思考</em>。</h1>
+    <p class="hero-intro">你好，我是 Liushenwuzhu-Alpaca，一名网络空间安全专业学生。在这里整理技术学习笔记，也保留学业与生活中的片段。</p>
+    <div class="hero-seal" aria-hidden="true"><Seal char="羊驼" size={64} rotate={3} vertical /></div>
   </section>
 
-  {pinnedPosts.length > 0 && (
-    <section class="home-section" aria-labelledby="featured-title">
-      <p class="label">Featured · 精选</p>
-      <h2 id="featured-title" class="page-title">精选文章</h2>
-      <PostList posts={pinnedPosts} lang={currentLang} pinned={true} />
-    </section>
-  )}
-
-  {recentPosts.length > 0 && (
-    <section class="home-section" aria-labelledby="recent-title">
-      <p class="label">Recent · 更新</p>
-      <h2 id="recent-title" class="page-title">最近更新</h2>
-      <PostList posts={recentPosts} lang={currentLang} />
-      <a class="row" href="/archive/">
-        <h3><span class="u">全部文章</span> <span class="arrow">-&gt;</span></h3>
-      </a>
-    </section>
-  )}
-
-  <section class="home-section" aria-labelledby="projects-title">
-    <p class="label">Projects · 造物</p>
-    <h2 id="projects-title" class="page-title">项目</h2>
-    <div class="rows">
-      {projects.map(([name, href, description]) => (
-        <a class="row" href={href}>
-          <h3><span class="u">{name}</span> <span class="arrow">-&gt;</span></h3>
-          <p>{description}</p>
+  {featuredPost && (() => {
+    const slug = featuredPost.data.abbrlink || featuredPost.id.replace(/\.(md|mdx)$/, '')
+    const description = getPostDescription(featuredPost, 'list')
+    const tag = featuredPost.data.tags[0]
+    return (
+      <section class="home-section" aria-labelledby="featured-label">
+        <p id="featured-label" class="section-label">FEATURED · 精选</p>
+        <a class="featured-card" href={getPostPath(slug, currentLang)} transition:name={postTransitionName(featuredPost)} data-disable-theme-toggle-transition>
+          <div>
+            <h2>{featuredPost.data.title}</h2>
+            {description && <p class="featured-excerpt">{description}</p>}
+            <span class="read-link">读下去 <span class="arrow">→</span></span>
+          </div>
+          <div class="featured-meta">
+            <time datetime={formatDate(featuredPost.data.published)}>{formatDate(featuredPost.data.published)}</time>
+            <span>{featuredPost.remarkPluginFrontmatter.minutes} 分钟</span>
+            {tag && <span class="featured-tag">{tag}</span>}
+          </div>
         </a>
-      ))}
-    </div>
-  </section>
+      </section>
+    )
+  })()}
+
+  {recentPostRows.length > 0 && (
+    <section class="home-section" aria-labelledby="recent-label">
+      <p id="recent-label" class="section-label">RECENT · 近作</p>
+      <div class="post-rows">
+        {recentPostRows.map((post) => {
+          const slug = post.data.abbrlink || post.id.replace(/\.(md|mdx)$/, '')
+          const growth = getGrowthStage(post.data)
+          return (
+            <a class="post-row" href={getPostPath(slug, currentLang)} transition:name={postTransitionName(post)} data-disable-theme-toggle-transition>
+              <time class="post-date" datetime={formatDate(post.data.published)}>{formatDate(post.data.published)}</time>
+              <h2>{post.data.title}{growth.stage === 'seed' && <span class="growth-badge">{growth.label}</span>}</h2>
+              <span class="post-minutes">{post.remarkPluginFrontmatter.minutes} 分钟</span>
+            </a>
+          )
+        })}
+      </div>
+      <a class="more-link" href={getLocalizedPath('/archive/', currentLang)}>全部文章 <span>→</span></a>
+    </section>
+  )}
+
+  {homeProjects.length > 0 && (
+    <section class="home-section" aria-labelledby="projects-label">
+      <p id="projects-label" class="section-label">PROJECTS · 造物</p>
+      <div class="project-grid">
+        {homeProjects.map(project => (
+          <a class="project-card" href={project.url} target="_blank" rel="noopener">
+            <h2>{project.name} <span>→</span></h2>
+            <p>{project.desc}</p>
+            <div class="project-tags">{project.tags.map(tag => <span>{tag}</span>)}</div>
+          </a>
+        ))}
+        {homeProjects.length < 2 && (
+          <div class="project-card project-card--empty">
+            <strong>下一个造物,正在酝酿</strong>
+            <small>空着比编的好</small>
+          </div>
+        )}
+      </div>
+      <a class="more-link" href={getLocalizedPath('/projects/', currentLang)}>全部项目 <span>→</span></a>
+    </section>
+  )}
+
+  {homeFriends.length > 0 && (
+    <section class="home-section" aria-labelledby="friends-label">
+      <p id="friends-label" class="section-label">FRIENDS · 友邻</p>
+      <div class="friend-list">
+        {homeFriends.map(friend => (
+          <a class="friend" href={friend.url} target="_blank" rel="noopener">
+            {friend.avatar && <img src={friend.avatar} alt="" width="46" height="46" loading="lazy" data-fallback="/icons/favicon.svg" />}
+            <span class="friend-copy">
+              <strong>{friend.name}</strong>
+              {friend.desc && <span>{friend.desc}</span>}
+            </span>
+            <span class="friend-arrow" aria-hidden="true">→</span>
+          </a>
+        ))}
+      </div>
+      <a class="more-link" href={getLocalizedPath('/friends/', currentLang)}>全部友邻 <span>→</span></a>
+    </section>
+  )}
 </Layout>
+<script>
+  document.querySelectorAll<HTMLImageElement>('.friend img[data-fallback]').forEach((image) => {
+    image.addEventListener('error', () => {
+      image.src = image.dataset.fallback ?? '/icons/favicon.svg'
+    }, { once: true })
+  })
+</script>
+
+
+<style>
+  .hero {
+    padding: 110px 0 90px;
+    position: relative;
+  }
+
+  .hero-meta {
+    align-items: center;
+    color: var(--secondary);
+    display: flex;
+    font-family: var(--mono);
+    font-size: 13px;
+    gap: 14px;
+    letter-spacing: .12em;
+    margin: 0 0 34px;
+  }
+
+  .hero-meta::after {
+    background: var(--hairline);
+    content: "";
+    height: 1px;
+    width: 72px;
+  }
+
+  .hero h1 {
+    font-size: clamp(42px, 6.4vw, 76px);
+    font-weight: 900;
+    letter-spacing: .01em;
+    line-height: 1.28;
+    margin: 0;
+  }
+
+  .hero h1 em {
+    color: var(--accent);
+    font-style: italic;
+    text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent);
+    text-decoration-line: underline;
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 11px;
+  }
+
+  .hero-intro {
+    color: var(--secondary);
+    font-size: 17.5px;
+    margin: 38px 0 0;
+    max-width: 560px;
+  }
+
+  .hero-seal {
+    position: absolute;
+    right: 40px;
+    top: 120px;
+  }
+
+  .home-section {
+    border-top: 1px solid var(--hairline);
+    padding: 64px 0;
+  }
+
+  .section-label {
+    align-items: center;
+    color: var(--accent);
+    display: flex;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    gap: 12px;
+    letter-spacing: .28em;
+    margin: 0 0 40px;
+  }
+
+  .section-label::before {
+    background: var(--accent);
+    content: "";
+    height: 8px;
+    width: 8px;
+  }
+
+  .featured-card {
+    background: var(--paper-card);
+    border: 1px solid var(--hairline);
+    color: var(--ink);
+    display: grid;
+    gap: 40px;
+    grid-template-columns: 1fr auto;
+    padding: 56px 60px;
+    text-decoration: none;
+    transition: box-shadow .25s ease;
+  }
+
+  .featured-card:hover { box-shadow: 0 18px 50px -30px rgba(33, 29, 24, .35); }
+
+  .featured-card h2 {
+    font-size: clamp(28px, 3.4vw, 40px);
+    font-weight: 700;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .featured-excerpt {
+    color: var(--secondary);
+    margin: 18px 0 0;
+    max-width: 480px;
+  }
+
+  .read-link, .more-link {
+    align-items: center;
+    color: var(--accent);
+    display: inline-flex;
+    font-size: 16px;
+    font-weight: 600;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .read-link { margin-top: 34px; }
+  .read-link .arrow { transition: transform .2s ease; }
+  .featured-card:hover .read-link .arrow { transform: translateX(6px); }
+
+  .featured-meta {
+    color: var(--secondary);
+    display: flex;
+    flex-direction: column;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 2.2;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .featured-tag {
+    align-self: end;
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    font-size: 12px;
+    line-height: normal;
+    margin-top: 4px;
+    padding: 2px 10px;
+  }
+
+  .post-rows { border-top: 1px solid var(--hairline); }
+
+  .post-row {
+    align-items: baseline;
+    border-bottom: 1px solid var(--hairline);
+    color: var(--ink);
+    display: grid;
+    gap: 28px;
+    grid-template-columns: 130px 1fr auto;
+    padding: 26px 8px;
+    text-decoration: none;
+    transition: background .2s ease;
+  }
+
+  .post-row:hover { background: color-mix(in srgb, var(--ink) 3%, transparent); }
+
+  .post-date, .post-minutes {
+    color: var(--secondary);
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+
+  .post-row h2 {
+    font-size: 21px;
+    font-weight: 600;
+    line-height: 1.5;
+    margin: 0;
+    transition: color .2s ease;
+  }
+
+  .post-row:hover h2 { color: var(--accent); }
+
+  .growth-badge {
+    border: 1px solid color-mix(in srgb, var(--bamboo) 40%, transparent);
+    border-radius: 999px;
+    color: var(--bamboo);
+    font-family: var(--mono);
+    font-size: 11px;
+    margin-left: 12px;
+    padding: 1px 8px;
+    vertical-align: 3px;
+  }
+
+  .more-link { margin-top: 30px; }
+
+  .project-grid {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .project-card {
+    background: var(--paper-card);
+    border: 1px solid var(--hairline);
+    color: var(--ink);
+    padding: 36px 38px;
+    text-decoration: none;
+  }
+
+  .project-card h2 {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .project-card h2 span, .friend-arrow { color: var(--accent); }
+
+  .project-card p {
+    color: var(--secondary);
+    font-size: 15.5px;
+    margin: 12px 0 0;
+  }
+
+  .project-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 24px;
+  }
+
+  .project-tags span {
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    color: var(--secondary);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    padding: 2px 10px;
+  }
+
+  .project-card--empty {
+    background: transparent;
+    border-style: dashed;
+    color: var(--secondary);
+    display: grid;
+    gap: 8px;
+    min-height: 220px;
+    place-content: center;
+    text-align: center;
+  }
+
+  .project-card--empty strong { color: var(--ink); font-size: 19px; font-weight: 600; }
+  .project-card--empty small { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; }
+
+  .friend-list { border-top: 1px solid var(--hairline); }
+
+  .friend {
+    align-items: center;
+    border-bottom: 1px solid var(--hairline);
+    color: var(--ink);
+    display: flex;
+    gap: 18px;
+    padding: 22px 8px;
+    text-decoration: none;
+  }
+
+  .friend img {
+    border: 1px solid var(--hairline);
+    border-radius: 50%;
+    height: 46px;
+    object-fit: cover;
+    width: 46px;
+  }
+
+  .friend-copy { align-items: baseline; display: flex; gap: 6px; }
+  .friend-copy strong { font-size: 18px; font-weight: 600; }
+  .friend-copy > span { color: var(--secondary); font-size: 14.5px; }
+  .friend-arrow { margin-left: auto; }
+
+  @media (max-width: 720px) {
+    .hero { padding: 72px 0 64px; }
+    .hero-seal { display: none; }
+    .featured-card { grid-template-columns: 1fr; padding: 36px 30px; }
+    .featured-meta { align-items: flex-start; text-align: left; }
+    .featured-tag { align-self: start; }
+    .post-row { gap: 10px 16px; grid-template-columns: 1fr auto; }
+    .post-date { grid-column: 1 / -1; }
+    .project-grid { grid-template-columns: 1fr; }
+    .friend-copy { align-items: flex-start; flex-direction: column; gap: 2px; }
+  }
+</style>

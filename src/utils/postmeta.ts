@@ -1,28 +1,28 @@
 import { execSync } from 'node:child_process'
 
 /**
- * Determine a post's growth stage icon and label based on its publication and update dates.
+ * Determine a post's growth stage based on its publication and update dates.
  *
- * - <30 days since published → 🌱 种子 (Seed — freshly planted)
- * - Updated within 90 days (falls back to published date if no explicit updated date) → 🌿 生长中 (Growing — recently tended)
- * - Otherwise → 🌳 常青 (Evergreen — mature content)
+ * - <30 days since published → 种子 (Seed — freshly planted)
+ * - Updated within 90 days (falls back to published date if no explicit updated date) → 生长中 (Growing — recently tended)
+ * - Otherwise → 常青 (Evergreen — mature content)
  */
-export function getGrowthStage(post: { published: Date, updated?: Date }): { icon: string, label: string } {
+export function getGrowthStage(post: { published: Date, updated?: Date }): { stage: 'seed' | 'growing' | 'evergreen', label: string } {
   const now = Date.now()
   const DAY_MS = 86400_000
 
   const publishedAge = now - post.published.getTime()
   if (publishedAge < 30 * DAY_MS) {
-    return { icon: '🌱', label: '种子' }
+    return { stage: 'seed', label: '种子' }
   }
 
   const lastUpdate = post.updated ?? post.published
   const updateAge = now - lastUpdate.getTime()
   if (updateAge <= 90 * DAY_MS) {
-    return { icon: '🌿', label: '生长中' }
+    return { stage: 'growing', label: '生长中' }
   }
 
-  return { icon: '🌳', label: '常青' }
+  return { stage: 'evergreen', label: '常青' }
 }
 
 /**

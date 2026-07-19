@@ -12,13 +12,10 @@ import Head from '@/layouts/Head.astro'
 import { getPageInfo } from '@/utils/page'
 import '@/styles/comment.css'
 import '@/styles/extension.css'
-import '@/styles/font.css'
 import '@/styles/global.css'
 import '@/styles/lqip.css'
 import '@/styles/markdown.css'
 import '@fontsource-variable/noto-serif-sc/index.css'
-import '@fontsource-variable/jetbrains-mono/index.css'
-import '@fontsource-variable/source-serif-4/index.css'
 import '@/styles/transition.css'
 
 interface Props {
@@ -29,7 +26,7 @@ interface Props {
 }
 
 const { postTitle, postDescription, postSlug, supportedLangs = [] } = Astro.props
-const { isPost } = getPageInfo(Astro.url.pathname)
+const { isHome, isPost } = getPageInfo(Astro.url.pathname)
 const fontStyle = themeConfig.global.fontStyle === 'serif' ? 'font-serif' : 'font-sans'
 const MarginBottom = isPost && themeConfig.comment.enabled
   ? 'mb-10' // Post page with comment
@@ -45,7 +42,7 @@ const MarginBottom = isPost && themeConfig.comment.enabled
 >
   <Head {postTitle} {postDescription} {postSlug} />
   <body>
-    <div class="site-wrap">
+    <div class:list={['site-wrap', isHome && 'site-wrap--wide']}>
       <Header supportedLangs={supportedLangs} />
       <main class={MarginBottom} data-pagefind-body>
         <slot />

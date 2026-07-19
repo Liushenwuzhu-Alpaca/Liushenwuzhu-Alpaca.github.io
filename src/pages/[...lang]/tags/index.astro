@@ -17,8 +17,7 @@ const allTags = await getAllTags(currentLang)
 
 <Layout>
   <section aria-labelledby="tags-title">
-    <p class="label">Tags · 标签</p>
-    <h1 id="tags-title" class="page-title">标签</h1>
+    <h1 id="tags-title" class="label">Tags · 标签</h1>
     <TagList
       tags={allTags}
       lang={currentLang}

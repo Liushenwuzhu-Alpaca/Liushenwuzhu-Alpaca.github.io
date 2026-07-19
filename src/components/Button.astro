@@ -22,16 +22,17 @@ const nextUrl = supportedLangs.length > 0
 <!-- Theme Toggle -->
 <button
   id="theme-toggle-button"
-  class="theme-toggle"
+  class="theme-toggle mode-toggle"
+  type="button"
   aria-label="切换明暗模式"
->暗</button>
+>○ 日光</button>
 
 <!-- Palette Switcher -->
-<button
-  id="palette-button"
-  class="palette-toggle"
-  aria-label="切换配色主题"
->纸</button>
+<div id="palette-segments" class="palette-segments" aria-label="切换纸色">
+  <button class="palette-segment" type="button" data-palette-id="paper">宣</button>
+  <button class="palette-segment" type="button" data-palette-id="silk">绢</button>
+  <button class="palette-segment" type="button" data-palette-id="indigo">黛</button>
+</div>
 
 <!-- Language Switcher -->
 {showLanguageSwitcher && (
@@ -76,6 +77,42 @@ function updateMetaThemeColor() {
   metaThemeColor?.setAttribute('content', isDark ? palette.dark : palette.light)
 }
 
+function syncPaletteSegments() {
+  const current = currentPalette().id
+  document.querySelectorAll<HTMLButtonElement>('[data-palette-id]').forEach((button) => {
+    const active = button.dataset.paletteId === current
+    button.classList.toggle('is-active', active)
+    button.setAttribute('aria-pressed', String(active))
+  })
+}
+
+function renderSecretPalette() {
+  const segments = document.getElementById('palette-segments')
+  if (!segments || !isSecretUnlocked() || segments.querySelector('[data-palette-id="cinnabar"]')) {
+    return
+  }
+
+  const palette = secretPalettes[0]
+  const button = document.createElement('button')
+  button.type = 'button'
+  button.className = 'palette-segment palette-secret'
+  button.dataset.paletteId = palette.id
+  button.textContent = palette.label
+  segments.append(button)
+}
+
+function setPalette(id: string) {
+  const palette = getCyclePalettes().find(item => item.id === id)
+  if (!palette) {
+    return
+  }
+
+  document.documentElement.dataset.palette = palette.id
+  localStorage.setItem('palette', palette.id)
+  updateMetaThemeColor()
+  syncPaletteSegments()
+}
+
 // Apply theme changes
 function applyTheme(isDark: boolean) {
   document.documentElement.classList.toggle('dark', isDark)
@@ -86,7 +123,7 @@ function applyTheme(isDark: boolean) {
 
   const themeButton = document.getElementById('theme-toggle-button')
   if (themeButton) {
-    themeButton.textContent = isDark ? '明' : '暗'
+    themeButton.textContent = isDark ? '◐ 夜色' : '○ 日光'
   }
 }
 
@@ -94,21 +131,6 @@ function applyTheme(isDark: boolean) {
 function toggleTheme() {
   const isDark = !document.documentElement.classList.contains('dark')
   applyTheme(isDark)
-}
-
-// Cycle to the next palette (includes secret palettes when unlocked)
-function cyclePalette() {
-  const all = getCyclePalettes()
-  const index = all.findIndex(p => p.id === currentPalette().id)
-  const next = all[(index + 1) % all.length]
-  document.documentElement.dataset.palette = next.id
-  localStorage.setItem('palette', next.id)
-  updateMetaThemeColor()
-
-  const paletteButton = document.getElementById('palette-button')
-  if (paletteButton) {
-    paletteButton.textContent = next.label
-  }
 }
 
 // Run an update through the View Transitions API when motion is allowed
@@ -133,6 +155,17 @@ function runWithViewTransition(update: () => void) {
   })
 }
 
+function stampSeal() {
+  const seal = document.querySelector<HTMLElement>('[role="img"][aria-label$="字印章"]')
+  if (!seal) {
+    return
+  }
+
+  seal.classList.remove('seal-stamp')
+  void seal.offsetWidth
+  seal.classList.add('seal-stamp')
+}
+
 // Handle theme toggle click events
 function handleThemeToggle(e: MouseEvent) {
   if (!(e.target instanceof Element)) {
@@ -141,9 +174,12 @@ function handleThemeToggle(e: MouseEvent) {
 
   if (e.target.closest('#theme-toggle-button')) {
     runWithViewTransition(toggleTheme)
+    return
   }
-  else if (e.target.closest('#palette-button')) {
-    runWithViewTransition(cyclePalette)
+
+  const paletteButton = e.target.closest<HTMLButtonElement>('[data-palette-id]')
+  if (paletteButton?.dataset.paletteId) {
+    runWithViewTransition(() => setPalette(paletteButton.dataset.paletteId!))
   }
 }
 
@@ -184,13 +220,9 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', han
         if (!isSecretUnlocked()) {
           localStorage.setItem('palette-secret', '1')
           runWithViewTransition(() => {
-            document.documentElement.dataset.palette = secretPalettes[0].id
-            localStorage.setItem('palette', secretPalettes[0].id)
-            updateMetaThemeColor()
-            const paletteButton = document.getElementById('palette-button')
-            if (paletteButton) {
-              paletteButton.textContent = secretPalettes[0].label
-            }
+            renderSecretPalette()
+            setPalette(secretPalettes[0].id)
+            stampSeal()
           })
         }
         index = 0
@@ -202,17 +234,91 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', han
   })
 })()
 
-// Initialize button text
-;(function initThemeButton() {
+// Synchronize controls after the initial render and every Astro page swap.
+function initThemeButton() {
   const themeButton = document.getElementById('theme-toggle-button')
   if (themeButton) {
     const isDark = document.documentElement.classList.contains('dark')
-    themeButton.textContent = isDark ? '明' : '暗'
+    themeButton.textContent = isDark ? '◐ 夜色' : '○ 日光'
   }
 
-  const paletteButton = document.getElementById('palette-button')
-  if (paletteButton) {
-    paletteButton.textContent = currentPalette().label
-  }
-})()
+  renderSecretPalette()
+  syncPaletteSegments()
+}
+
+initThemeButton()
+document.addEventListener('astro:page-load', initThemeButton)
 </script>
+
+<style>
+  .mode-toggle,
+  .palette-segment {
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.2;
+    cursor: pointer;
+  }
+
+  .mode-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    color: var(--secondary);
+    background: transparent;
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    letter-spacing: 0;
+    opacity: 1;
+    transition: color 200ms ease-out, border-color 200ms ease-out;
+  }
+
+  .mode-toggle:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    opacity: 1;
+  }
+
+  .palette-segments {
+    display: inline-flex;
+    overflow: hidden;
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+  }
+
+  .palette-segment {
+    padding: 4px 11px;
+    color: var(--secondary);
+    background: transparent;
+    border: 0;
+    transition: color 200ms ease-out, background-color 200ms ease-out;
+  }
+
+  .palette-segment:hover {
+    color: var(--accent);
+  }
+
+  .palette-segment.is-active {
+    color: var(--paper);
+    background: var(--ink);
+  }
+
+  .palette-secret {
+    animation: palette-reveal 220ms ease-out;
+  }
+
+  :global(.seal-stamp) {
+    animation: seal-stamp 260ms cubic-bezier(0.22, 0.8, 0.35, 1);
+  }
+
+  @keyframes palette-reveal {
+    from { opacity: 0; transform: translateX(-5px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes seal-stamp {
+    0% { transform: rotate(var(--seal-rotate)) scale(1); }
+    45% { transform: rotate(var(--seal-rotate)) scale(0.85) translateY(2px); }
+    100% { transform: rotate(var(--seal-rotate)) scale(1); }
+  }
+</style>

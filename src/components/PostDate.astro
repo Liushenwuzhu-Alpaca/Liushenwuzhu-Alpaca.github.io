@@ -76,11 +76,11 @@ function formatDate(date: Date, format: DateFormat) {
     datetime={updatedDate.toISOString().split('T')[0]}
     class={timeSpacingClass}
   >
-    updated {formatDate(updatedDate, format)}
+    更新于 {formatDate(updatedDate, format)}
   </time>
 )}
 
 <!-- reading time -->
 <span class={timeSpacingClass}>
-  {minutes} min
+  {minutes} 分钟
 </span>

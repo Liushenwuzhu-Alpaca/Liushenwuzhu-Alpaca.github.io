@@ -136,7 +136,7 @@ export const allLocales = [defaultLocale, ...moreLocales]
 // Switchable color palettes. Each palette provides paper/ink/accent/hairline
 // tokens for both light and dark modes in src/styles/global.css.
 export const themePalettes = [
-  { id: 'paper', label: '纸', light: '#F4F4EF', dark: '#1A1C1B' },
+  { id: 'paper', label: '宣', light: '#F7F3E9', dark: '#1C1B17' },
   { id: 'silk', label: '绢', light: '#F4EBDB', dark: '#201913' },
   { id: 'indigo', label: '黛', light: '#EDF0F2', dark: '#131A21' },
 ] as const

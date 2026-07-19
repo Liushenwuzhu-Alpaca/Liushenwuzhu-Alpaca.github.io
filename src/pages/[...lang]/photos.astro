@@ -34,12 +34,12 @@ const isEmpty = photos.length === 0
 
 <Layout>
   <section aria-labelledby="photos-title">
-    <p class="label">Photos · 相册</p>
-    <h1 id="photos-title" class="page-title">相册</h1>
+    <h1 id="photos-title" class="label">Photos · 相册</h1>
     {isEmpty
 ? (
       <div class="empty-state">
-        <p>相册整理中，照片还在冲洗。</p>
+        <p class="empty-state__title">相册正在显影。</p>
+        <p class="empty-state__note">照片还在冲洗，留白也有光。</p>
       </div>
     )
 : (
@@ -71,10 +71,23 @@ const isEmpty = photos.length === 0
 
 <style>
   .empty-state {
-    padding: 32px 0;
-    font-size: 15px;
-    line-height: 1.6;
-    opacity: 0.8;
+    display: grid;
+    min-height: 160px;
+    padding: 28px;
+    border: 1px dashed var(--hairline);
+    place-content: center;
+    text-align: center;
+  }
+  .empty-state__title {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 600;
+  }
+  .empty-state__note {
+    margin: 8px 0 0;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--secondary);
   }
   .gallery {
     display: grid;

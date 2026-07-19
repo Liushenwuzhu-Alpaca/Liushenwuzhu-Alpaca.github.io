@@ -12,7 +12,7 @@ import {
 // theme color declaration.
 const semanticColors: Record<string, { v: string, alpha?: string }> = {
   primary: { v: '--ink' },
-  secondary: { v: '--ink', alpha: '68%' },
+  secondary: { v: '--ink-soft' },
   background: { v: '--paper' },
   highlight: { v: '--accent', alpha: 'var(--hl-alpha)' },
   note: { v: '--note' },

@@ -20,10 +20,38 @@ const { Content } = aboutEntry ? await render(aboutEntry) : { Content: null }
 
 <Layout>
   <section aria-labelledby="about-title">
-    <p class="label">About · 关于</p>
-    <h1 id="about-title" class="page-title">关于</h1>
+    <h1 id="about-title" class="label">About · 关于</h1>
     <div class="heti">
-      {Content && <Content />}
+      {Content
+? <Content />
+: (
+        <div class="empty-state">
+          <p class="empty-state__title">这页还在起笔。</p>
+          <p class="empty-state__note">先从文章里，慢慢认识我。</p>
+        </div>
+      )}
     </div>
   </section>
 </Layout>
+
+<style>
+  .empty-state {
+    display: grid;
+    min-height: 160px;
+    padding: 28px;
+    border: 1px dashed var(--hairline);
+    place-content: center;
+    text-align: center;
+  }
+  .empty-state__title {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 600;
+  }
+  .empty-state__note {
+    margin: 8px 0 0;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--secondary);
+  }
+</style>

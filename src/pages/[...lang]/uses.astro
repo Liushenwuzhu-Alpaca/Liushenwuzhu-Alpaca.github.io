@@ -43,13 +43,14 @@ const data: { category: string, items: { name: string, desc: string }[] }[] = [
     items: [],
   },
 ]
+const populatedGroups = data.filter(group => group.items.length > 0)
 ---
 
 <Layout>
   <section aria-labelledby="uses-title">
-    <p class="label">Uses · 装备</p>
-    <h1 id="uses-title" class="page-title">装备</h1>
-    {data.filter(group => group.items.length > 0).map(group => (
+    <h1 id="uses-title" class="label">Uses · 装备</h1>
+    {populatedGroups.length > 0
+? populatedGroups.map(group => (
       <>
         <p class="group-heading">{group.category}</p>
         <div class="rows">
@@ -61,7 +62,13 @@ const data: { category: string, items: { name: string, desc: string }[] }[] = [
           ))}
         </div>
       </>
-    ))}
+    ))
+: (
+      <div class="empty-state">
+        <p class="empty-state__title">案头尚未添置。</p>
+        <p class="empty-state__note">正在筛选，留下真正常用的器物。</p>
+      </div>
+    )}
   </section>
 </Layout>
 
@@ -89,5 +96,24 @@ const data: { category: string, items: { name: string, desc: string }[] }[] = [
     font-size: 14px;
     opacity: 0.75;
     line-height: 1.5;
+  }
+  .empty-state {
+    display: grid;
+    min-height: 160px;
+    padding: 28px;
+    border: 1px dashed var(--hairline);
+    place-content: center;
+    text-align: center;
+  }
+  .empty-state__title {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 600;
+  }
+  .empty-state__note {
+    margin: 8px 0 0;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--secondary);
   }
 </style>

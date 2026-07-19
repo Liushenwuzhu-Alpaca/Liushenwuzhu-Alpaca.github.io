@@ -28,8 +28,7 @@ const postsByYear = await getPostsByYear(currentLang)
 
 <Layout>
   <section aria-labelledby="archive-title">
-    <p class="label">Archive · 归档</p>
-    <h1 id="archive-title" class="page-title">归档</h1>
+    <h1 id="archive-title" class="label">Archive · 归档</h1>
     {Array.from(postsByYear.entries(), ([year, posts]) => (
       <section class="home-section" aria-labelledby={`year-${year}`}>
         <h3 id={`year-${year}`} class="year-title">{year}</h3>

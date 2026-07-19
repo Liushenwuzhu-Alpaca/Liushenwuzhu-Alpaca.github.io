@@ -30,8 +30,7 @@ const supportedLangs = await getTagSupportedLangs(tag)
 
 <Layout supportedLangs={supportedLangs}>
   <section aria-labelledby="tag-post-title">
-    <p class="label">Tag · 标签</p>
-    <h1 id="tag-post-title" class="page-title">{tag}</h1>
+    <h1 id="tag-post-title" class="label">{tag}</h1>
     <TagList
       tags={allTags}
       currentTag={tag}

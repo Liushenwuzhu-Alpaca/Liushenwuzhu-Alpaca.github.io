@@ -4,12 +4,17 @@
 
 /* Design Tokens >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
 :root {
-  --serif: "Source Serif 4 Variable", "Noto Serif SC Variable", "Songti SC", serif;
-  --mono: "JetBrains Mono Variable", "JetBrains Mono", "SF Mono", ui-monospace, monospace;
-  /* Secondary text: solid mix instead of opacity so contrast stays ~4.8:1. */
-  --secondary: color-mix(in srgb, var(--ink) 65%, var(--paper));
+  --serif: "Noto Serif SC Variable", "Songti SC", "STSong", serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  /* Secondary text: alias of per-palette solid ink-soft, contrast ≥ 4.8:1. */
+  --secondary: var(--ink-soft);
 
-  /* Admonition colors, mirrored from uno.config.ts theme.colors */
+  /* Identity anchors: constant across palettes — 印泥不换,纸换 (SPEC §1.2) */
+  --seal: #A03A2A;
+  --bamboo: #5F7050;
+
+  /* Admonition colors, mirrored from uno.config.ts theme.colors.
+     Semantic-color exemption registered in SPEC §0 — do not replace with accent. */
   --note: oklch(48.8% 0.243 264.376 / 0.8);
   --tip: oklch(50.8% 0.118 165.612 / 0.8);
   --important: oklch(49.6% 0.265 301.924 / 0.8);
@@ -17,38 +22,57 @@
   --caution: oklch(50.5% 0.213 27.518 / 0.8);
 }
 
-/* Palette: 纸 Paper (default) — warm gray paper, pine-soot green accent */
+/* Palette: 宣 Xuan (default) — rice-paper warm white, cinnabar accent */
 :root,
 :root[data-palette="paper"] {
-  --paper: #F4F4EF;
-  --ink: #1B1E1C;
-  --accent: #3F6B58;
-  --hairline: rgba(27, 30, 28, 0.12);
+  --paper: #F7F3E9;
+  --paper-card: #FCF9F2;
+  --ink: #211D18;
+  --ink-soft: #6E665B;
+  --hairline: rgba(33, 29, 24, 0.14);
+  --accent: #A03A2A;
+  --accent-deep: #8A2F21;
   --hl-alpha: 22%;
 }
 
 /* Palette: 绢 Silk — warm sepia silk, ochre accent */
 :root[data-palette="silk"] {
   --paper: #F4EBDB;
-  --ink: #2A2118;
-  --accent: #8C4A2B;
-  --hairline: rgba(42, 33, 24, 0.12);
+  --paper-card: #FAF6EF;
+  --ink: #211D18;
+  --ink-soft: #69635A;
+  --hairline: rgba(33, 29, 24, 0.14);
+  --accent: #8A4A2B;
+  --accent-deep: #794126;
+  --hl-alpha: 22%;
 }
 
-/* Palette: 黛 Indigo — cool blue-gray, indigo accent */
+/* Palette: 黛 Indigo — moonlit white, mineral blue accent */
 :root[data-palette="indigo"] {
   --paper: #EDF0F2;
-  --ink: #18222B;
-  --accent: #2E5573;
-  --hairline: rgba(24, 34, 43, 0.12);
+  --paper-card: #F7F8F9;
+  --ink: #1B2430;
+  --ink-soft: #606770;
+  --hairline: rgba(27, 36, 48, 0.14);
+  --accent: #245485;
+  --accent-deep: #204A75;
+  --hl-alpha: 22%;
+}
+
+html.dark {
+  --seal: #D4634E;
+  --bamboo: #7A8B6A;
 }
 
 html.dark,
 html.dark[data-palette="paper"] {
-  --paper: #1A1C1B;
-  --ink: #E5E4DB;
-  --accent: #82A898;
-  --hairline: rgba(229, 228, 219, 0.2);
+  --paper: #1C1B17;
+  --paper-card: #26241F;
+  --ink: #E9E1D3;
+  --ink-soft: #9A9081;
+  --hairline: rgba(233, 225, 211, 0.12);
+  --accent: #D4634E;
+  --accent-deep: #DE7562;
   --hl-alpha: 26%;
 
   /* Admonition colors, mirrored from uno.config.ts presetTheme dark */
@@ -61,31 +85,47 @@ html.dark[data-palette="paper"] {
 
 html.dark[data-palette="silk"] {
   --paper: #201913;
-  --ink: #E9DCC6;
-  --accent: #CD9060;
-  --hairline: rgba(233, 220, 198, 0.2);
+  --paper-card: #2D2721;
+  --ink: #E9E1D3;
+  --ink-soft: #91897F;
+  --hairline: rgba(233, 225, 211, 0.12);
+  --accent: #C9A25F;
+  --accent-deep: #CDA96C;
+  --hl-alpha: 26%;
 }
 
 html.dark[data-palette="indigo"] {
   --paper: #131A21;
-  --ink: #DCE3E9;
-  --accent: #82A6C4;
-  --hairline: rgba(220, 227, 233, 0.2);
+  --paper-card: #21282E;
+  --ink: #DCE6EE;
+  --ink-soft: #828A92;
+  --hairline: rgba(220, 230, 238, 0.12);
+  --accent: #83AECF;
+  --accent-deep: #8DB4D3;
+  --hl-alpha: 26%;
 }
 
-/* Palette: 砂 Cinnabar — warm clay, vermilion accent */
+/* Palette: 砂 Cinnabar — vermilion paper, deep cinnabar accent (Konami hidden) */
 :root[data-palette="cinnabar"] {
   --paper: #F5E8E0;
-  --ink: #2B1B16;
-  --accent: #B13B2E;
-  --hairline: rgba(43, 27, 22, 0.12);
+  --paper-card: #FAF5F1;
+  --ink: #241C18;
+  --ink-soft: #6B615C;
+  --hairline: rgba(36, 28, 24, 0.14);
+  --accent: #8A2F21;
+  --accent-deep: #79291D;
+  --hl-alpha: 22%;
 }
 
 html.dark[data-palette="cinnabar"] {
   --paper: #1F1310;
-  --ink: #E8D5CC;
-  --accent: #D96A55;
-  --hairline: rgba(232, 213, 204, 0.2);
+  --paper-card: #2C211E;
+  --ink: #EBDFD4;
+  --ink-soft: #91857E;
+  --hairline: rgba(235, 223, 212, 0.12);
+  --accent: #D06A55;
+  --accent-deep: #D47663;
+  --hl-alpha: 26%;
 }
 
 /* Base >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
@@ -105,11 +145,20 @@ body {
   color: var(--ink);
   font-family: var(--serif);
   font-size: 17.5px;
-  line-height: 1.8;
+  line-height: 1.9;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Paper-grain noise: barely visible, never intercepts events (SPEC §1.1) */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.045 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 ::selection {
@@ -129,12 +178,22 @@ body {
 
 /* Shared Layout Primitives >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
 .site-wrap {
-  max-width: 660px;
+  max-width: 720px;
   margin: 0 auto;
   padding: 0 24px;
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
+}
+/* Homepage: portal-style wide measure (SPEC §3.1). */
+.site-wrap--wide {
+  max-width: 1080px;
+  padding: 0 40px;
+}
+@media (max-width: 760px) {
+  .site-wrap--wide {
+    padding: 0 22px;
+  }
 }
 /* Push the footer to the viewport bottom on short pages. */
 .site-wrap > main {
@@ -197,41 +256,28 @@ body {
   color: var(--accent);
 }
 
-.hero {
-  padding: 84px 0 68px;
-}
-.hero h1 {
-  font-size: clamp(30px, 6vw, 44px);
-  line-height: 1.3;
-  font-weight: 600;
-}
-.hero h1 em {
-  font-style: italic;
-  color: var(--accent);
-}
-.hero p {
-  margin-top: 26px;
-  opacity: 0.72;
-  max-width: 33em;
-}
-
+/* Homepage hero styles are scoped in index.astro. */
 .home-section {
   padding: 52px 0;
   border-top: 1px solid var(--hairline);
 }
 .label {
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+  align-items: center;
   color: var(--accent);
-  margin-bottom: 10px;
+  display: flex;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 400;
+  gap: 12px;
+  letter-spacing: 0.28em;
+  margin: 0 0 40px;
+  text-transform: uppercase;
 }
-.page-title {
-  font-size: 26px;
-  font-weight: 600;
-  line-height: 1.4;
-  margin-bottom: 22px;
+.label::before {
+  background: var(--accent);
+  content: "";
+  height: 8px;
+  width: 8px;
 }
 
 /* List rows: divided by hairlines and whitespace, never cards. */

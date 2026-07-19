@@ -1,5 +1,6 @@
 ---
 import { allLocales } from '@/config'
+import { projects as fallbackProjects } from '@/data/projects'
 import { getLangRouteParam } from '@/i18n/lang'
 import Layout from '@/layouts/Layout.astro'
 import { getPublicRepos } from '@/utils/github'
@@ -10,15 +11,6 @@ export async function getStaticPaths() {
   }))
 }
 
-// Build-time GitHub sync; falls back to the static list when offline or rate-limited.
-const fallbackProjects = [
-  {
-    name: '个人博客',
-    description: '用 Astro 构建的静态个人站点，记录学习、项目与生活。',
-    url: 'https://github.com/Liushenwuzhu-Alpaca/Liushenwuzhu-Alpaca.github.io',
-    stars: null as number | null,
-  },
-]
 
 const repos = await getPublicRepos('Liushenwuzhu-Alpaca')
 const projects = repos
@@ -28,7 +20,12 @@ const projects = repos
       url: repo.url,
       stars: repo.stars,
     }))
-  : fallbackProjects
+  : fallbackProjects.map(project => ({
+      name: project.name,
+      description: project.desc,
+      url: project.url,
+      stars: null as number | null,
+    }))
 
 /*
  * Repos you collaborate on but do not own. GitHub's public API only lists
@@ -41,8 +38,7 @@ const collaborations: { name: string, description: string, url: string, role?: s
 
 <Layout>
   <section aria-labelledby="projects-title">
-    <p class="label">Projects · 造物</p>
-    <h1 id="projects-title" class="page-title">项目</h1>
+    <h1 id="projects-title" class="label">Projects · 造物</h1>
     <div class="rows">
       {projects.map(project => (
         <a class="row" href={project.url} target="_blank" rel="noopener">

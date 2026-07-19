@@ -1,5 +1,6 @@
 ---
 import { allLocales } from '@/config'
+import { friends } from '@/data/friends'
 import { getLangRouteParam } from '@/i18n/lang'
 import Layout from '@/layouts/Layout.astro'
 
@@ -9,29 +10,11 @@ export async function getStaticPaths() {
   }))
 }
 
-/*
- * 添加友链格式：
- * {
- *   name: '站点名称',
- *   url: 'https://example.com',
- *   desc: '站点描述（可选，留空则不显示）',
- *   avatar: 'https://example.com/avatar.png（可选，留空则不显示头像）',
- * }
- */
-const friends: { name: string, url: string, desc?: string, avatar?: string }[] = [
-  {
-    name: 'Mirawind\'s Blog',
-    url: 'https://mirawind.top/',
-    desc: '相寻梦里路，飞雨落花中',
-    avatar: 'https://avatars.githubusercontent.com/u/53815918?v=4',
-  },
-]
 ---
 
 <Layout>
   <section aria-labelledby="friends-title">
-    <p class="label">Links · 友邻</p>
-    <h1 id="friends-title" class="page-title">友链</h1>
+    <h1 id="friends-title" class="label">Links · 友邻</h1>
     <div class="rows">
       {friends.length > 0
 ? (
