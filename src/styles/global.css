@@ -105,26 +105,26 @@ html.dark[data-palette="indigo"] {
   --hl-alpha: 26%;
 }
 
-/* Palette: 砂 Cinnabar — vermilion paper, deep cinnabar accent (Konami hidden) */
-:root[data-palette="cinnabar"] {
-  --paper: #F5E8E0;
-  --paper-card: #FAF5F1;
-  --ink: #241C18;
-  --ink-soft: #6B615C;
-  --hairline: rgba(36, 28, 24, 0.14);
-  --accent: #8A2F21;
-  --accent-deep: #79291D;
+/* Palette: 檀 Violet — sandalwood-violet paper, purple accent (Konami hidden) */
+:root[data-palette="violet"] {
+  --paper: #F4F0F5;
+  --paper-card: #FAF8FB;
+  --ink: #251E2C;
+  --ink-soft: #6B6570;
+  --hairline: rgba(37, 30, 44, 0.14);
+  --accent: #6E3A8C;
+  --accent-deep: #61337B;
   --hl-alpha: 22%;
 }
 
-html.dark[data-palette="cinnabar"] {
-  --paper: #1F1310;
-  --paper-card: #2C211E;
-  --ink: #EBDFD4;
-  --ink-soft: #91857E;
-  --hairline: rgba(235, 223, 212, 0.12);
-  --accent: #D06A55;
-  --accent-deep: #D47663;
+html.dark[data-palette="violet"] {
+  --paper: #1D1723;
+  --paper-card: #282130;
+  --ink: #E8E1EC;
+  --ink-soft: #938C98;
+  --hairline: rgba(232, 225, 236, 0.12);
+  --accent: #C99BDB;
+  --accent-deep: #CDA3DE;
   --hl-alpha: 26%;
 }
 

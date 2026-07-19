@@ -1,5 +1,6 @@
 ---
 import type { Language } from '@/i18n/config'
+import { getPostPath } from '@/i18n/path'
 import { getSeriesPosts } from '@/utils/content'
 
 interface Props {
@@ -32,7 +33,7 @@ const { posts } = result
         )
       }
       return (
-        <a class="row" href={`/${lang ? `${lang}/` : ''}posts/${slug}`}>
+        <a class="row" href={getPostPath(slug, lang)}>
           <span class="date"><span class="index">{index}.</span></span>
           <h3><span class="u">{post.data.title}</span></h3>
         </a>

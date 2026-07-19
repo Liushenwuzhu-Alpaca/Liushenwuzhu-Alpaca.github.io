@@ -1,24 +1,27 @@
 ---
+import type { Language } from '@/i18n/config'
 import type { Post } from '@/types'
+import { defaultLocale } from '@/config'
+import { getPostPath } from '@/i18n/path'
 
 interface Props {
   prev: Post | null
   next: Post | null
-  lang?: string
+  lang?: Language
 }
 
-const { prev, next, lang } = Astro.props
+const { prev, next, lang = defaultLocale } = Astro.props
 ---
 
 <div class="rows">
   {prev && (
-    <a class="row" href={`/${lang ? `${lang}/` : ''}posts/${prev.data.abbrlink || prev.id.replace(/\.(md|mdx)$/, '')}`}>
+    <a class="row" href={getPostPath(prev.data.abbrlink || prev.id.replace(/\.(md|mdx)$/, ''), lang)}>
       <span class="post-nav-label">← 上一篇</span>
       <h3><span class="u">{prev.data.title}</span></h3>
     </a>
   )}
   {next && (
-    <a class="row" href={`/${lang ? `${lang}/` : ''}posts/${next.data.abbrlink || next.id.replace(/\.(md|mdx)$/, '')}`}>
+    <a class="row" href={getPostPath(next.data.abbrlink || next.id.replace(/\.(md|mdx)$/, ''), lang)}>
       <span class="post-nav-label">→ 下一篇</span>
       <h3><span class="u">{next.data.title}</span></h3>
     </a>

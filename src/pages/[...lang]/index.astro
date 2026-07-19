@@ -2,12 +2,13 @@
 import Seal from '@/components/Seal.astro'
 import { allLocales } from '@/config'
 import { friends } from '@/data/friends'
-import { projects } from '@/data/projects'
+import { projects as fallbackProjects } from '@/data/projects'
 import { getLangFromLocale, getLangRouteParam } from '@/i18n/lang'
 import { getLocalizedPath, getPostPath } from '@/i18n/path'
 import Layout from '@/layouts/Layout.astro'
 import { getPinnedPosts, getRegularPosts } from '@/utils/content'
 import { getPostDescription } from '@/utils/description'
+import { getPinnedRepos } from '@/utils/github'
 import { getGrowthStage } from '@/utils/postmeta'
 import { getSolarTerm } from '@/utils/solarterm'
 import { getWritingStats } from '@/utils/stats'
@@ -27,7 +28,17 @@ const [pinnedPosts, recentPosts, writingStats] = await Promise.all([
 const allPostCount = pinnedPosts.length + recentPosts.length
 const featuredPost = allPostCount >= 3 ? pinnedPosts[0] : undefined
 const recentPostRows = recentPosts.slice(0, 5)
-const homeProjects = projects.slice(0, 4)
+// Sync with the GitHub profile's pinned repos at build time; fall back to
+// the hand-maintained list in src/data/projects.ts when the fetch fails.
+const pinnedRepos = await getPinnedRepos('Liushenwuzhu-Alpaca')
+const homeProjects = (pinnedRepos
+  ? pinnedRepos.map(repo => ({
+      name: repo.name,
+      url: repo.url,
+      desc: repo.description ?? '暂无描述',
+      tags: repo.language ? [repo.language] : [],
+    }))
+  : fallbackProjects).slice(0, 4)
 const homeFriends = friends.slice(0, 3)
 const today = new Date()
 const solarTerm = getSolarTerm(today)
@@ -45,7 +56,7 @@ function postTransitionName(post: typeof recentPostRows[number]) {
     <p class="hero-meta">{heroMeta}</p>
     <h1 id="home-title">写技术学习,<br />也写<em>缓慢的思考</em>。</h1>
     <p class="hero-intro">你好，我是 Liushenwuzhu-Alpaca，一名网络空间安全专业学生。在这里整理技术学习笔记，也保留学业与生活中的片段。</p>
-    <div class="hero-seal" aria-hidden="true"><Seal char="羊驼" size={64} rotate={3} vertical /></div>
+    <div class="hero-seal" aria-hidden="true"><Seal char="向" size={64} rotate={3} /></div>
   </section>
 
   {featuredPost && (() => {

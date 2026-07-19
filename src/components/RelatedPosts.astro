@@ -1,14 +1,17 @@
 ---
+import type { Language } from '@/i18n/config'
 import type { Post } from '@/types'
 import PostDate from '@/components/PostDate.astro'
+import { defaultLocale } from '@/config'
+import { getPostPath } from '@/i18n/path'
 import { getPostDescription } from '@/utils/description'
 
 interface Props {
   posts: Post[]
-  lang?: string
+  lang?: Language
 }
 
-const { posts, lang } = Astro.props
+const { posts, lang = defaultLocale } = Astro.props
 ---
 
 {posts.length > 0 && (
@@ -19,7 +22,7 @@ const { posts, lang } = Astro.props
         const slug = post.data.abbrlink || post.id.replace(/\.(md|mdx)$/, '')
         const desc = getPostDescription(post, 'list')
         return (
-          <a class="row" href={`/${lang ? `${lang}/` : ''}posts/${slug}`}>
+          <a class="row" href={getPostPath(slug, lang)}>
             <span class="date"><PostDate date={post.data.published} minutes={post.remarkPluginFrontmatter.minutes} /></span>
             <h3><span class="u">{post.data.title}</span></h3>
             {desc && <p>{desc}</p>}

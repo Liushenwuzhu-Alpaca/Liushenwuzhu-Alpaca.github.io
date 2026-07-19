@@ -143,5 +143,5 @@ export const themePalettes = [
 
 // Hidden switchable color palettes. Unlocked via Konami code (↑↑↓↓←→←→BA).
 export const secretPalettes = [
-  { id: 'cinnabar', label: '砂', light: '#F5E8E0', dark: '#1F1310' },
+  { id: 'violet', label: '檀', light: '#F4F0F5', dark: '#1D1723' },
 ] as const

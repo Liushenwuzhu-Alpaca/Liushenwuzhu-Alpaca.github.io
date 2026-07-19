@@ -99,6 +99,10 @@ const pageImage = postSlug
   }}
 >
 (function () {
+  // Migrate the retired 'cinnabar' secret palette id to its violet successor.
+  if (localStorage.getItem('palette') === 'cinnabar') {
+    localStorage.setItem('palette', 'violet')
+  }
   // Check if current theme is dark
   // Priority: localStorage theme > default theme > system preference
   function isCurrentDark() {
@@ -115,7 +119,7 @@ const pageImage = postSlug
     return window.matchMedia('(prefers-color-scheme: dark)').matches
   }
   // Secret palettes require the Konami unlock — same filter as Button.astro's
-  // getCyclePalettes(). Without it a saved `palette=cinnabar` would leak the
+  // getCyclePalettes(). Without it a saved `palette=violet` would leak the
   // hidden theme to users who never unlocked it (SPEC §5).
   function visiblePalettes() {
     return localStorage.getItem('palette-secret') === '1'

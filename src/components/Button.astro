@@ -86,16 +86,18 @@ function syncPaletteSegments() {
   })
 }
 
-function renderSecretPalette() {
+function renderSecretPalette(animate = false) {
   const segments = document.getElementById('palette-segments')
-  if (!segments || !isSecretUnlocked() || segments.querySelector('[data-palette-id="cinnabar"]')) {
+  const palette = secretPalettes[0]
+  if (!segments || !isSecretUnlocked() || segments.querySelector(`[data-palette-id="${palette.id}"]`)) {
     return
   }
 
-  const palette = secretPalettes[0]
+  // `palette-secret` only carries the one-shot unlock animation; on later
+  // page loads the segment renders as a plain sibling (no replay flicker).
   const button = document.createElement('button')
   button.type = 'button'
-  button.className = 'palette-segment palette-secret'
+  button.className = animate ? 'palette-segment palette-secret' : 'palette-segment'
   button.dataset.paletteId = palette.id
   button.textContent = palette.label
   segments.append(button)
@@ -220,7 +222,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', han
         if (!isSecretUnlocked()) {
           localStorage.setItem('palette-secret', '1')
           runWithViewTransition(() => {
-            renderSecretPalette()
+            renderSecretPalette(true)
             setPalette(secretPalettes[0].id)
             stampSeal()
           })
