@@ -252,7 +252,8 @@ initThemeButton()
 document.addEventListener('astro:page-load', initThemeButton)
 </script>
 
-<style>
+<!-- Global: the 檀 secret segment is appended by JS and lacks Astro's scoped-style attribute. -->
+<style is:global>
   .mode-toggle,
   .palette-segment {
     font-family: var(--mono);
