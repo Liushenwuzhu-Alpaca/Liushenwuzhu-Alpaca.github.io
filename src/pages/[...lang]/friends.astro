@@ -1,8 +1,18 @@
 ---
-import { allLocales } from '@/config'
+import { allLocales, themeConfig } from '@/config'
 import { friends } from '@/data/friends'
 import { getLangRouteParam } from '@/i18n/lang'
 import Layout from '@/layouts/Layout.astro'
+
+const { title, description, url } = themeConfig.site
+// Site info for friend-link exchange; keep keys aligned with the Friend interface
+const siteInfo = {
+  name: title,
+  url,
+  avatar: `${url}/avatar.jpg`,
+  desc: description,
+}
+const siteInfoJson = JSON.stringify(siteInfo, null, 2)
 
 export async function getStaticPaths() {
   return allLocales.map(lang => ({
@@ -50,9 +60,111 @@ export async function getStaticPaths() {
       )}
     </div>
   </section>
+
+  <section aria-labelledby="site-info-title" class="site-info">
+    <h2 id="site-info-title" class="label">Site Info · 本站信息</h2>
+    <div class="info-card">
+      <img class="info-avatar" src="/avatar.jpg" alt="Liushenwuzhu-Alpaca 的头像" width="56" height="56" />
+      <dl class="info-list">
+        <div class="info-item">
+          <dt>名称</dt>
+          <dd>{siteInfo.name}</dd>
+        </div>
+        <div class="info-item">
+          <dt>描述</dt>
+          <dd>{siteInfo.desc}</dd>
+        </div>
+        <div class="info-item">
+          <dt>地址</dt>
+          <dd class="mono">{siteInfo.url}</dd>
+        </div>
+        <div class="info-item">
+          <dt>头像</dt>
+          <dd class="mono">{siteInfo.avatar}</dd>
+        </div>
+      </dl>
+      <button
+        type="button"
+        class="copy-btn"
+        data-info={siteInfoJson}
+        onclick="const b=this;navigator.clipboard.writeText(b.dataset.info).then(()=>b.textContent='已复制',()=>b.textContent='复制失败');setTimeout(()=>{b.textContent='复制'},1200)"
+      >
+        复制
+      </button>
+    </div>
+    <p class="info-note">欢迎交换友链，点「复制」可得 JSON 格式的本站信息。</p>
+  </section>
 </Layout>
 
 <style>
+  .site-info {
+    margin-top: 44px;
+  }
+  .info-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 20px 22px;
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    background: var(--paper-card);
+  }
+  .info-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex: none;
+  }
+  .info-list {
+    margin: 0;
+    flex: 1;
+  }
+  .info-item {
+    display: flex;
+    gap: 14px;
+    padding: 3px 0;
+  }
+  .info-item dt {
+    flex: none;
+    width: 2.2em;
+    color: var(--ink-soft);
+  }
+  .info-item dd {
+    margin: 0;
+    word-break: break-all;
+  }
+  .info-item .mono {
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  .copy-btn {
+    flex: none;
+    padding: 4px 14px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--secondary);
+    background: transparent;
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: color 200ms ease-out, border-color 200ms ease-out;
+  }
+  .copy-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .info-note {
+    margin: 10px 2px 0;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  @media (max-width: 640px) {
+    .info-card {
+      flex-wrap: wrap;
+    }
+  }
+
   .friend-row {
     padding: 18px 2px;
   }

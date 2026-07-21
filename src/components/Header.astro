@@ -1,7 +1,6 @@
 ---
 import type { Language } from '@/i18n/config'
 import Button from '@/components/Button.astro'
-import Seal from '@/components/Seal.astro'
 import { getPageInfo } from '@/utils/page'
 
 interface Props {
@@ -29,7 +28,7 @@ const navItems = [
 
 <header class="site-header">
   <a class="site-name" href={getLocalizedPath('/')}>
-    <Seal size={34} />
+    <img class="site-avatar" src="/avatar.jpg" alt="" width="34" height="34" />
     <span>Liushenwuzhu-Alpaca</span>
   </a>
   <nav class="site-nav" aria-label="站点导航">
@@ -52,6 +51,14 @@ const navItems = [
     align-items: baseline;
     gap: 24px;
     padding: 28px 0 20px;
+  }
+
+  .site-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    transform: rotate(-2deg);
+    flex: none;
   }
 
   .site-name {

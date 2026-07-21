@@ -2,10 +2,26 @@
    Paper & Ink — design tokens, base elements, shared layout
    ============================================================ */
 
+/* Maple Mono NF CN: self-hosted monospace for code, labels and seals */
+@font-face {
+  font-family: "Maple Mono NF CN";
+  src: url("/fonts/MapleMono-NF-CN-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Maple Mono NF CN";
+  src: url("/fonts/MapleMono-NF-CN-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Design Tokens >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
 :root {
   --serif: "Noto Serif SC Variable", "Songti SC", "STSong", serif;
-  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  --mono: "Maple Mono NF CN", ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
   /* Secondary text: alias of per-palette solid ink-soft, contrast ≥ 4.8:1. */
   --secondary: var(--ink-soft);
 
