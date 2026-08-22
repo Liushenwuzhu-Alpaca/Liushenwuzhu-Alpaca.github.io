@@ -1,4 +1,5 @@
 ---
+import HymmnosChant from '@/components/HymmnosChant.astro'
 import Seal from '@/components/Seal.astro'
 import { allLocales } from '@/config'
 import { friends } from '@/data/friends'
@@ -54,6 +55,11 @@ function postTransitionName(post: typeof recentPostRows[number]) {
 <Layout>
   <section class="hero" aria-labelledby="home-title">
     <p class="hero-meta">{heroMeta}</p>
+    <HymmnosChant
+      variant="epigraph"
+      hm="Wee yea ra quel pomb manaf dorn anw ieeya, ware gauzewiga pauwel en hymme"
+      zh="在这众人都将真正的诗所遗忘的时代，带来希望的小小嫩芽，将诞生于世"
+    />
     <h1 id="home-title">写技术学习,<br />也写<em>缓慢的思考</em>。</h1>
     <p class="hero-intro">你好，我是 Liushenwuzhu-Alpaca，一名网络空间安全专业学生。在这里整理技术学习笔记，也保留学业与生活中的片段。</p>
     <div class="hero-seal" aria-hidden="true"><Seal char="向" size={64} rotate={3} /></div>

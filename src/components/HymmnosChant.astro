@@ -4,14 +4,17 @@ interface Props {
   hm: string
   /** Chinese translation — rendered into aria-label only, never displayed. */
   zh: string
+  /** 'label' (default) tucks into the whitespace under a .label heading;
+     'epigraph' stands alone as an opening line (e.g. the homepage hero). */
+  variant?: 'label' | 'epigraph'
 }
 
-const { hm, zh } = Astro.props
+const { hm, zh, variant = 'label' } = Astro.props
 ---
 
-<!-- Untranslated Hymmnos chant tucked under a page label; the translation
-     lives in aria-label only (easter-egg philosophy: discovery threshold). -->
-<p class="page-chant" aria-label={zh}>{hm}</p>
+<!-- Untranslated Hymmnos chant; the translation lives in aria-label only
+     (easter-egg philosophy: discovery threshold). -->
+<p class:list={['page-chant', { 'page-chant--epigraph': variant === 'epigraph' }]} aria-label={zh}>{hm}</p>
 
 <style>
   .page-chant {
@@ -21,5 +24,11 @@ const { hm, zh } = Astro.props
     font-size: 13px;
     letter-spacing: 0.06em;
     color: var(--secondary);
+  }
+
+  .page-chant--epigraph {
+    margin: 0 0 22px;
+    font-size: 14px;
+    letter-spacing: 0.08em;
   }
 </style>
