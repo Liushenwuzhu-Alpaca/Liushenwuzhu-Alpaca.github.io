@@ -26,6 +26,7 @@ const posts = defineCollection({
       { message: 'Abbrlink can only contain lowercase letters, numbers and hyphens' },
     ),
     series: z.string().optional().default(''),
+    hymmnos: z.string().optional(),
   }),
 })
 

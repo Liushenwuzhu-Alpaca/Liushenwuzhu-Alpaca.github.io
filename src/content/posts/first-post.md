@@ -3,6 +3,7 @@ title: 博客开张了
 published: 2026-07-17
 description: 用 Astro 与 Retypeset 搭建个人博客的第一篇记录。
 tags: [随笔, 博客]
+hymmnos: EXEC_INITIO/.
 draft: false
 pin: 1
 toc: true
