@@ -4,6 +4,7 @@ published: 2026-07-18
 description: 从一份设计稿到上线的全过程,以及多智能体并行开发里的真实经验——包括翻车的部分。
 tags: [博客, AI, 随笔]
 series: 博客搭建
+hymmnos: METHOD_AUTOSCRIBE/.
 toc: true
 draft: false
 lang: ''

@@ -109,6 +109,9 @@ const revisionCount = getRevisionCount(contentPath)
           {post.data.title}
         </span>
       </h1>
+      {post.data.hymmnos && (
+        <p class="post-chant" aria-hidden="true">{post.data.hymmnos}</p>
+      )}
 
       <div
         id="post-date"
@@ -175,6 +178,15 @@ const revisionCount = getRevisionCount(contentPath)
 
     .post-back:hover {
       color: var(--accent);
+    }
+
+    /* Hymmnos chant name (EXEC_/METHOD_ naming) under the post title. */
+    .post-chant {
+      margin: 0 0 14px;
+      font-family: "Hymmnos", var(--serif);
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      color: var(--secondary);
     }
 
     .growth-stage {
