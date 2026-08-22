@@ -2,6 +2,7 @@
 import RandomPost from '@/components/RandomPost.astro'
 import Seal from '@/components/Seal.astro'
 import { themeConfig } from '@/config'
+import { hymmnosMottos } from '@/data/hymmnos'
 import { getLangFromPath } from '@/i18n/lang'
 import { getLocalizedPath } from '@/i18n/path'
 import { getPosts } from '@/utils/content'
@@ -75,10 +76,54 @@ const socialLinks = links.map(({ name, url }) => {
     </nav>
     <p class="footer-credit">© {year} {author} · Powered by Astro</p>
     {lastUpdated && <p class="footer-note">{lastUpdated}</p>}
-    <p class="footer-motto" aria-label="我很高兴能将自己化为诗歌">Was yea ra chs hymmnos mea</p>
+    <p
+      class="footer-motto"
+      data-mottos={JSON.stringify(hymmnosMottos)}
+      aria-label="我很高兴能将自己化为诗歌"
+    >
+      <span class="motto-text">Was yea ra chs hymmnos mea</span>
+    </p>
   </div>
   <Seal size={52} rotate={-2} />
 </footer>
+
+<!-- Hymmnos motto rotation: pick the day's sentence by client date + season.
+     data-astro-rerun re-executes after ClientRouter soft navigations. -->
+<script is:inline data-astro-rerun>
+(function () {
+  const motto = document.querySelector('.footer-motto')
+  if (!motto?.dataset.mottos)
+    return
+
+  let pool
+  try {
+    pool = JSON.parse(motto.dataset.mottos)
+  }
+  catch {
+    return
+  }
+  if (!Array.isArray(pool) || pool.length === 0)
+    return
+
+  // Seasonal pool: months 3-5 spring, 6-8 summer, 9-11 autumn, 12-2 winter.
+  const month = new Date().getMonth() + 1
+  const season = month <= 2 || month === 12
+    ? 'winter'
+    : month <= 5 ? 'spring' : month <= 8 ? 'summer' : 'autumn'
+  const candidates = pool.filter(m => !m.season || m.season === season)
+  if (candidates.length === 0)
+    return
+
+  const now = new Date()
+  const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000)
+  const picked = candidates[dayOfYear % candidates.length]
+
+  const text = motto.querySelector('.motto-text')
+  if (text)
+    text.textContent = picked.hm
+  motto.setAttribute('aria-label', picked.zh)
+})()
+</script>
 
 <style>
   .site-footer {
