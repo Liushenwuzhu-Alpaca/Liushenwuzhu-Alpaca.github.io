@@ -1,4 +1,5 @@
 ---
+import HymmnosChant from '@/components/HymmnosChant.astro'
 import { allLocales } from '@/config'
 import { getLangRouteParam } from '@/i18n/lang'
 import Layout from '@/layouts/Layout.astro'
@@ -49,6 +50,7 @@ const populatedGroups = data.filter(group => group.items.length > 0)
 <Layout>
   <section aria-labelledby="uses-title">
     <h1 id="uses-title" class="label">Uses · 装备</h1>
+    <HymmnosChant hm="Ma paks ga exec bansh ar noes." zh="非常冷静。以我的名义启用设施" />
     {populatedGroups.length > 0
 ? populatedGroups.map(group => (
       <>
