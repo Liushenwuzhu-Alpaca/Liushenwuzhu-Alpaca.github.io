@@ -1,13 +1,18 @@
 ---
+import Seal from '@/components/Seal.astro'
 import Layout from '@/layouts/Layout.astro'
 ---
 
 <Layout>
   <section aria-labelledby="not-found-title">
     <h1 id="not-found-title" class="label">404 · 迷路</h1>
-    <p style="opacity: 0.75; margin-bottom: 34px;">
+    <p class="not-found-desc">
       你要找的页面不存在，或已被移动。
     </p>
+    <div class="chant-anchor">
+      <p class="hymmnos-chant" aria-label="到这里来">Rrha ki ra tie yor ini en nha</p>
+      <Seal char="迷" size={52} rotate={3} />
+    </div>
     <div class="rows">
       <a class="row" href="/">
         <h3><span class="u">回到首页</span> <span class="arrow">-&gt;</span></h3>
@@ -18,3 +23,39 @@ import Layout from '@/layouts/Layout.astro'
     </div>
   </section>
 </Layout>
+
+<style>
+  .not-found-desc {
+    opacity: 0.75;
+    margin-bottom: 34px;
+  }
+
+  /* Hymmnos chant ("come hither") summons the lost visitor home;
+     the seal marks the stray page. */
+  .chant-anchor {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 44px;
+  }
+
+  .hymmnos-chant {
+    margin: 0;
+    font-family: "Hymmnos", var(--serif);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    color: var(--secondary);
+  }
+
+  /* One slow reveal, disabled under reduce-motion (SPEC §9). */
+  :global(html:not(.reduce-motion)) .hymmnos-chant {
+    animation: chant-reveal 1.2s ease-out both;
+  }
+
+  @keyframes chant-reveal {
+    from {
+      opacity: 0;
+    }
+  }
+</style>

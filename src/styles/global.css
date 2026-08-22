@@ -18,9 +18,9 @@
   font-display: swap;
 }
 
-/* Hymmnos: Ar tonelico conlang script — footer motto easter egg only
-   (one rendered motto line at a time, rotating pool, latin-only glyphs,
-   never enters body/heading stacks).
+/* Hymmnos: Ar tonelico conlang script — decorative easter eggs only
+   (footer motto pool + 404 chant, latin-only glyphs, one short line per
+   location, never enters body/heading stacks).
    Exempt from SPEC §2 two-family rule, cf. SPEC §0 precedent. */
 @font-face {
   font-family: "Hymmnos";
