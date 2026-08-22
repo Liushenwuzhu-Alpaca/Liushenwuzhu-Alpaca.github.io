@@ -75,6 +75,7 @@ const socialLinks = links.map(({ name, url }) => {
     </nav>
     <p class="footer-credit">© {year} {author} · Powered by Astro</p>
     {lastUpdated && <p class="footer-note">{lastUpdated}</p>}
+    <p class="footer-motto" aria-label="我很高兴能将自己化为诗歌">Was yea ra chs hymmnos mea</p>
   </div>
   <Seal size={52} rotate={-2} />
 </footer>
@@ -125,5 +126,14 @@ const socialLinks = links.map(({ name, url }) => {
 
   .footer-note {
     font-size: 13.5px;
+  }
+
+  /* Hymmnos motto: Ar tonelico conlang line — a poem left untranslated. */
+  .footer-motto {
+    margin: 14px 0 0;
+    font-family: "Hymmnos", var(--serif);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    color: var(--secondary);
   }
 </style>

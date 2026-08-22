@@ -18,6 +18,17 @@
   font-display: swap;
 }
 
+/* Hymmnos: Ar tonelico conlang script — footer motto easter egg only
+   (single latin-only line, never enters body/heading stacks).
+   Exempt from SPEC §2 two-family rule, cf. SPEC §0 precedent. */
+@font-face {
+  font-family: "Hymmnos";
+  src: url("/fonts/Hymmnos.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Design Tokens >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
 :root {
   --serif: "Noto Serif SC Variable", "Songti SC", "STSong", serif;
