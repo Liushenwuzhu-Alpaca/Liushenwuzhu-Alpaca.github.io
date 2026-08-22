@@ -1,4 +1,5 @@
 ---
+import HymmnosChant from '@/components/HymmnosChant.astro'
 import { allLocales } from '@/config'
 import { projects as fallbackProjects } from '@/data/projects'
 import { getLangRouteParam } from '@/i18n/lang'
@@ -39,6 +40,7 @@ const collaborations: { name: string, description: string, url: string, role?: s
 <Layout>
   <section aria-labelledby="projects-title">
     <h1 id="projects-title" class="label">Projects · 造物</h1>
+    <HymmnosChant hm="Was yea ra waath ar ciel" zh="再生世界" />
     <div class="rows">
       {projects.map(project => (
         <a class="row" href={project.url} target="_blank" rel="noopener">

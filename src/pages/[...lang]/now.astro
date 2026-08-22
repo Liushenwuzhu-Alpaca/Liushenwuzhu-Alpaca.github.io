@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content'
 import { getCollection, render } from 'astro:content'
+import HymmnosChant from '@/components/HymmnosChant.astro'
 import { allLocales } from '@/config'
 import { getLangRouteParam } from '@/i18n/lang'
 import Layout from '@/layouts/Layout.astro'
@@ -27,6 +28,7 @@ const renderedMoments = await Promise.all(
 <Layout>
   <section aria-labelledby="now-title">
     <h1 id="now-title" class="label">Now · 此刻</h1>
+    <HymmnosChant hm="Ma num ra gyen anw slep noes." zh="编织出正睡着的自己" />
     <div class="heti">
       <p>备战TOEFL</p>
       <p>学习Pytorch</p>

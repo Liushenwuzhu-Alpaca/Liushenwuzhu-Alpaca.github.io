@@ -1,4 +1,5 @@
 ---
+import HymmnosChant from '@/components/HymmnosChant.astro'
 import PostList from '@/components/PostList.astro'
 import { allLocales } from '@/config'
 import { getLangFromLocale, getLangRouteParam } from '@/i18n/lang'
@@ -29,6 +30,7 @@ const postsByYear = await getPostsByYear(currentLang)
 <Layout>
   <section aria-labelledby="archive-title">
     <h1 id="archive-title" class="label">Archive · 归档</h1>
+    <HymmnosChant hm="Was yea ra yassa yor phyue" zh="为您的完成，衷心地感到高兴" />
     {Array.from(postsByYear.entries(), ([year, posts]) => (
       <section class="home-section" aria-labelledby={`year-${year}`}>
         <h3 id={`year-${year}`} class="year-title">{year}</h3>
