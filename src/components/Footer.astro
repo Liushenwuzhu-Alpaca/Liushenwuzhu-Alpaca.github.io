@@ -82,6 +82,7 @@ const socialLinks = links.map(({ name, url }) => {
       aria-label="我很高兴能将自己化为诗歌"
     >
       <span class="motto-text">Was yea ra chs hymmnos mea</span>
+      <span class="secret-motto" aria-hidden="true"> cEzE dand.</span>
     </p>
   </div>
   <Seal size={52} rotate={-2} />
@@ -180,5 +181,15 @@ const socialLinks = links.map(({ name, url }) => {
     font-size: 13px;
     letter-spacing: 0.06em;
     color: var(--secondary);
+  }
+
+  /* Konami-unlocked palette shows its own verse: "become the door". */
+  .secret-motto {
+    display: none;
+    color: var(--seal);
+  }
+
+  :global(:root[data-palette='violet']) .secret-motto {
+    display: inline;
   }
 </style>
