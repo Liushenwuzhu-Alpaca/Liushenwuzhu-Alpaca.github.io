@@ -1,5 +1,6 @@
 ---
 import type { ImageMetadata } from 'astro'
+import HymmnosChant from '@/components/HymmnosChant.astro'
 import { allLocales } from '@/config'
 import { getLangRouteParam } from '@/i18n/lang'
 import Layout from '@/layouts/Layout.astro'
@@ -35,6 +36,7 @@ const isEmpty = photos.length === 0
 <Layout>
   <section aria-labelledby="photos-title">
     <h1 id="photos-title" class="label">Photos · 相册</h1>
+    <HymmnosChant hm="bautifal ciel" zh="美丽的世界" />
     {isEmpty
 ? (
       <div class="empty-state">

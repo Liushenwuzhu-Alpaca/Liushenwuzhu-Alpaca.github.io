@@ -1,0 +1,25 @@
+---
+interface Props {
+  /** Hymmnos sentence, ASCII only (font covers the full latin glyph set). */
+  hm: string
+  /** Chinese translation — rendered into aria-label only, never displayed. */
+  zh: string
+}
+
+const { hm, zh } = Astro.props
+---
+
+<!-- Untranslated Hymmnos chant tucked under a page label; the translation
+     lives in aria-label only (easter-egg philosophy: discovery threshold). -->
+<p class="page-chant" aria-label={zh}>{hm}</p>
+
+<style>
+  .page-chant {
+    /* Nest into the 40px whitespace below .label instead of adding height. */
+    margin: -26px 0 12px;
+    font-family: "Hymmnos", var(--serif);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    color: var(--secondary);
+  }
+</style>

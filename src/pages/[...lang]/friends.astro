@@ -1,4 +1,5 @@
 ---
+import HymmnosChant from '@/components/HymmnosChant.astro'
 import { allLocales, themeConfig } from '@/config'
 import { friends } from '@/data/friends'
 import { getLangRouteParam } from '@/i18n/lang'
@@ -25,6 +26,7 @@ export async function getStaticPaths() {
 <Layout>
   <section aria-labelledby="friends-title">
     <h1 id="friends-title" class="label">Links · 友邻</h1>
+    <HymmnosChant hm="Wee yea ra crannidale yora." zh="我会共享给你们" />
     <div class="rows">
       {friends.length > 0
 ? (

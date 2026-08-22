@@ -1,4 +1,5 @@
 ---
+import HymmnosChant from '@/components/HymmnosChant.astro'
 import { allLocales } from '@/config'
 import { getLangRouteParam } from '@/i18n/lang'
 import Layout from '@/layouts/Layout.astro'
@@ -13,6 +14,7 @@ export async function getStaticPaths() {
 <Layout>
   <section class="heti" aria-labelledby="search-title">
     <h1 id="search-title" class="label">Search · 搜索</h1>
+    <HymmnosChant hm="Was i ga enter px058-359-6002 flip mea." zh="输入坐标，解析所寻" />
     <div id="search" data-pagefind-ignore></div>
   </section>
 </Layout>

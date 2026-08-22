@@ -1,4 +1,5 @@
 ---
+import HymmnosChant from '@/components/HymmnosChant.astro'
 import { allLocales } from '@/config'
 import { getLangRouteParam } from '@/i18n/lang'
 import Layout from '@/layouts/Layout.astro'
@@ -44,6 +45,7 @@ return ''
 <Layout>
   <section aria-labelledby="shelf-title">
     <h1 id="shelf-title" class="label">Shelf · 书单影单</h1>
+    <HymmnosChant hm="Wee paks ra fowrlle yor" zh="将你治愈" />
 
     {isEmpty
 ? (
