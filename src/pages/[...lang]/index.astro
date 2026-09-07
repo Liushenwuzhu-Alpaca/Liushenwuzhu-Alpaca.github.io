@@ -36,10 +36,11 @@ const homeProjects = (pinnedRepos
   ? pinnedRepos.map(repo => ({
       name: repo.name,
       url: repo.url,
-      desc: repo.description ?? '暂无描述',
-      tags: repo.language ? [repo.language] : [],
+      desc: repo.description || repo.language || undefined,
+      tags: repo.language && repo.description ? [repo.language] : [],
+      stars: repo.stars,
     }))
-  : fallbackProjects).slice(0, 4)
+  : fallbackProjects.map(p => ({ ...p, stars: 0 }))).slice(0, 4)
 const homeFriends = friends.slice(0, 3)
 const today = new Date()
 const solarTerm = getSolarTerm(today)
@@ -55,12 +56,14 @@ function postTransitionName(post: typeof recentPostRows[number]) {
 <Layout>
   <section class="hero" aria-labelledby="home-title">
     <p class="hero-meta">{heroMeta}</p>
-    <HymmnosChant
-      variant="epigraph"
-      hm="Wee yea ra quel pomb manaf dorn anw ieeya, ware gauzewiga pauwel en hymme"
-      zh="在这众人都将真正的诗所遗忘的时代，带来希望的小小嫩芽，将诞生于世"
-    />
-    <h1 id="home-title">写技术学习,<br />也写<em>缓慢的思考</em>。</h1>
+    <div class="hero-chant">
+      <HymmnosChant
+        variant="epigraph"
+        hm="Wee yea ra quel pomb manaf dorn anw ieeya, ware gauzewiga pauwel en hymme"
+        zh="在这众人都将真正的诗所遗忘的时代，带来希望的小小嫩芽，将诞生于世"
+      />
+    </div>
+    <h1 id="home-title" class="hero-title-balanced">写技术学习，也写<em>缓慢的思考</em>。</h1>
     <p class="hero-intro">你好，我是 Liushenwuzhu-Alpaca，一名网络空间安全专业学生。在这里整理技术学习笔记，也保留学业与生活中的片段。</p>
     <div class="hero-seal" aria-hidden="true"><Seal char="向" size={64} rotate={3} /></div>
   </section>
@@ -115,7 +118,8 @@ function postTransitionName(post: typeof recentPostRows[number]) {
         {homeProjects.map(project => (
           <a class="project-card" href={project.url} target="_blank" rel="noopener">
             <h2>{project.name} <span>→</span></h2>
-            <p>{project.desc}</p>
+            {project.desc && <p>{project.desc}</p>}
+            {project.stars > 0 && <div class="project-stars">★ {project.stars}</div>}
             <div class="project-tags">{project.tags.map(tag => <span>{tag}</span>)}</div>
           </a>
         ))}
@@ -190,6 +194,16 @@ function postTransitionName(post: typeof recentPostRows[number]) {
     margin: 0;
   }
 
+  .hero-title-balanced {
+    max-width: 17ch;
+    text-wrap: balance;
+  }
+
+  .hero-chant {
+    color: var(--ink-faint);
+    max-width: 45ch;
+  }
+
   .hero h1 em {
     color: var(--accent);
     font-style: italic;
@@ -237,17 +251,19 @@ function postTransitionName(post: typeof recentPostRows[number]) {
 
   .featured-card {
     background: var(--paper-card);
-    border: 1px solid var(--hairline);
+    border: none;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-1);
     color: var(--ink);
     display: grid;
     gap: 40px;
     grid-template-columns: 1fr auto;
     padding: 56px 60px;
     text-decoration: none;
-    transition: box-shadow .25s ease;
+    transition: box-shadow .3s ease-out;
   }
 
-  .featured-card:hover { box-shadow: 0 18px 50px -30px rgba(33, 29, 24, .35); }
+  .featured-card:hover { box-shadow: var(--shadow-2); }
 
   .featured-card h2 {
     font-size: clamp(28px, 3.4vw, 40px);
@@ -273,7 +289,7 @@ function postTransitionName(post: typeof recentPostRows[number]) {
   }
 
   .read-link { margin-top: 34px; }
-  .read-link .arrow { transition: transform .2s ease; }
+  .read-link .arrow { transition: transform .3s ease-out; }
   .featured-card:hover .read-link .arrow { transform: translateX(6px); }
 
   .featured-meta {
@@ -290,7 +306,7 @@ function postTransitionName(post: typeof recentPostRows[number]) {
   .featured-tag {
     align-self: end;
     border: 1px solid var(--hairline);
-    border-radius: 999px;
+    border-radius: var(--radius);
     font-size: 12px;
     line-height: normal;
     margin-top: 4px;
@@ -308,7 +324,7 @@ function postTransitionName(post: typeof recentPostRows[number]) {
     grid-template-columns: 130px 1fr auto;
     padding: 26px 8px;
     text-decoration: none;
-    transition: background .2s ease;
+    transition: background .3s ease-out;
   }
 
   .post-row:hover { background: color-mix(in srgb, var(--ink) 3%, transparent); }
@@ -324,14 +340,14 @@ function postTransitionName(post: typeof recentPostRows[number]) {
     font-weight: 600;
     line-height: 1.5;
     margin: 0;
-    transition: color .2s ease;
+    transition: color .3s ease-out;
   }
 
   .post-row:hover h2 { color: var(--accent); }
 
   .growth-badge {
     border: 1px solid color-mix(in srgb, var(--bamboo) 40%, transparent);
-    border-radius: 999px;
+    border-radius: var(--radius);
     color: var(--bamboo);
     font-family: var(--mono);
     font-size: 11px;
@@ -350,10 +366,23 @@ function postTransitionName(post: typeof recentPostRows[number]) {
 
   .project-card {
     background: var(--paper-card);
-    border: 1px solid var(--hairline);
+    border: none;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-1);
     color: var(--ink);
     padding: 36px 38px;
     text-decoration: none;
+    transition: box-shadow .3s ease-out;
+  }
+
+  .project-card:hover { box-shadow: var(--shadow-2); }
+  .project-card:hover h2 { color: var(--accent); }
+
+  .project-stars {
+    color: var(--secondary);
+    font-family: var(--mono);
+    font-size: 12px;
+    margin-top: 16px;
   }
 
   .project-card h2 {
@@ -380,7 +409,7 @@ function postTransitionName(post: typeof recentPostRows[number]) {
 
   .project-tags span {
     border: 1px solid var(--hairline);
-    border-radius: 999px;
+    border-radius: var(--radius);
     color: var(--secondary);
     font-family: var(--mono);
     font-size: 11.5px;
@@ -389,13 +418,18 @@ function postTransitionName(post: typeof recentPostRows[number]) {
 
   .project-card--empty {
     background: transparent;
-    border-style: dashed;
+    border: 1px dashed var(--hairline);
+    box-shadow: none;
     color: var(--secondary);
     display: grid;
     gap: 8px;
     min-height: 220px;
     place-content: center;
     text-align: center;
+  }
+
+  .project-card--empty:hover {
+    box-shadow: none;
   }
 
   .project-card--empty strong { color: var(--ink); font-size: 19px; font-weight: 600; }
@@ -428,7 +462,9 @@ function postTransitionName(post: typeof recentPostRows[number]) {
 
   @media (max-width: 720px) {
     .hero { padding: 72px 0 64px; }
-    .hero-seal { display: none; }
+    .hero-title-balanced { max-width: 15ch; }
+    .hero-seal { right: 18px; top: 86px; }
+    .hero-seal .seal { --seal-size: 40px !important; }
     .featured-card { grid-template-columns: 1fr; padding: 36px 30px; }
     .featured-meta { align-items: flex-start; text-align: left; }
     .featured-tag { align-self: start; }

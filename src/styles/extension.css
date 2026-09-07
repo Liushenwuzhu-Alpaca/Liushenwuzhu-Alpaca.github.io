@@ -1,8 +1,15 @@
 /* GitHub Card */
 .gc-container {
-  --at-apply: 'my-6 block overflow-x-auto uno-round-border bg-secondary/5 px-5 py-4 transition-colors ease-out hover:(bg-secondary/10 c-primary) lg:(px-6 py-5)';
+  --at-apply: 'my-6 block overflow-x-auto bg-[var(--paper-card)] px-5 py-4 transition-colors ease-out hover:c-primary lg:(px-6 py-5)';
+  border: none;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
   scrollbar-width: thin;
-  scrollbar-color: oklch(var(--un-preset-theme-colors-secondary) / 0.15) transparent;
+  scrollbar-color: var(--hairline) transparent;
+  transition: box-shadow 0.3s ease-out, color 0.3s ease-out;
+}
+.gc-container:hover {
+  box-shadow: var(--shadow-2);
 }
 :is(h1, h2, h3, h4, h5, h6, .gc-container) + .gc-container {
   --at-apply: 'mt-4';
@@ -124,7 +131,7 @@ summary {
   --at-apply: 'mb-4 w-fit cursor-pointer list-none';
 }
 summary::before {
-  --at-apply: 'mr-2 inline-block transition-transform ease-out';
+  --at-apply: 'mr-2 inline-block transition-transform duration-300 ease-out';
   content: '';
   border-left: 10px solid currentColor;
   border-top: 6px solid transparent;
@@ -181,18 +188,22 @@ pre.mermaid svg {
 
 /* TOC >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
 #toc-mobile-text {
-  --at-apply: 'ml-4 font-semibold 2xl:hidden';
+  --at-apply: 'ml-4 font-semibold';
 }
 #toc-links-list {
   --at-apply: 'mb-2.5 mt-1 list-none pl-0 2xl:(mb-1 space-y-1) space-y-1.1';
   scroll-target-group: auto;
 }
-a:target-current {
-    --at-apply: '2xl:(c-primary font-medium)';
+.toc a.is-current {
+  color: var(--accent);
+  font-weight: 500;
+  border-left: 1px solid var(--accent);
+  padding-left: 0.65em;
+  margin-left: -0.65em;
 }
 .toc-links-h2, .toc-links-h3, .toc-links-h4 {
   --at-apply: 'text-balance text-sm font-normal no-underline after:bottom-0.15em 2xl:(text-3.2 c-secondary/80 hover:c-primary hover:font-medium)';
-  transition: color 0.15s ease-out, font-weight 0.15s ease-out;
+  transition: color 0.3s ease-out, font-weight 0.3s ease-out;
 }
 
 /* Overflow and Scrollbar */
@@ -202,16 +213,15 @@ a:target-current {
 #toc-accordion-content {
   --at-apply: 'max-h-59 overflow-hidden pl-4 pr-6 2xl:(max-h-[calc(100vh-27.5rem)] overflow-y-auto scrollbar-hidden)';
   scrollbar-width: thin;
-  scrollbar-color: oklch(var(--un-preset-theme-colors-secondary) / 0.15) transparent;
+  scrollbar-color: var(--hairline) transparent;
 }
 #toc-accordion-content::-webkit-scrollbar {
   --at-apply: 'hidden';
 }
 
-/* Mobile Initial State */
+/* Mobile Initial State — instant show/hide, no grid-rows animation */
 #toc-accordion-wrapper {
   --at-apply: 'grid rows-[0fr]';
-  transition: grid-template-rows 0.3s ease-in-out;
 }
 #toc-toggle:checked ~ #toc-accordion-wrapper {
   --at-apply: 'rows-[1fr]';

@@ -1,30 +1,49 @@
 ---
-// import Disqus from '@/components/Comment/Disqus.astro'
 import Giscus from '@/components/Comment/Giscus.astro'
 import Twikoo from '@/components/Comment/Twikoo.astro'
 import Waline from '@/components/Comment/Waline.astro'
+import Seal from '@/components/Seal.astro'
 import { themeConfig } from '@/config'
 
 const { enabled: enableComment } = themeConfig.comment
 
-// Disqus
-// const disqusShortname = themeConfig.comment.disqus?.shortname ?? ''
-// const showDisqus = enableComment && Boolean(disqusShortname.trim())
-
-// Giscus
 const giscusRepo = themeConfig.comment.giscus?.repo ?? ''
-const showGiscus = enableComment && Boolean(giscusRepo.trim())
-
-// Twikoo
 const twikooEnvId = themeConfig.comment.twikoo?.envId ?? ''
-const showTwikoo = enableComment && Boolean(twikooEnvId.trim())
-
-// Waline
 const walineURL = themeConfig.comment.waline?.serverURL ?? ''
-const showWaline = enableComment && Boolean(walineURL.trim())
+
+// Activate exactly one comment source, prefer Giscus → Twikoo → Waline.
+const showGiscus = enableComment && Boolean(giscusRepo.trim())
+const showTwikoo = enableComment && !showGiscus && Boolean(twikooEnvId.trim())
+const showWaline = enableComment && !showGiscus && !showTwikoo && Boolean(walineURL.trim())
+const showComment = showGiscus || showTwikoo || showWaline
 ---
 
-<!-- {showDisqus && <Disqus />} -->
-{showGiscus && <Giscus />}
-{showTwikoo && <Twikoo />}
-{showWaline && <Waline />}
+{showComment && (
+  <section class="comment-section" aria-label="评论">
+    <div class="comment-mark" aria-hidden="true">
+      <hr class="hairline" />
+      <Seal char="言" size={22} rotate={-3} />
+    </div>
+    {showGiscus && <Giscus />}
+    {showTwikoo && <Twikoo />}
+    {showWaline && <Waline />}
+  </section>
+)}
+
+<style>
+  .comment-section {
+    margin-top: 4rem;
+  }
+
+  .comment-mark {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .comment-mark .hairline {
+    width: 100%;
+  }
+</style>

@@ -16,45 +16,38 @@ const filteredHeadings = headings.filter(heading => heading.depth >= 2 && headin
 ---
 
 {filteredHeadings.length > 1 && (
-  // TOC Container
   <div
     id="toc-container"
-    class="mb-6 border-l-2 border-solid pl-4 border-secondary/15 2xl:(max-w-[13rem] border-none pl-0 bg-secondary/0)"
+    class="toc mb-6 border-l-2 border-solid pl-4 border-secondary/15 2xl:(max-w-[13rem] border-none pl-0 bg-secondary/0)"
   >
-    {/* Hidden Checkbox */}
     <input
       type="checkbox"
       id="toc-toggle"
       hidden
     />
-    {/* TOC Toggle */}
     <div class="relative h-12 w-full">
       <label
         for="toc-toggle"
-        class="absolute inset-0 flex cursor-pointer items-center 2xl:(static flex transition-colors ease-out c-secondary/60 hover:c-primary)"
+        class="absolute inset-0 flex cursor-pointer items-center gap-2 2xl:(static flex transition-colors ease-out c-secondary/60 hover:c-primary)"
       >
-        {/* Title on Mobile */}
         <span id="toc-mobile-text">
           {currentUI.toc}
         </span>
-
-        {/* Icon on Desktop */}
         <TocIcon
           id="toc-desktop-icon"
           aria-hidden="true"
-          class="ml-4 hidden aspect-square w-4.2 2xl:(mt-4 block origin-center active:scale-90!)"
+          class="ml-0 hidden aspect-square w-4.2 2xl:(mt-0 block origin-center active:scale-90!)"
           fill="currentColor"
         />
       </label>
     </div>
 
-    {/* Expandable Content Wrapper with Accordion Animation */}
     <div id="toc-accordion-wrapper">
       <nav
         id="toc-accordion-content"
+        class="toc"
         aria-label="Table of Contents"
       >
-        {/* TOC List */}
         <ul id="toc-links-list">
           {filteredHeadings.map(heading => (
             <li
@@ -66,6 +59,7 @@ const filteredHeadings = headings.filter(heading => heading.depth >= 2 && headin
             >
               <a
                 href={`#${heading.slug}`}
+                data-heading-id={heading.slug}
                 class:list={[
                   { 'no-heti toc-links-h2': heading.depth === 2 },
                   { 'no-heti toc-links-h3': heading.depth === 3 },
@@ -83,60 +77,152 @@ const filteredHeadings = headings.filter(heading => heading.depth >= 2 && headin
 )}
 
 <script>
-const isDesktop = window.matchMedia('(min-width: 1280px)')
-
+let observer: IntersectionObserver | null = null
 let ticking = false
 let lastLink: Element | null = null
 
-// Find and scroll to the active link
-function scrollToActiveLink() {
+const isDesktop = window.matchMedia('(min-width: 1280px)')
+
+function getHeadingElements(tocList: HTMLElement) {
+  return [...tocList.querySelectorAll<HTMLAnchorElement>('a[data-heading-id]')]
+    .map((link) => {
+      const id = link.dataset.headingId
+      if (!id) {
+        return null
+      }
+      const heading = document.getElementById(id)
+      return heading ? { link, heading } : null
+    })
+    .filter((entry): entry is { link: HTMLAnchorElement, heading: HTMLElement } => entry !== null)
+}
+
+function setCurrentLink(nextLink: Element | null) {
   const tocList = document.getElementById('toc-links-list')
   if (!tocList) {
-    ticking = false
     return
   }
 
-  const activeLink = tocList.querySelector('a:target-current')
-  if (activeLink && activeLink !== lastLink) {
-    activeLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-    lastLink = activeLink
-  }
+  tocList.querySelectorAll('a.is-current').forEach((link) => {
+    link.classList.remove('is-current')
+  })
 
-  ticking = false
+  if (nextLink) {
+    nextLink.classList.add('is-current')
+  }
 }
 
-// Throttle scroll events
-function handleScroll() {
+function scrollCurrentIntoView(activeLink: Element | null) {
+  if (!activeLink || activeLink === lastLink || !isDesktop.matches) {
+    return
+  }
+
+  activeLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  lastLink = activeLink
+}
+
+function handleScrollIntoView() {
   if (!ticking && isDesktop.matches) {
-    window.requestAnimationFrame(scrollToActiveLink)
+    window.requestAnimationFrame(() => {
+      const activeLink = document.querySelector('#toc-links-list a.is-current')
+      scrollCurrentIntoView(activeLink)
+      ticking = false
+    })
     ticking = true
   }
 }
 
-// Initialize scroll listener
-function setupAutoScroll() {
-  ticking = false
-  lastLink = null
+function setupObserver() {
+  cleanupObserver()
 
   const tocList = document.getElementById('toc-links-list')
-  if (!tocList || !CSS.supports('selector(:target-current)')) {
+  if (!tocList) {
     return
   }
 
-  document.addEventListener('scroll', handleScroll, { passive: true })
+  const pairs = getHeadingElements(tocList)
+  if (pairs.length === 0) {
+    return
+  }
+
+  const visible = new Map<Element, IntersectionObserverEntry>()
+
+  observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        visible.set(entry.target, entry)
+      }
+      else {
+        visible.delete(entry.target)
+      }
+    }
+
+    let current: Element | null = null
+    let bestRatio = -1
+    let bestTop = Number.POSITIVE_INFINITY
+
+    for (const { link, heading } of pairs) {
+      const entry = visible.get(heading)
+      if (!entry) {
+        continue
+      }
+
+      const top = entry.boundingClientRect.top
+      const ratio = entry.intersectionRatio
+      if (ratio > bestRatio || (ratio === bestRatio && top < bestTop)) {
+        bestRatio = ratio
+        bestTop = top
+        current = link
+      }
+    }
+
+    // Fallback: nearest heading above the fold when none are intersecting.
+    if (!current) {
+      let nearestTop = Number.NEGATIVE_INFINITY
+      for (const { link, heading } of pairs) {
+        const top = heading.getBoundingClientRect().top
+        if (top <= 120 && top > nearestTop) {
+          nearestTop = top
+          current = link
+        }
+      }
+      if (!current) {
+        current = pairs[0]?.link ?? null
+      }
+    }
+
+    setCurrentLink(current)
+    handleScrollIntoView()
+  }, {
+    rootMargin: '-10% 0px -70% 0px',
+    threshold: [0, 0.1, 0.25, 0.5, 1],
+  })
+
+  for (const { heading } of pairs) {
+    observer.observe(heading)
+  }
+
+  // Seed initial current item.
+  setCurrentLink(pairs[0]?.link ?? null)
+  document.addEventListener('scroll', handleScrollIntoView, { passive: true })
 }
 
-// Cleanup listener and reset state
-function cleanupAutoScroll() {
-  document.removeEventListener('scroll', handleScroll)
+function cleanupObserver() {
+  if (observer) {
+    observer.disconnect()
+    observer = null
+  }
+  document.removeEventListener('scroll', handleScrollIntoView)
+  setCurrentLink(null)
   lastLink = null
+  ticking = false
 }
 
-document.addEventListener('astro:page-load', setupAutoScroll)
-document.addEventListener('astro:before-swap', cleanupAutoScroll)
+document.addEventListener('astro:page-load', setupObserver)
+document.addEventListener('astro:before-swap', cleanupObserver)
 </script>
 
 <style>
+  /* Keep「目录」text on desktop (≥2xl); icon sits beside, not instead. */
   @media (min-width: 1280px) {
     #toc-container {
       margin-bottom: 0;
@@ -146,12 +232,13 @@ document.addEventListener('astro:before-swap', cleanupAutoScroll)
     }
 
     #toc-mobile-text {
-      display: none;
+      display: inline !important;
     }
 
     #toc-desktop-icon {
-      display: block;
-      margin-top: 1rem;
+      display: inline-block !important;
+      margin-top: 0;
+      margin-left: 0.5rem;
     }
 
     #toc-links-list {
@@ -175,6 +262,12 @@ document.addEventListener('astro:before-swap', cleanupAutoScroll)
 
     #toc-toggle:checked ~ #toc-accordion-wrapper #toc-accordion-content {
       overflow: hidden;
+    }
+  }
+
+  @media (min-width: 1536px) {
+    #toc-mobile-text {
+      display: inline !important;
     }
   }
 </style>

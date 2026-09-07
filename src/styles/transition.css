@@ -27,20 +27,55 @@ html.reduce-motion {
     --at-apply: 'transition-none';
   }
 }
+
 html.reduce-motion {
   ::view-transition-new(theme-toggle-transition),
   ::view-transition-old(theme-toggle-transition),
-  .group:hover [aria-hidden="true"] {
-    animation: none;
-    transform: none;
+  .group:hover [aria-hidden="true"],
+  .arrow,
+  .u,
+  .row:hover .arrow,
+  .row:hover .u,
+  summary::before,
+  details[open] summary::before,
+  .zoom-overlay,
+  .zoom-img,
+  .code-copy-button,
+  .heading-anchor-link svg,
+  .gc-container,
+  .toc-links-h2,
+  .toc-links-h3,
+  .toc-links-h4,
+  #toc-accordion-wrapper {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-new(theme-toggle-transition),
   ::view-transition-old(theme-toggle-transition),
-  .group:hover [aria-hidden="true"] {
-    animation: none;
-    transform: none;
+  .group:hover [aria-hidden="true"],
+  .arrow,
+  .u,
+  .row:hover .arrow,
+  .row:hover .u,
+  summary::before,
+  details[open] summary::before,
+  .zoom-overlay,
+  .zoom-img,
+  .code-copy-button,
+  .heading-anchor-link svg,
+  .gc-container,
+  .toc-links-h2,
+  .toc-links-h3,
+  .toc-links-h4,
+  #toc-accordion-wrapper,
+  .highlight-hover::after,
+  .highlight-static::after {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
   }
 }

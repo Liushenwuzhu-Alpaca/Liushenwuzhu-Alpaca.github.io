@@ -3,20 +3,26 @@
  * https://github.com/primer/primitives/blob/main/LICENSE
  */
 
- main {
-  /* Custom Theme Colors */
-  --secondary-color: oklch(77% 0.005 298);
-  --secondary-color-25: oklch(77% 0.005 298 / 25%);
-  --secondary-color-5: oklch(77% 0.005 298 / 5%);
-  --background-color: oklch(22% 0.005 298);
+main {
+  /* Custom Theme Colors — paper/ink dark */
+  --secondary-color: #9A9081;
+  --secondary-color-25: rgba(233, 225, 211, 0.12);
+  --secondary-color-5: rgba(233, 225, 211, 0.05);
+  --background-color: #26241F;
+  --paper-input: #26241F;
+  --paper-input-border: rgba(233, 225, 211, 0.12);
+  --cinnabar: #D4634E;
+  --cinnabar-hover: #DE7562;
+  --cinnabar-disabled: rgba(212, 99, 78, 0.45);
+  --radius: 4px;
 
-  --color-fg-default: var(--secondary-color);
+  --color-fg-default: #E5E4DB;
   --color-canvas-default: transparent;
   --color-canvas-overlay: var(--background-color);
   --color-canvas-inset: transparent;
   --color-canvas-subtle: transparent;
-  --color-accent-fg: oklch(70.7% 0.165 254.624);
-  --color-accent-emphasis: oklch(70.7% 0.165 254.624);
+  --color-accent-fg: var(--cinnabar);
+  --color-accent-emphasis: var(--cinnabar);
 
   /* Official Theme Colors */
   --color-prettylights-syntax-comment: #8b949e;
@@ -49,49 +55,49 @@
   --color-prettylights-syntax-brackethighlighter-angle: #8b949e;
   --color-prettylights-syntax-sublimelinter-gutter-mark: #484f58;
   --color-prettylights-syntax-constant-other-reference-link: #a5d6ff;
-  --color-btn-text: #c9d1d9;
-  --color-btn-bg: #21262d;
-  --color-btn-border: rgb(240 246 252 / 10%);
+  --color-btn-text: #E5E4DB;
+  --color-btn-bg: #1C1B17;
+  --color-btn-border: rgba(233, 225, 211, 0.12);
   --color-btn-shadow: 0 0 transparent;
   --color-btn-inset-shadow: 0 0 transparent;
-  --color-btn-hover-bg: #30363d;
-  --color-btn-hover-border: #8b949e;
-  --color-btn-active-bg: hsl(212deg 12% 18% / 100%);
-  --color-btn-active-border: #6e7681;
-  --color-btn-selected-bg: #161b22;
+  --color-btn-hover-bg: #2E2B24;
+  --color-btn-hover-border: rgba(233, 225, 211, 0.2);
+  --color-btn-active-bg: #332F27;
+  --color-btn-active-border: rgba(233, 225, 211, 0.2);
+  --color-btn-selected-bg: #1C1B17;
   --color-btn-primary-text: #fff;
-  --color-btn-primary-bg: #238636;
-  --color-btn-primary-border: rgb(240 246 252 / 10%);
+  --color-btn-primary-bg: #D4634E;
+  --color-btn-primary-border: rgba(233, 225, 211, 0.12);
   --color-btn-primary-shadow: 0 0 transparent;
   --color-btn-primary-inset-shadow: 0 0 transparent;
-  --color-btn-primary-hover-bg: #2ea043;
-  --color-btn-primary-hover-border: rgb(240 246 252 / 10%);
-  --color-btn-primary-selected-bg: #238636;
+  --color-btn-primary-hover-bg: #DE7562;
+  --color-btn-primary-hover-border: rgba(233, 225, 211, 0.12);
+  --color-btn-primary-selected-bg: #D4634E;
   --color-btn-primary-selected-shadow: 0 0 transparent;
-  --color-btn-primary-disabled-text: rgb(255 255 255 / 50%);
-  --color-btn-primary-disabled-bg: rgb(35 134 54 / 60%);
-  --color-btn-primary-disabled-border: rgb(240 246 252 / 10%);
-  --color-action-list-item-default-hover-bg: rgb(177 186 196 / 12%);
-  --color-segmented-control-bg: rgb(110 118 129 / 10%);
-  --color-segmented-control-button-bg: #0d1117;
-  --color-segmented-control-button-selected-border: #6e7681;
-  --color-fg-muted: #7d8590;
-  --color-fg-subtle: #6e7681;
-  --color-border-default: #30363d;
-  --color-border-muted: #21262d;
-  --color-neutral-muted: rgb(110 118 129 / 40%);
-  --color-accent-muted: rgb(56 139 253 / 40%);
-  --color-accent-subtle: rgb(56 139 253 / 10%);
-  --color-success-fg: #3fb950;
+  --color-btn-primary-disabled-text: rgba(255, 255, 255, 0.5);
+  --color-btn-primary-disabled-bg: rgba(212, 99, 78, 0.45);
+  --color-btn-primary-disabled-border: rgba(233, 225, 211, 0.12);
+  --color-action-list-item-default-hover-bg: rgba(233, 225, 211, 0.08);
+  --color-segmented-control-bg: rgba(233, 225, 211, 0.08);
+  --color-segmented-control-button-bg: #1C1B17;
+  --color-segmented-control-button-selected-border: rgba(233, 225, 211, 0.24);
+  --color-fg-muted: #9A9081;
+  --color-fg-subtle: #7A7368;
+  --color-border-default: rgba(233, 225, 211, 0.12);
+  --color-border-muted: rgba(233, 225, 211, 0.08);
+  --color-neutral-muted: rgba(233, 225, 211, 0.12);
+  --color-accent-muted: rgba(212, 99, 78, 0.4);
+  --color-accent-subtle: rgba(212, 99, 78, 0.12);
+  --color-success-fg: #7A8B6A;
   --color-attention-fg: #d29922;
   --color-attention-muted: rgb(187 128 9 / 40%);
   --color-attention-subtle: rgb(187 128 9 / 15%);
-  --color-danger-fg: #f85149;
-  --color-danger-muted: rgb(248 81 73 / 40%);
-  --color-danger-subtle: rgb(248 81 73 / 10%);
+  --color-danger-fg: #D4634E;
+  --color-danger-muted: rgba(212, 99, 78, 0.4);
+  --color-danger-subtle: rgba(212, 99, 78, 0.12);
   --color-primer-shadow-inset: 0 0 transparent;
-  --color-scale-gray-7: #21262d;
-  --color-scale-blue-8: #0c2d6b;
+  --color-scale-gray-7: #1C1B17;
+  --color-scale-blue-8: rgba(212, 99, 78, 0.18);
 
   /*! Extensions from @primer/css/alerts/flash.scss */
   --color-social-reaction-bg-hover: var(--color-scale-gray-7);
@@ -205,4 +211,51 @@ pre {
   background-color: var(--secondary-color-5)!important;
   scrollbar-width: thin!important;
   scrollbar-color: var(--secondary-color-25) transparent!important;
+}
+
+/* Paper radius + input surfaces */
+.btn,
+.btn-primary,
+.form-control,
+.form-select,
+textarea,
+input,
+.gsc-comment-box,
+.gsc-comment-box-textarea,
+.gsc-comment-box-textarea-wrapper,
+.gsc-reactions-popover,
+.gsc-social-reaction-summary-item,
+.BtnGroup-item,
+.gsc-reply-box,
+.gsc-upvote,
+img.avatar,
+.avatar,
+.AvatarStack-body .avatar,
+.gsc-comment .gsc-reply .avatar {
+  border-radius: 4px !important;
+}
+
+.form-control,
+.form-select,
+textarea,
+input,
+.gsc-comment-box-textarea,
+.gsc-comment-box-textarea-wrapper,
+.gsc-reply-box textarea {
+  background-color: #26241F !important;
+  border-color: rgba(233, 225, 211, 0.12) !important;
+}
+
+.btn-primary,
+button.btn-primary,
+.btn.btn-primary {
+  background-color: #D4634E !important;
+  border-color: rgba(233, 225, 211, 0.12) !important;
+  color: #fff !important;
+}
+
+.btn-primary:hover,
+button.btn-primary:hover,
+.btn.btn-primary:hover {
+  background-color: #DE7562 !important;
 }

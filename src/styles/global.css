@@ -37,6 +37,8 @@
   --mono: "Maple Mono NF CN", ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
   /* Secondary text: alias of per-palette solid ink-soft, contrast ≥ 4.8:1. */
   --secondary: var(--ink-soft);
+  /* Site-wide corner radius — paperized cards/controls only. */
+  --radius: 4px;
 
   /* Identity anchors: constant across palettes — 印泥不换,纸换 (SPEC §1.2) */
   --seal: #A03A2A;
@@ -51,6 +53,7 @@
   --caution: oklch(50.5% 0.213 27.518 / 0.8);
 }
 
+
 /* Palette: 宣 Xuan (default) — rice-paper warm white, cinnabar accent */
 :root,
 :root[data-palette="paper"] {
@@ -58,11 +61,15 @@
   --paper-card: #FCF9F2;
   --ink: #211D18;
   --ink-soft: #6E665B;
+  --ink-faint: #766E64;
   --hairline: rgba(33, 29, 24, 0.14);
   --accent: #A03A2A;
   --accent-deep: #8A2F21;
   --hl-alpha: 22%;
+  --shadow-1: 0 1px 2px rgba(33, 29, 24, 0.05), 0 4px 14px rgba(33, 29, 24, 0.06);
+  --shadow-2: 0 2px 4px rgba(33, 29, 24, 0.07), 0 10px 28px rgba(33, 29, 24, 0.10);
 }
+
 
 /* Palette: 绢 Silk — warm sepia silk, ochre accent */
 :root[data-palette="silk"] {
@@ -70,11 +77,15 @@
   --paper-card: #FAF6EF;
   --ink: #211D18;
   --ink-soft: #69635A;
+  --ink-faint: #716A61;
   --hairline: rgba(33, 29, 24, 0.14);
   --accent: #8A4A2B;
   --accent-deep: #794126;
   --hl-alpha: 22%;
+  --shadow-1: 0 1px 2px rgba(33, 29, 24, 0.05), 0 4px 14px rgba(40, 28, 16, 0.07);
+  --shadow-2: 0 2px 4px rgba(33, 29, 24, 0.07), 0 10px 28px rgba(40, 28, 16, 0.11);
 }
+
 
 /* Palette: 黛 Indigo — moonlit white, mineral blue accent */
 :root[data-palette="indigo"] {
@@ -82,11 +93,15 @@
   --paper-card: #F7F8F9;
   --ink: #1B2430;
   --ink-soft: #606770;
+  --ink-faint: #676E76;
   --hairline: rgba(27, 36, 48, 0.14);
   --accent: #245485;
   --accent-deep: #204A75;
   --hl-alpha: 22%;
+  --shadow-1: 0 1px 2px rgba(27, 36, 48, 0.05), 0 4px 14px rgba(27, 36, 48, 0.07);
+  --shadow-2: 0 2px 4px rgba(27, 36, 48, 0.07), 0 10px 28px rgba(27, 36, 48, 0.11);
 }
+
 
 html.dark {
   --seal: #D4634E;
@@ -96,13 +111,16 @@ html.dark {
 html.dark,
 html.dark[data-palette="paper"] {
   --paper: #1C1B17;
-  --paper-card: #26241F;
+  --paper-card: #201F1B;
   --ink: #E9E1D3;
   --ink-soft: #9A9081;
+  --ink-faint: #8B8274;
   --hairline: rgba(233, 225, 211, 0.12);
   --accent: #D4634E;
   --accent-deep: #DE7562;
   --hl-alpha: 26%;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.45), 0 6px 20px rgba(20, 16, 10, 0.55);
+  --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.5), 0 14px 36px rgba(20, 16, 10, 0.7);
 
   /* Admonition colors, mirrored from uno.config.ts presetTheme dark */
   --note: oklch(70.7% 0.165 254.624 / 0.8);
@@ -112,27 +130,36 @@ html.dark[data-palette="paper"] {
   --caution: oklch(70.4% 0.191 22.216 / 0.8);
 }
 
+
 html.dark[data-palette="silk"] {
   --paper: #201913;
-  --paper-card: #2D2721;
+  --paper-card: #261F19;
   --ink: #E9E1D3;
   --ink-soft: #91897F;
+  --ink-faint: #898177;
   --hairline: rgba(233, 225, 211, 0.12);
   --accent: #C9A25F;
   --accent-deep: #CDA96C;
   --hl-alpha: 26%;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.45), 0 6px 20px rgba(24, 16, 8, 0.58);
+  --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.5), 0 14px 36px rgba(24, 16, 8, 0.72);
 }
+
 
 html.dark[data-palette="indigo"] {
   --paper: #131A21;
-  --paper-card: #21282E;
+  --paper-card: #192027;
   --ink: #DCE6EE;
   --ink-soft: #828A92;
+  --ink-faint: #7B838B;
   --hairline: rgba(220, 230, 238, 0.12);
   --accent: #83AECF;
   --accent-deep: #8DB4D3;
   --hl-alpha: 26%;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.48), 0 6px 20px rgba(8, 14, 22, 0.6);
+  --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.52), 0 14px 36px rgba(8, 14, 22, 0.74);
 }
+
 
 /* Palette: 檀 Violet — sandalwood-violet paper, purple accent (Konami hidden) */
 :root[data-palette="violet"] {
@@ -140,21 +167,28 @@ html.dark[data-palette="indigo"] {
   --paper-card: #FAF8FB;
   --ink: #251E2C;
   --ink-soft: #6B6570;
+  --ink-faint: #726C77;
   --hairline: rgba(37, 30, 44, 0.14);
   --accent: #6E3A8C;
   --accent-deep: #61337B;
   --hl-alpha: 22%;
+  --shadow-1: 0 1px 2px rgba(37, 30, 44, 0.05), 0 4px 14px rgba(37, 30, 44, 0.07);
+  --shadow-2: 0 2px 4px rgba(37, 30, 44, 0.07), 0 10px 28px rgba(37, 30, 44, 0.11);
 }
+
 
 html.dark[data-palette="violet"] {
   --paper: #1D1723;
-  --paper-card: #282130;
+  --paper-card: #221C29;
   --ink: #E8E1EC;
   --ink-soft: #938C98;
+  --ink-faint: #857F8B;
   --hairline: rgba(232, 225, 236, 0.12);
   --accent: #C99BDB;
   --accent-deep: #CDA3DE;
   --hl-alpha: 26%;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.48), 0 6px 20px rgba(18, 12, 24, 0.6);
+  --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.52), 0 14px 36px rgba(18, 12, 24, 0.74);
 }
 
 /* Base >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
@@ -298,7 +332,7 @@ body::before {
   font-size: 12.5px;
   font-weight: 400;
   gap: 12px;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.12em;
   margin: 0 0 40px;
   text-transform: uppercase;
 }
@@ -326,6 +360,7 @@ body::before {
   letter-spacing: 0.06em;
   color: var(--secondary);
   display: block;
+  font-variant-numeric: tabular-nums;
 }
 .row h3 {
   font-size: 21px;
@@ -345,7 +380,7 @@ body::before {
   background-size: 0% 1px;
   background-repeat: no-repeat;
   background-position: 0 97%;
-  transition: background-size 0.35s ease;
+  transition: background-size 0.3s ease-out;
 }
 .row:hover .u {
   background-size: 100% 1px;
@@ -356,7 +391,7 @@ body::before {
   font-size: 0.8em;
   color: var(--accent);
   display: inline-block;
-  transition: transform 0.25s ease;
+  transition: transform 0.3s ease-out;
 }
 .row:hover .arrow {
   transform: translateX(5px);
@@ -376,7 +411,7 @@ body::before {
   opacity: 0.6;
   text-decoration: none;
   font-size: 14.5px;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.3s ease-out;
 }
 .site-footer nav a:hover {
   opacity: 1;
@@ -384,7 +419,7 @@ body::before {
 .fine {
   font-family: var(--mono);
   font-size: 12px;
-  opacity: 0.45;
+  color: var(--ink-faint);
   letter-spacing: 0.04em;
 }
 
@@ -433,7 +468,7 @@ h4:hover .heading-anchor-link svg {
   aspect-ratio: 1;
   width: 0.9em;
   opacity: 0;
-  transition: opacity 0.15s ease-out;
+  transition: opacity 0.3s ease-out;
 }
 h1:hover .heading-anchor-link svg:hover,
 h2:hover .heading-anchor-link svg:hover,
@@ -457,13 +492,13 @@ h4:hover .heading-anchor-link svg:hover {
   cursor: zoom-out;
   background: color-mix(in oklab, var(--paper) 95%, transparent);
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: opacity 0.3s ease-out;
 }
 .zoom-img {
   position: fixed;
   z-index: 1000;
   cursor: zoom-out;
-  transition: transform 0.3s;
+  transition: transform 0.3s ease-out;
 }
 
 /* Code Copy Button >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
@@ -478,15 +513,17 @@ h4:hover .heading-anchor-link svg:hover {
   cursor: pointer;
   place-items: center;
   border: 1px solid var(--hairline);
+  border-radius: var(--radius);
   background: var(--paper);
   color: color-mix(in oklab, var(--ink) 55%, transparent);
-  opacity: 0;
-  transition: opacity 0.15s ease-out, background-color 0.15s ease-out;
+  opacity: 0.35;
+  transition: opacity 0.3s ease-out, background-color 0.3s ease-out, color 0.3s ease-out, border-color 0.3s ease-out;
 }
 .code-copy-button:hover {
   color: color-mix(in oklab, var(--ink) 80%, transparent);
 }
-.code-block-wrapper:hover .code-copy-button {
+.code-block-wrapper:hover .code-copy-button,
+.code-block-wrapper:focus-within .code-copy-button {
   opacity: 1;
 }
 .icon-copy,
@@ -576,6 +613,7 @@ h4:hover .heading-anchor-link svg:hover {
   font-size: 12px;
   letter-spacing: 0.05em;
   color: var(--secondary);
+  font-variant-numeric: tabular-nums;
 }
 .footer-stats p {
   margin: 0;

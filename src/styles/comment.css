@@ -28,7 +28,9 @@
 
 /* Input fields */
 #twikoo .tk-meta-input {
-  --at-apply: 'border border-secondary/25 rounded'
+  --at-apply: 'border border-[var(--hairline)]';
+  border-radius: var(--radius);
+  box-shadow: none;
 }
 #twikoo .tk-meta-input .el-input + .el-input {
   --at-apply: 'ml-0 mt-0'
@@ -50,10 +52,14 @@
   --at-apply: 'c-secondary/25'
 }
 #twikoo .el-textarea__inner {
-  --at-apply: 'border-secondary/25 py-2 leading-6'
+  --at-apply: 'border-[var(--hairline)] py-2 leading-6';
+  border-radius: var(--radius);
+  box-shadow: none;
 }
 #twikoo .OwO-body {
-  --at-apply: 'border-secondary/25 rounded bg-background c-secondary'
+  --at-apply: 'border-[var(--hairline)] bg-background c-secondary';
+  border-radius: var(--radius);
+  box-shadow: none;
 }
 #twikoo .OwO-item {
   --at-apply: 'hover:shadow-none'
@@ -63,7 +69,9 @@
 }
 #twikoo .tk-cancel,
 #twikoo .tk-preview {
-  --at-apply: 'border-secondary/25 bg-transparent c-secondary font-normal active:(border-secondary/80 c-primary) hover:(border-secondary/80 c-primary)'
+  --at-apply: 'border-[var(--hairline)] bg-transparent c-secondary font-normal active:(border-secondary/80 c-primary) hover:(border-secondary/80 c-primary)';
+  border-radius: var(--radius);
+  box-shadow: none;
 }
 #twikoo .tk-send {
   --at-apply: 'bg-primary font-normal'
@@ -92,7 +100,9 @@
   --at-apply: 'lg:ml-14'
 }
 #twikoo .tk-preview-container {
-  --at-apply: 'ml-14 mt-4 min-h-8 border-secondary/25 py-2 text-sm leading-6'
+  --at-apply: 'ml-14 mt-4 min-h-8 border-[var(--hairline)] py-2 text-sm leading-6';
+  border-radius: var(--radius);
+  box-shadow: none;
 }
 #twikoo .tk-comments-title {
   --at-apply: 'mb-0 mt-7'
@@ -104,7 +114,8 @@
   --at-apply: 'mr-1'
 }
 #twikoo .tk-tag {
-  --at-apply: 'mr-1 border-note rounded bg-transparent px-0.3em text-3 c-note leading-5'
+  --at-apply: 'mr-1 border-note bg-transparent px-0.3em text-3 c-note leading-5';
+  border-radius: var(--radius);
 }
 #twikoo .tk-replies .tk-comment {
   --at-apply: 'mt-6'
@@ -124,7 +135,9 @@
   --at-apply: 'mt-1.4 leading-3.6';
 }
 #waline .wl-panel {
-  --at-apply: 'm-0 border-secondary/25 rounded-lg bg-transparent'
+  --at-apply: 'm-0 border-[var(--hairline)] bg-transparent';
+  border-radius: var(--radius);
+  box-shadow: none;
 }
 #waline .wl-header {
   --at-apply: 'p-0';
@@ -161,16 +174,21 @@
   --at-apply: 'hidden';
 }
 #waline .wl-emoji-popup {
-  --at-apply: 'start-0 max-w-532px border-secondary/25';
+  --at-apply: 'start-0 max-w-532px border-[var(--hairline)]';
+  border-radius: var(--radius);
+  box-shadow: none;
 }
 #waline .wl-emoji-popup .wl-tab-wrapper {
   scrollbar-width: thin;
 }
 #waline .wl-gif-popup {
-  --at-apply: 'border-secondary/25';
+  --at-apply: 'border-[var(--hairline)]';
+  border-radius: var(--radius);
+  box-shadow: none;
 }
 #waline .wl-gif-popup input {
-  --at-apply: 'border-secondary/25 bg-background';
+  --at-apply: 'border-[var(--hairline)] bg-background';
+  border-radius: var(--radius);
 }
 #waline .wl-gif-popup input::placeholder {
   --at-apply: 'text-3.5 c-secondary/30';
@@ -179,7 +197,9 @@
   --at-apply: 'scrollbar-hidden';
 }
 #waline .wl-btn {
-  --at-apply: 'duration-150 hover:border-secondary/80';
+  --at-apply: 'duration-300 ease-out hover:border-secondary/80';
+  border-radius: var(--radius);
+  box-shadow: none;
 }
 #waline .wl-meta-head {
   --at-apply: 'px-0 py-3';

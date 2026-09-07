@@ -74,18 +74,21 @@ const socialLinks = links.map(({ name, url }) => {
       <span aria-hidden="true"> / </span>
       <RandomPost />
     </nav>
-    <p class="footer-credit">© {year} {author} · Powered by Astro</p>
-    {lastUpdated && <p class="footer-note">{lastUpdated}</p>}
-    <p
-      class="footer-motto"
-      data-mottos={JSON.stringify(hymmnosMottos)}
-      aria-label="我很高兴能将自己化为诗歌"
-    >
-      <span class="motto-text">Was yea ra chs hymmnos mea</span>
-      <span class="secret-motto" aria-hidden="true"> cEzE dand.</span>
+    <p class="footer-meta">
+      © {year} {author} · Powered by Astro{lastUpdated && ` · ${lastUpdated}`}
     </p>
+    <div class="footer-sign">
+      <p
+        class="footer-motto"
+        data-mottos={JSON.stringify(hymmnosMottos)}
+        aria-label="我很高兴能将自己化为诗歌"
+      >
+        <span class="motto-text">Was yea ra chs hymmnos mea</span>
+        <span class="secret-motto" aria-hidden="true"> cEzE dand.</span>
+      </p>
+      <Seal size={52} rotate={-2} />
+    </div>
   </div>
-  <Seal size={52} rotate={-2} />
 </footer>
 
 <!-- Hymmnos motto rotation: pick the day's sentence by client date + season.
@@ -128,13 +131,14 @@ const socialLinks = links.map(({ name, url }) => {
 
 <style>
   .site-footer {
-    align-items: flex-end;
-    gap: 24px;
     padding: 44px 0 60px;
   }
 
   .footer-content {
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
   }
 
   .footer-links {
@@ -148,35 +152,35 @@ const socialLinks = links.map(({ name, url }) => {
     color: var(--secondary);
     opacity: 1;
     text-decoration: none;
-    transition: color 200ms ease-out;
+    transition: color 300ms ease-out;
   }
 
   .footer-links a:hover,
   .footer-links :global(.random-post):hover {
-    color: var(--seal);
+    color: var(--accent);
     opacity: 1;
     text-decoration: none;
   }
 
-  .footer-credit,
-  .footer-note {
-    margin: 14px 0 0;
-    color: var(--secondary);
-  }
-
-  .footer-credit {
+  .footer-meta {
+    margin: 0;
     font-family: var(--mono);
     font-size: 12px;
     letter-spacing: 0.04em;
+    color: var(--secondary);
   }
 
-  .footer-note {
-    font-size: 13.5px;
+  .footer-sign {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
   }
 
   /* Hymmnos motto: Ar tonelico conlang line — a poem left untranslated. */
   .footer-motto {
-    margin: 14px 0 0;
+    margin: 0;
+    min-width: 0;
     font-family: "Hymmnos", var(--serif);
     font-size: 13px;
     letter-spacing: 0.06em;

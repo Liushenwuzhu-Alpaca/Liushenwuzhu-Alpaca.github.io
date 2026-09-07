@@ -40,7 +40,7 @@ const giscusConfig = {
 
 <div
   id="giscus"
-  class="giscus mt-16"
+  class="giscus"
   data-config={JSON.stringify(giscusConfig)}
 />
 
@@ -50,9 +50,10 @@ let giscusContainer: HTMLElement | null = null
 
 function getThemeUrl() {
   const isDark = document.documentElement.classList.contains('dark')
+  const origin = window.location.origin
   return isDark
-    ? `https://cdn.jsdelivr.net/gh/radishzzz/astro-theme-retypeset@master/public/giscus/theme-dark.css`
-    : `https://cdn.jsdelivr.net/gh/radishzzz/astro-theme-retypeset@master/public/giscus/theme-light.css`
+    ? `${origin}/giscus/theme-dark.css`
+    : `${origin}/giscus/theme-light.css`
 }
 
 function updateGiscusTheme() {

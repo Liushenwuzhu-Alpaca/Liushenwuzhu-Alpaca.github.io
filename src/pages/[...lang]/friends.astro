@@ -107,9 +107,9 @@ export async function getStaticPaths() {
     align-items: flex-start;
     gap: 18px;
     padding: 20px 22px;
-    border: 1px solid var(--hairline);
-    border-radius: 6px;
+    border-radius: var(--radius);
     background: var(--paper-card);
+    box-shadow: var(--shadow-1);
   }
   .info-avatar {
     width: 56px;
@@ -148,7 +148,7 @@ export async function getStaticPaths() {
     color: var(--secondary);
     background: transparent;
     border: 1px solid var(--hairline);
-    border-radius: 999px;
+    border-radius: var(--radius);
     cursor: pointer;
     transition: color 200ms ease-out, border-color 200ms ease-out;
   }

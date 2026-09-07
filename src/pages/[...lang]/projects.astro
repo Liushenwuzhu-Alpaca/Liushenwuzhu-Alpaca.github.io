@@ -17,7 +17,7 @@ const repos = await getPublicRepos('Liushenwuzhu-Alpaca')
 const projects = repos
   ? repos.map(repo => ({
       name: repo.name,
-      description: repo.description ?? '暂无描述',
+      description: repo.description || repo.language || '',
       url: repo.url,
       stars: repo.stars,
     }))
@@ -45,8 +45,8 @@ const collaborations: { name: string, description: string, url: string, role?: s
       {projects.map(project => (
         <a class="row" href={project.url} target="_blank" rel="noopener">
           <h3><span class="u">{project.name}</span> <span class="arrow">-&gt;</span></h3>
-          <p>{project.description}</p>
-          {project.stars !== null && <p class="font-time text-3.5 c-secondary">★ {project.stars}</p>}
+          {project.description && <p>{project.description}</p>}
+          {project.stars !== null && project.stars > 0 && <p class="font-time text-3.5 c-secondary">★ {project.stars}</p>}
         </a>
       ))}
     </div>
