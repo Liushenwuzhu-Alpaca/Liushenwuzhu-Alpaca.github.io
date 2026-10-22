@@ -26,3 +26,7 @@ pnpm-debug.log*
 !.vscode/settings.json
 
 improve/
+
+.agents/
+
+skills-lock.json
