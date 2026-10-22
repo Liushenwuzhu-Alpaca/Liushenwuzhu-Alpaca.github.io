@@ -53,6 +53,10 @@ const postSlug = (post: HomePost) => post.data.abbrlink || post.id.replace(/\.(m
 function postTransitionName(post: HomePost) {
   return `post-${postSlug(post)}${currentLang ? `-${currentLang}` : ''}`
 }
+// 图标与文章页头 150px 图标同名，点进文章时小图标放大到页头位置
+function iconTransitionName(post: HomePost) {
+  return `icon-${postSlug(post)}${currentLang ? `-${currentLang}` : ''}`
+}
 ---
 
 <Layout>
@@ -80,7 +84,7 @@ function postTransitionName(post: HomePost) {
           const tag = post.data.tags[0]
           return (
             <a class="card" href={getPostPath(slug, currentLang)} transition:name={postTransitionName(post)} data-disable-theme-toggle-transition>
-              <ChantIcon name={post.data.hymmnos ?? slug} size={46} />
+              <ChantIcon name={post.data.hymmnos ?? slug} size={46} transitionName={iconTransitionName(post)} />
               <div>
                 {post.data.hymmnos && <span class="chant" aria-hidden="true">{post.data.hymmnos}</span>}
                 <h3>{post.data.title}</h3>
@@ -106,10 +110,10 @@ function postTransitionName(post: HomePost) {
           const slug = postSlug(post)
           return (
             <li>
-              {/* 已在精选中出现的文章不再挂同名 transition，避免 view-transition-name 重复 */}
+              {/* 已在精选中出现的文章不再挂同名 transition（行与图标都不挂），避免 view-transition-name 重复 */}
               <a href={getPostPath(slug, currentLang)} transition:name={featuredIds.has(post.id) ? undefined : postTransitionName(post)} data-disable-theme-toggle-transition>
                 <time datetime={formatDate(post.data.published)}>{formatDate(post.data.published)}</time>
-                <ChantIcon name={post.data.hymmnos ?? slug} size={30} />
+                <ChantIcon name={post.data.hymmnos ?? slug} size={30} transitionName={featuredIds.has(post.id) ? undefined : iconTransitionName(post)} />
                 <div>
                   <h3>{post.data.title}</h3>
                   {post.data.hymmnos && <span class="chant" aria-hidden="true">{post.data.hymmnos}</span>}

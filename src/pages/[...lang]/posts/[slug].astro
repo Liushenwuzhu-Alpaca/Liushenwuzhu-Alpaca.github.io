@@ -94,17 +94,17 @@ const revisionCount = getRevisionCount(contentPath)
 const revisionHistoryUrl = `https://github.com/Liushenwuzhu-Alpaca/Liushenwuzhu-Alpaca.github.io/commits/main/${contentPath}`
 const { tags } = post.data
 ---
-<ReadingProgress />
 <Layout
   postTitle={post.data.title}
   postDescription={description}
   postSlug={post.data.abbrlink || post.id.replace(/\.(md|mdx)$/, '')}
   supportedLangs={supportedLangs}
 >
+  <ReadingProgress />
   <article class="post">
     <header class="ph">
       <div class="ph-icon">
-        <ChantIcon name={post.data.hymmnos ?? slug} size={150} />
+        <ChantIcon name={post.data.hymmnos ?? slug} size={150} transitionName={`icon-${slug}${currentLang ? `-${currentLang}` : ''}`} draw />
       </div>
       <div>
         {post.data.hymmnos && <span class="ph-chant" aria-hidden="true">{post.data.hymmnos}</span>}

@@ -3,6 +3,15 @@ let overlay: HTMLDivElement | null = null
 let zoomedImg: HTMLImageElement | null = null
 let originalImg: HTMLImageElement | null = null
 
+// 放大图衬底宽度（px），与正文图框 padding 一致
+const FRAME = 12
+
+// 减少动态：同时尊重站内开关与系统设置
+function prefersReducedMotion() {
+  return document.documentElement.classList.contains('reduce-motion')
+    || window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
 // Setup overlay element
 function setupOverlay() {
   overlay = document.createElement('div')
@@ -33,22 +42,6 @@ function zoomIn(img: HTMLImageElement) {
   const rect = img.getBoundingClientRect()
   originalImg = img
 
-  // Clone and setup image
-  zoomedImg = img.cloneNode() as HTMLImageElement
-  zoomedImg.className = 'zoom-img'
-  zoomedImg.removeAttribute('id')
-  zoomedImg.removeAttribute('loading')
-
-  zoomedImg.style.top = `${rect.top}px`
-  zoomedImg.style.left = `${rect.left}px`
-  zoomedImg.style.width = `${rect.width}px`
-  zoomedImg.style.height = `${rect.height}px`
-
-  // Add to DOM and show
-  document.body.appendChild(zoomedImg)
-  overlay.style.display = 'block'
-  overlay.focus()
-
   // Calculate scale and position
   const viewportWidth = window.innerWidth
   const viewportHeight = window.innerHeight
@@ -59,6 +52,42 @@ function zoomIn(img: HTMLImageElement) {
   )
   const translateX = (-rect.left + (viewportWidth - rect.width) / 2) / scale
   const translateY = (-rect.top + (viewportHeight - rect.height) / 2) / scale
+  const reduced = prefersReducedMotion()
+
+  // Clone and setup image
+  zoomedImg = img.cloneNode() as HTMLImageElement
+  zoomedImg.className = 'zoom-img'
+  zoomedImg.removeAttribute('id')
+  zoomedImg.removeAttribute('loading')
+
+  if (reduced) {
+    // 减少动态：不做缩放动画，直接摆到最终尺寸与位置
+    const width = rect.width * scale
+    const height = rect.height * scale
+    zoomedImg.style.setProperty('--zoom-s', '1')
+    zoomedImg.style.top = `${(viewportHeight - height) / 2 - FRAME}px`
+    zoomedImg.style.left = `${(viewportWidth - width) / 2 - FRAME}px`
+    zoomedImg.style.width = `${width}px`
+    zoomedImg.style.height = `${height}px`
+  }
+  else {
+    // 图框尺寸按 1/scale 缩小，放大到位后正好是 FRAME px 衬底和 1px 细线
+    zoomedImg.style.setProperty('--zoom-s', String(scale))
+    zoomedImg.style.top = `${rect.top - FRAME / scale}px`
+    zoomedImg.style.left = `${rect.left - FRAME / scale}px`
+    zoomedImg.style.width = `${rect.width}px`
+    zoomedImg.style.height = `${rect.height}px`
+  }
+
+  // Add to DOM and show
+  document.body.appendChild(zoomedImg)
+  overlay.style.display = 'block'
+  overlay.focus()
+
+  if (reduced) {
+    overlay.style.opacity = '1'
+    return
+  }
 
   // Start animation
   requestAnimationFrame(() => {
@@ -103,6 +132,12 @@ function zoomOut() {
     originalImg = null
   }
 
+  // 减少动态时没有 transition，transitionend 不会触发，直接收尾
+  if (prefersReducedMotion()) {
+    cleanup()
+    return
+  }
+
   // Listen for transition end to cleanup
   zoomedImg.addEventListener('transitionend', cleanup, { once: true })
 }
@@ -133,3 +168,47 @@ document.addEventListener('astro:before-swap', cleanupZoom)
 document.addEventListener('click', handleClick)
 window.addEventListener('resize', zoomOut)
 </script>
+
+<style is:global>
+/* 放大图遮罩：纸色半透明 + 轻微模糊，随配色变化 */
+body > .zoom-overlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 999;
+  display: none;
+  height: 100%;
+  width: 100%;
+  cursor: zoom-out;
+  background: color-mix(in oklab, var(--paper) 92%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+
+/* 放大图：与正文相同的细框、纸卡衬底和四角刻度；--zf 抵消 transform 缩放，放大后为 1px */
+body > .zoom-img {
+  --zf: calc(1px / var(--zoom-s, 1));
+  --tick: linear-gradient(var(--line) 0 0);
+  position: fixed;
+  z-index: 1000;
+  box-sizing: content-box;
+  max-width: none;
+  padding: calc(12 * var(--zf));
+  cursor: zoom-out;
+  background:
+    var(--tick) left calc(4 * var(--zf)) top calc(4 * var(--zf)) / calc(12 * var(--zf)) var(--zf),
+    var(--tick) left calc(4 * var(--zf)) top calc(4 * var(--zf)) / var(--zf) calc(12 * var(--zf)),
+    var(--tick) right calc(4 * var(--zf)) top calc(4 * var(--zf)) / calc(12 * var(--zf)) var(--zf),
+    var(--tick) right calc(4 * var(--zf)) top calc(4 * var(--zf)) / var(--zf) calc(12 * var(--zf)),
+    var(--tick) left calc(4 * var(--zf)) bottom calc(4 * var(--zf)) / calc(12 * var(--zf)) var(--zf),
+    var(--tick) left calc(4 * var(--zf)) bottom calc(4 * var(--zf)) / var(--zf) calc(12 * var(--zf)),
+    var(--tick) right calc(4 * var(--zf)) bottom calc(4 * var(--zf)) / calc(12 * var(--zf)) var(--zf),
+    var(--tick) right calc(4 * var(--zf)) bottom calc(4 * var(--zf)) / var(--zf) calc(12 * var(--zf)),
+    var(--paper-card);
+  background-repeat: no-repeat;
+  box-shadow: 0 0 0 var(--zf) var(--hairline);
+  transition: transform 0.3s ease-out;
+}
+</style>

@@ -3,9 +3,20 @@ interface Props {
   /** 咏唱名或页面标识，决定图标的环数与缺口方位 */
   name: string
   size?: number
+  /** view-transition-name，同一页面内必须唯一；列表小图标与文章页头共用同名以做放大过渡 */
+  transitionName?: string
+  /** 进入页面时逐层描线（仅文章页页头使用，同页只能有一个） */
+  draw?: boolean
 }
 
-const { name, size = 36 } = Astro.props
+const { name, size = 36, transitionName, draw = false } = Astro.props
+
+// 描线节奏：环由内向外错开，指针随后，盘心实心点最后淡入，总长约 0.8s
+const RING_STAGGER = 0.07
+const RING_DURATION = 0.45
+
+// 名字只保留合法 CSS 标识符字符，避免写进 style 后失效
+const vtName = transitionName?.replace(/[^\w\u0080-\uFFFF-]/g, '_')
 
 // 按名称生成小同心圆图标：环数、缺口方位由名称的字符码决定，仅作视觉区分
 function chantIcon(name: string, size: number): string {
@@ -15,25 +26,99 @@ function chantIcon(name: string, size: number): string {
   const gap = ((s >> 3) % 12) * 30
   const R = 15
   let o = ''
-  for (let k = 1; k <= rings; k++) {
-    const r = (R * k) / rings
+  // 描线遮罩：可见线条用 non-scaling-stroke，Chrome 下它与 pathLength/dasharray 配合会错乱，
+  // 所以把 dash 动画放在遮罩里的同形粗线上（遮罩线不用 non-scaling-stroke），可见线条本身不动
+  let masks = ''
+  let k = 0
+  const mask = (shape: string, delay: number, duration: number) => {
+    const id = `ci-draw-${k++}`
+    masks += `<mask id="${id}" maskUnits="userSpaceOnUse" x="-18" y="-18" width="36" height="36">${shape.replace('/>', ` fill="none" stroke="#fff" stroke-width="4" pathLength="1" class="ci-stroke" style="--d:${delay.toFixed(2)}s;--t:${duration.toFixed(2)}s"/>`)}</mask>`
+    return ` mask="url(#${id})"`
+  }
+  for (let ring = 1; ring <= rings; ring++) {
+    const r = (R * ring) / rings
     const a1 = ((gap - 14) * Math.PI) / 180
     const a2 = ((gap + 14) * Math.PI) / 180
-    if (k === rings) {
+    const delay = (ring - 1) * RING_STAGGER
+    if (ring === rings) {
       // 最外环留一道缺口，像星盘上的指针槽
-      o += `<path d="M${(r * Math.sin(a2)).toFixed(2)} ${(-r * Math.cos(a2)).toFixed(2)}A${r} ${r} 0 1 1 ${(r * Math.sin(a1)).toFixed(2)} ${(-r * Math.cos(a1)).toFixed(2)}" fill="none" stroke="var(--line)" stroke-width="1.1"/>`
+      const d = `M${(r * Math.sin(a2)).toFixed(2)} ${(-r * Math.cos(a2)).toFixed(2)}A${r} ${r} 0 1 1 ${(r * Math.sin(a1)).toFixed(2)} ${(-r * Math.cos(a1)).toFixed(2)}`
+      const m = draw ? mask(`<path d="${d}"/>`, delay, RING_DURATION) : ''
+      o += `<path d="${d}" fill="none" stroke="var(--line)" stroke-width="1.1"${m}/>`
     }
     else {
-      o += `<circle r="${r.toFixed(2)}" fill="none" stroke="var(--line)" stroke-width="${k % 2 ? 0.7 : 1}"/>`
+      // 遮罩圆从缺口方位起笔（圆默认从 3 点钟方向开始，旋转到指针槽处）
+      const m = draw ? mask(`<circle r="${r.toFixed(2)}" transform="rotate(${gap - 90})"/>`, delay, RING_DURATION) : ''
+      o += `<circle r="${r.toFixed(2)}" fill="none" stroke="var(--line)" stroke-width="${ring % 2 ? 0.7 : 1}"${m}/>`
     }
   }
   const g = (gap * Math.PI) / 180
-  o += `<line x1="0" y1="0" x2="${(17 * Math.sin(g)).toFixed(2)}" y2="${(-17 * Math.cos(g)).toFixed(2)}" stroke="var(--line)" stroke-width=".8"/>`
-  o += '<circle r="1.8" fill="var(--ink)"/>'
-  return `<svg class="chant-icon" width="${size}" height="${size}" viewBox="-18 -18 36 36" aria-hidden="true">${o}</svg>`
+  const x2 = (17 * Math.sin(g)).toFixed(2)
+  const y2 = (-17 * Math.cos(g)).toFixed(2)
+  const lineMask = draw ? mask(`<line x1="0" y1="0" x2="${x2}" y2="${y2}"/>`, rings * RING_STAGGER, 0.25) : ''
+  o += `<line x1="0" y1="0" x2="${x2}" y2="${y2}" stroke="var(--line)" stroke-width=".8"${lineMask}/>`
+  o += `<circle r="1.8" fill="var(--ink)"${draw ? ' class="ci-dot"' : ''}/>`
+  const cls = draw ? 'chant-icon chant-icon--draw' : 'chant-icon'
+  const vt = vtName ? ` style="view-transition-name:${vtName}" data-vt="${vtName}"` : ''
+  const defs = masks ? `<defs>${masks}</defs>` : ''
+  return `<svg class="${cls}" width="${size}" height="${size}" viewBox="-18 -18 36 36" aria-hidden="true"${vt}>${defs}${o}</svg>`
 }
 
 const svg = chantIcon(name, size)
 ---
 
 <Fragment set:html={svg} />
+
+<script>
+// 软导航进入文章页时，若旧页面上已有同名图标，图标会由 view transition 放大到页头位置；
+// 此时再描线会让新快照先空后画、与放大过渡打架，所以直接跳过描线
+document.addEventListener('astro:before-swap', (event) => {
+  const icon = event.newDocument.querySelector<SVGSVGElement>('.chant-icon--draw[data-vt]')
+  const name = icon?.dataset.vt
+  if (!icon || !name || !('startViewTransition' in document))
+    return
+  if (document.querySelector(`[data-vt="${CSS.escape(name)}"]`))
+    icon.classList.add('is-drawn')
+})
+</script>
+
+<style is:global>
+  /* 遮罩线必须按用户坐标缩放，pathLength 才准；覆盖全局 .chant-icon circle 的 non-scaling-stroke */
+  .chant-icon .ci-stroke {
+    vector-effect: none;
+  }
+  /* 描线入场：遮罩线从 0 画到满，盘心点最后淡入；结束态与无动画时的默认态一致 */
+  .chant-icon--draw .ci-stroke {
+    animation: ci-draw var(--t) cubic-bezier(0.45, 0, 0.2, 1) var(--d) both;
+  }
+  .chant-icon--draw .ci-dot {
+    animation: ci-dot-in 0.2s ease-out 0.6s both;
+  }
+  @keyframes ci-draw {
+    from {
+      stroke-dasharray: 1 1;
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dasharray: 1 1;
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes ci-dot-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  .chant-icon--draw.is-drawn :is(.ci-stroke, .ci-dot),
+  html.reduce-motion .chant-icon--draw :is(.ci-stroke, .ci-dot) {
+    animation: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .chant-icon--draw :is(.ci-stroke, .ci-dot) {
+      animation: none;
+    }
+  }
+</style>

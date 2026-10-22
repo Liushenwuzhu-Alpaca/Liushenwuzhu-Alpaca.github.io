@@ -1,12 +1,9 @@
 import { visit } from 'unist-util-visit'
 
+// 正文图片统一包成 figure（图框样式挂在 figure 上）；alt 为空或以 _ 开头时不生成图注
 function createFigure(imgNode, isInGallery = false) {
   const altText = imgNode.properties?.alt
   const shouldSkipCaption = !altText || altText.startsWith('_')
-  if (shouldSkipCaption && !isInGallery) {
-    return imgNode
-  }
-
   const children = [imgNode]
 
   if (!shouldSkipCaption) {
@@ -58,20 +55,17 @@ export function rehypeImageProcessor() {
         return
       }
 
-      // Single image: convert to figure in non-gallery containers
+      // Single image: convert the paragraph itself into a figure
       if (imgNodes.length === 1) {
         const figure = createFigure(imgNodes[0], false)
-        if (figure !== imgNodes[0]) {
-          // Only replace if conversion happened
-          node.tagName = 'figure'
-          node.properties = figure.properties
-          node.children = figure.children
-        }
+        node.tagName = 'figure'
+        node.properties = figure.properties
+        node.children = figure.children
         return
       }
 
-      // Multiple images: unwrap in non-gallery containers
-      parent.children.splice(index, 1, ...imgNodes)
+      // Multiple images: one figure per image in non-gallery containers
+      parent.children.splice(index, 1, ...imgNodes.map(imgNode => createFigure(imgNode, false)))
     })
   }
 }

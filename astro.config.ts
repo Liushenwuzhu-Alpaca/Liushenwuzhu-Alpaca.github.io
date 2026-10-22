@@ -18,6 +18,7 @@ import { rehypeImageProcessor } from './src/plugins/rehype-image-processor.mjs'
 import { remarkContainerDirectives } from './src/plugins/remark-container-directives.mjs'
 import { remarkLeafDirectives } from './src/plugins/remark-leaf-directives.mjs'
 import { remarkReadingTime } from './src/plugins/remark-reading-time.mjs'
+import { astrolabeTheme, astrolabeTransformers } from './src/plugins/shiki-astrolabe.mjs'
 
 const { url: site } = themeConfig.site
 const { imageHostURL } = themeConfig.preload ?? {}
@@ -82,11 +83,10 @@ export default defineConfig({
       excludeLangs: ['mermaid'],
     },
     shikiConfig: {
-      // Available themes: https://shiki.style/themes
-      themes: {
-        light: 'github-light',
-        dark: 'github-dark',
-      },
+      // 单一 CSS 变量主题：token 颜色输出为 var(--sh-*)，由 markdown.css 映射到配色令牌
+      theme: astrolabeTheme,
+      // 文件名 title="…"、行高亮 {1,3-5}、行末 [!code ++]/[!code --] diff 标注
+      transformers: astrolabeTransformers,
     },
   },
   vite: {
