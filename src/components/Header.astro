@@ -18,7 +18,8 @@ const navItems = [
   { href: '/friends/', label: '友链' },
   { href: '/now/', label: '此刻' },
   { href: '/about/', label: '关于' },
-  { href: '/search/', label: '搜索' },
+  // 有 JS 时由 SearchModal 拦截点击、打开搜索弹窗；无 JS 时仍跳转 /search/
+  { href: '/search/', label: '搜索', search: true },
 ]
 
 // 当前页判定：首页只高亮「首页」，文章页归入「归档」，其余按路径前缀匹配
@@ -50,8 +51,12 @@ function isActive(href: string) {
         <a
           href={getLocalizedPath(item.href)}
           aria-current={isActive(item.href) ? 'page' : undefined}
+          data-search-trigger={item.search ? '' : undefined}
+          aria-keyshortcuts={item.search ? '/ Control+K Meta+K' : undefined}
+          class:list={[item.search && 'nav-search']}
         >
           {item.label}
+          {item.search && <kbd class="nav-kbd" aria-hidden="true">/</kbd>}
         </a>
       ))}
     </nav>
@@ -140,6 +145,26 @@ function isActive(href: string) {
     border-radius: 50%;
   }
 
+  /* 搜索项右侧的「/」键位提示：绝对定位，不影响当前项小圆环的居中 */
+  .nav a.nav-search {
+    margin-right: 22px;
+  }
+
+  .nav-kbd {
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    margin-left: 6px;
+    padding: 0 5px;
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--ink-faint);
+    border: 1px solid var(--hairline);
+    border-radius: 3px;
+    transform: translateY(-50%);
+  }
+
   .tools {
     display: flex;
     flex: none;
@@ -161,6 +186,14 @@ function isActive(href: string) {
     .nav {
       gap: 16px;
       font-size: 14px;
+    }
+
+    .nav a.nav-search {
+      margin-right: 0;
+    }
+
+    .nav-kbd {
+      display: none;
     }
 
     .tools {

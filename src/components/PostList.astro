@@ -20,11 +20,13 @@ const { posts, lang, pinned = false } = Astro.props
     const date = post.data.published.toISOString().split('T')[0]
     // 行尾只放前两个标签和阅读时长，避免挤压标题列
     const tail = [...post.data.tags.slice(0, 2), `${post.remarkPluginFrontmatter.minutes} 分钟`].join(' · ')
+    const suffix = lang ? `-${lang}` : ''
     return (
       <li>
-        <a href={getPostPath(slug, lang)} transition:name={`post-${slug}${lang ? `-${lang}` : ''}`} data-disable-theme-toggle-transition>
+        <a href={getPostPath(slug, lang)} transition:name={`post-${slug}${suffix}`} data-disable-theme-toggle-transition>
           <time datetime={date}>{date}</time>
-          <ChantIcon name={post.data.hymmnos ?? slug} size={30} />
+          {/* 与文章页头图标同名，点进文章时放大过渡 */}
+          <ChantIcon name={post.data.hymmnos ?? slug} size={30} transitionName={`icon-${slug}${suffix}`} />
           <div>
             <h3>{post.data.title}{pinned && <PinIcon class="ml-1 inline-block w-0.85em align-baseline" fill="currentColor" aria-hidden="true" />}</h3>
             {post.data.hymmnos && <span class="chant" aria-hidden="true">{post.data.hymmnos}</span>}

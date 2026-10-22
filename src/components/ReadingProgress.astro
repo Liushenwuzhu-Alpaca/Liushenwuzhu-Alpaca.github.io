@@ -1,61 +1,81 @@
-<div class="reading-progress" aria-hidden="true"></div>
+---
+import BackToTop from '@/components/Widgets/BackToTop.astro'
+---
 
-<script is:inline>
-;(function () {
-  let scrollHandler
+<div class="reading-progress" aria-hidden="true" data-pagefind-ignore></div>
+<BackToTop />
 
-  function cleanup() {
-    if (scrollHandler) {
-      window.removeEventListener('scroll', scrollHandler)
-      scrollHandler = undefined
-    }
+<script>
+// 进度线与回到顶部的进度环共用同一次滚动计算；ClientRouter 软导航后在 page-load 重新绑定
+let scrollHandler: (() => void) | undefined
+
+function cleanup() {
+  if (scrollHandler) {
+    window.removeEventListener('scroll', scrollHandler)
+    window.removeEventListener('resize', scrollHandler)
+    scrollHandler = undefined
   }
+}
 
-  function setup() {
-    cleanup()
+function setup() {
+  cleanup()
 
-    const bar = document.querySelector<HTMLElement>('.reading-progress')
-    if (!bar)
-      return
+  const bar = document.querySelector<HTMLElement>('.reading-progress')
+  const button = document.getElementById('back-to-top')
+  const ring = button?.querySelector<SVGCircleElement>('.btt-progress')
+  if (!bar && !button)
+    return
 
-    function update() {
-      const scrollY = window.scrollY
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight
-      const progress = docHeight > 0 ? Math.min(scrollY / docHeight, 1) : 0
+  function update() {
+    const scrollY = window.scrollY
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight
+    const progress = docHeight > 0 ? Math.min(Math.max(scrollY / docHeight, 0), 1) : 0
+    if (bar)
       bar.style.transform = `scaleX(${progress})`
-    }
-
-    let ticking = false
-    scrollHandler = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          update()
-          ticking = false
-        })
-        ticking = true
-      }
-    }
-
-    update()
-    window.addEventListener('scroll', scrollHandler, { passive: true })
+    if (ring)
+      ring.style.strokeDashoffset = String(1 - progress)
+    // 滚过一屏才出现
+    button?.classList.toggle('is-shown', scrollY > window.innerHeight)
   }
 
-  document.addEventListener('astro:page-load', setup)
-  document.addEventListener('astro:before-swap', cleanup)
-})()
+  let ticking = false
+  scrollHandler = () => {
+    if (ticking)
+      return
+    ticking = true
+    window.requestAnimationFrame(() => {
+      update()
+      ticking = false
+    })
+  }
+
+  update()
+  window.addEventListener('scroll', scrollHandler, { passive: true })
+  window.addEventListener('resize', scrollHandler, { passive: true })
+}
+
+document.addEventListener('astro:page-load', setup)
+document.addEventListener('astro:before-swap', cleanup)
 </script>
 
 <style is:global>
+  /* 贴在页头底边的铜色细线，宽度随阅读进度变化；层级低于页头（z-index 5）及其下拉菜单。
+     页头 62px + 1px 底边，细线紧贴底边下方，避免被半透明页头盖住一半 */
   .reading-progress {
     position: fixed;
-    top: 0;
+    top: 63px;
     left: 0;
     width: 100%;
     height: 2px;
-    background: var(--accent);
+    background: var(--line);
     transform-origin: 0 50%;
     transform: scaleX(0);
-    z-index: 50;
+    z-index: 4;
     pointer-events: none;
+  }
+  @media (max-width: 760px) {
+    .reading-progress {
+      top: 56px;
+    }
   }
 </style>
