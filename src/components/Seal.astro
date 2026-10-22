@@ -32,9 +32,12 @@ const {
     place-items: center;
     padding: 0.08em;
     flex: none;
-    background: var(--seal);
-    color: var(--paper);
-    border-radius: var(--radius);
+    /* 描边印：外框 + 内衬细线 */
+    background: none;
+    color: var(--seal);
+    border: 2px solid var(--seal);
+    border-radius: 3px;
+    box-shadow: inset 0 0 0 2px var(--paper), inset 0 0 0 3px var(--seal);
     font-family: var(--serif);
     font-size: calc(var(--seal-size) * 0.55);
     font-weight: 700;

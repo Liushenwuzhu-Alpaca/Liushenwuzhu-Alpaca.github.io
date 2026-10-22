@@ -1,5 +1,5 @@
 ---
-import HymmnosChant from '@/components/HymmnosChant.astro'
+import PageHead from '@/components/PageHead.astro'
 import { allLocales } from '@/config'
 import { getLangRouteParam } from '@/i18n/lang'
 import Layout from '@/layouts/Layout.astro'
@@ -49,28 +49,29 @@ const populatedGroups = data.filter(group => group.items.length > 0)
 
 <Layout>
   <section aria-labelledby="uses-title">
-    <h1 id="uses-title" class="label">Uses · 装备</h1>
-    <HymmnosChant hm="Ma ki ra exec anw omnis oz mea." zh="平静专注地，启用我所有的装备" />
-    {populatedGroups.length > 0
+    <PageHead id="uses-title" kicker="Uses" title="装备" hm="Ma ki ra exec anw omnis oz mea." zh="平静专注地，启用我所有的装备" icon="USES" />
+    <div class="page-body">
+      {populatedGroups.length > 0
 ? populatedGroups.map(group => (
-      <>
-        <p class="group-heading">{group.category}</p>
-        <div class="rows">
-          {group.items.map(item => (
-            <div class="row">
-              <h3 class="item-name">{item.name}</h3>
-              {item.desc && <p class="item-desc">{item.desc}</p>}
-            </div>
-          ))}
-        </div>
-      </>
-    ))
+        <>
+          <p class="group-heading">{group.category}</p>
+          <div class="rows">
+            {group.items.map(item => (
+              <div class="row">
+                <h3 class="item-name">{item.name}</h3>
+                {item.desc && <p class="item-desc">{item.desc}</p>}
+              </div>
+            ))}
+          </div>
+        </>
+      ))
 : (
-      <div class="empty-state">
-        <p class="empty-state__title">案头尚未添置。</p>
-        <p class="empty-state__note">正在筛选，留下真正常用的器物。</p>
-      </div>
-    )}
+        <div class="empty-state">
+          <p class="empty-state__title">案头尚未添置。</p>
+          <p class="empty-state__note">正在筛选，留下真正常用的器物。</p>
+        </div>
+      )}
+    </div>
   </section>
 </Layout>
 
@@ -78,7 +79,7 @@ const populatedGroups = data.filter(group => group.items.length > 0)
   .group-heading {
     font-family: var(--mono);
     font-size: 12px;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--accent);
     margin-bottom: 10px;

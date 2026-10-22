@@ -2,9 +2,8 @@
 import type { Language } from '@/i18n/config'
 import type { Post } from '@/types'
 import PinIcon from '@/assets/icons/pin-icon.svg'
-import PostDate from '@/components/PostDate.astro'
+import ChantIcon from '@/components/ChantIcon.astro'
 import { getPostPath } from '@/i18n/path'
-import { getPostDescription } from '@/utils/description'
 
 export interface Props {
   posts: Post[]
@@ -15,16 +14,25 @@ export interface Props {
 const { posts, lang, pinned = false } = Astro.props
 ---
 
-<div class="rows">
+<ul class="list">
   {posts.map((post) => {
     const slug = post.data.abbrlink || post.id.replace(/\.(md|mdx)$/, '')
-    const desc = getPostDescription(post, 'list')
+    const date = post.data.published.toISOString().split('T')[0]
+    // 行尾只放前两个标签和阅读时长，避免挤压标题列
+    const tail = [...post.data.tags.slice(0, 2), `${post.remarkPluginFrontmatter.minutes} 分钟`].join(' · ')
     return (
-      <a class="row" href={getPostPath(slug, lang)} transition:name={`post-${slug}${lang ? `-${lang}` : ''}`} data-disable-theme-toggle-transition>
-        <span class="date"><PostDate date={post.data.published} minutes={post.remarkPluginFrontmatter.minutes} /></span>
-        <h3><span class="u">{post.data.title}</span>{pinned && <PinIcon class="ml-1 inline-block w-0.85em align-baseline" fill="currentColor" aria-hidden="true" />}</h3>
-        {desc && <p>{desc}</p>}
-      </a>
+      <li>
+        <a href={getPostPath(slug, lang)} transition:name={`post-${slug}${lang ? `-${lang}` : ''}`} data-disable-theme-toggle-transition>
+          <time datetime={date}>{date}</time>
+          <ChantIcon name={post.data.hymmnos ?? slug} size={30} />
+          <div>
+            <h3>{post.data.title}{pinned && <PinIcon class="ml-1 inline-block w-0.85em align-baseline" fill="currentColor" aria-hidden="true" />}</h3>
+            {post.data.hymmnos && <span class="chant" aria-hidden="true">{post.data.hymmnos}</span>}
+          </div>
+          <span class="tags">{tail}</span>
+        </a>
+      </li>
     )
   })}
-</div>
+</ul>
+

@@ -191,7 +191,7 @@ pre.mermaid svg {
   --at-apply: 'ml-4 font-semibold';
 }
 #toc-links-list {
-  --at-apply: 'mb-2.5 mt-1 list-none pl-0 2xl:(mb-1 space-y-1) space-y-1.1';
+  --at-apply: 'mb-2.5 mt-1 list-none pl-0 space-y-1.1';
   scroll-target-group: auto;
 }
 .toc a.is-current {
@@ -202,16 +202,16 @@ pre.mermaid svg {
   margin-left: -0.65em;
 }
 .toc-links-h2, .toc-links-h3, .toc-links-h4 {
-  --at-apply: 'text-balance text-sm font-normal no-underline after:bottom-0.15em 2xl:(text-3.2 c-secondary/80 hover:c-primary hover:font-medium)';
+  --at-apply: 'text-balance text-sm font-normal no-underline after:bottom-0.15em';
   transition: color 0.3s ease-out, font-weight 0.3s ease-out;
 }
 
 /* Overflow and Scrollbar */
 #toc-toggle:checked ~ #toc-accordion-wrapper #toc-accordion-content {
-  --at-apply: 'overflow-y-auto 2xl:overflow-hidden';
+  --at-apply: 'overflow-y-auto';
 }
 #toc-accordion-content {
-  --at-apply: 'max-h-59 overflow-hidden pl-4 pr-6 2xl:(max-h-[calc(100vh-27.5rem)] overflow-y-auto scrollbar-hidden)';
+  --at-apply: 'max-h-59 overflow-hidden pl-4 pr-6';
   scrollbar-width: thin;
   scrollbar-color: var(--hairline) transparent;
 }
@@ -219,18 +219,10 @@ pre.mermaid svg {
   --at-apply: 'hidden';
 }
 
-/* Mobile Initial State — instant show/hide, no grid-rows animation */
+/* 窄屏折叠：瞬时展开/收起，不做 grid-rows 动画；宽屏常驻展开由 TOC.astro 控制 */
 #toc-accordion-wrapper {
   --at-apply: 'grid rows-[0fr]';
 }
 #toc-toggle:checked ~ #toc-accordion-wrapper {
   --at-apply: 'rows-[1fr]';
-}
-
-/* Desktop Initial State */
-#toc-accordion-wrapper {
-  --at-apply: '2xl:rows-[1fr]';
-}
-#toc-toggle:checked ~ #toc-accordion-wrapper {
-  --at-apply: '2xl:rows-[0fr]';
 }

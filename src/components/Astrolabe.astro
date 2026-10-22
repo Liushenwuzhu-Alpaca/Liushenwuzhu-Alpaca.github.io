@@ -1,0 +1,172 @@
+---
+// 星盘生成：所有几何均以圆心为原点，角度自正上方顺时针；构建时拼成 SVG 字符串
+const P = Math.PI / 180
+function xy(r: number, a: number): [string, string] {
+  return [(r * Math.sin(a * P)).toFixed(2), (-r * Math.cos(a * P)).toFixed(2)]
+}
+function arc(r: number, a1: number, a2: number): string {
+  const p = xy(r, a1)
+  const q = xy(r, a2)
+  return `M${p}A${r} ${r} 0 ${(a2 - a1) > 180 ? 1 : 0} 1 ${q}`
+}
+function sector(r1: number, r2: number, a1: number, a2: number): string {
+  const a = xy(r2, a1)
+  const b = xy(r2, a2)
+  const c = xy(r1, a2)
+  const d = xy(r1, a1)
+  const L = (a2 - a1) > 180 ? 1 : 0
+  return `M${a}A${r2} ${r2} 0 ${L} 1 ${b}L${c}A${r1} ${r1} 0 ${L} 0 ${d}Z`
+}
+
+const B = 'var(--line)'
+let o = ''
+const defs = `<defs><path id="astrolabe-ring" d="M0 -264A264 264 0 1 1 -0.01 -264"/>`
+  + `<clipPath id="astrolabe-secB"><path d="${sector(148, 192, 183, 297)}"/></clipPath>`
+  + `<radialGradient id="astrolabe-glow"><stop offset="0" style="stop-color:var(--line)" stop-opacity=".22"/><stop offset="1" style="stop-color:var(--line)" stop-opacity="0"/></radialGradient></defs>`
+
+// 外缘：双线 + 度数刻度
+o += `<circle r="312" fill="none" stroke="${B}" stroke-width="1.6"/><circle r="306" fill="none" stroke="${B}" stroke-width=".6"/>`
+o = `<circle r="312" fill="var(--paper-card)"/>${o}`
+let t = ''
+for (let a = 0; a < 360; a += 2) {
+  const L = a % 30 === 0 ? 17 : a % 10 === 0 ? 11 : 5
+  t += `M${xy(306, a)}L${xy(306 - L, a)}`
+}
+o += `<path d="${t}" stroke="${B}" stroke-width=".7"/>`
+o += `<circle r="288" fill="none" stroke="${B}" stroke-width=".6"/>`
+for (let a = 0; a < 360; a += 30) {
+  const p = xy(320, a)
+  o += `<text class="lat" x="${p[0]}" y="${p[1]}" text-anchor="middle" dominant-baseline="central" transform="rotate(${a} ${p[0]} ${p[1]})">${a}</text>`
+}
+
+// 铭文环：Hymmnos 字体沿圆周排布，极慢旋转
+// 字号写进 style：UnoCSS attributify 会把 font-size="20" 当成 text-20 工具类（5rem）
+o += `<g class="spin"><text style="font-family:Hymmnos;font-size:20px" fill="var(--glyph)"><textPath href="#astrolabe-ring" textLength="1640" lengthAdjust="spacing">Wee touwaka ra pomb anw titilia dornpica oz ieeya, ween gauto</textPath></text></g>`
+o += `<circle r="256" fill="none" stroke="${B}" stroke-width="1"/><circle r="252" fill="none" stroke="${B}" stroke-width=".5"/>`
+
+// 字形环：Hymmnos 字形沿圆周排布
+let tk = ''
+for (let k = 0; k < 10; k++) {
+  const a = k * 36
+  const p = xy(232, a)
+  o += `<text style="font-family:Hymmnos;font-size:27px" fill="var(--glyph)" x="${p[0]}" y="${p[1]}" text-anchor="middle" dominant-baseline="central" transform="rotate(${a} ${p[0]} ${p[1]})">${k}</text>`
+  for (let j = 1; j < 6; j++) {
+    const b = a + j * 6
+    tk += `M${xy(252, b)}L${xy(j === 3 ? 240 : 246, b)}`
+  }
+}
+o += `<path d="${tk}" stroke="${B}" stroke-width=".6"/>`
+o += `<circle r="208" fill="none" stroke="${B}" stroke-width=".6"/>`
+// 方波纹圈
+let sq = ''
+const N = 60
+for (let i = 0; i < N; i++) {
+  const a0 = (i * 360) / N
+  const a1 = a0 + 180 / N
+  const a2 = a0 + 360 / N
+  sq += `${i ? 'L' : 'M'}${xy(204, a0)}A204 204 0 0 1 ${xy(204, a1)}L${xy(198, a1)}A198 198 0 0 1 ${xy(198, a2)}L${xy(204, a2)}`
+}
+o += `<path d="${sq}" fill="none" stroke="${B}" stroke-width=".7"/>`
+o += `<circle r="194" fill="none" stroke="${B}" stroke-width=".9"/>`
+
+// 线型环：弧线、放射线、竖向平行线三段，各占 120° 扇区
+let al = ''
+for (let r = 150; r <= 190; r += 6.5) al += arc(r, -57, 57)
+o += `<path d="${al}" fill="none" stroke="${B}" stroke-width=".8"/>`
+let ga = ''
+for (let a = 63; a <= 177; a += 2.4) {
+  const lg = Math.round((a - 63) / 2.4) % 2
+  ga += `M${xy(lg ? 160 : 150, a)}L${xy(190, a)}`
+}
+o += `<path d="${ga}" stroke="${B}" stroke-width=".8"/>`
+let be = ''
+for (let x = -196; x <= 0; x += 5.5) be += `M${x.toFixed(1)} -200V200`
+o += `<path clip-path="url(#astrolabe-secB)" d="${be}" stroke="${B}" stroke-width=".8"/>`
+// 分隔
+let dv = ''
+for (const a of [60, 180, 300]) dv += `M${xy(144, a)}L${xy(194, a)}`
+o += `<path d="${dv}" stroke="${B}" stroke-width="1"/>`
+o += `<circle r="144" fill="none" stroke="${B}" stroke-width=".9"/>`
+
+// 放射同心圆
+o += `<circle r="140" fill="url(#astrolabe-glow)"/>`
+for (let r = 14; r <= 126; r += 14) o += `<circle r="${r}" fill="none" stroke="${B}" stroke-width=".7" stroke-opacity="${(1 - r / 170).toFixed(2)}"/>`
+o += `<circle class="ripple" r="6" fill="none" stroke="${B}" stroke-width="1"/><circle class="ripple b" r="6" fill="none" stroke="${B}" stroke-width="1"/>`
+o += `<path d="M-140 0H140M0 -140V140" stroke="${B}" stroke-width=".5" stroke-dasharray="1 4"/>`
+
+// 照准规（alidade）：横贯盘面，极慢反向旋转
+o += `<g class="spin rev"><path d="M-3 -300L0 -310L3 -300V300L0 310L-3 300Z" fill="var(--hairline)" stroke="${B}" stroke-width=".6"/>`
+  + `<rect x="-7" y="-296" width="14" height="22" fill="var(--paper)" stroke="${B}" stroke-width=".7"/><rect x="-7" y="274" width="14" height="22" fill="var(--paper)" stroke="${B}" stroke-width=".7"/>`
+  + `<circle r="16" fill="var(--paper)" stroke="${B}" stroke-width="1"/><circle r="11" fill="none" stroke="${B}" stroke-width=".5"/></g>`
+o += '<circle r="4.2" fill="var(--seal)"/>'
+
+const inner = defs + o
+---
+
+<svg
+  class="astrolabe"
+  viewBox="-330 -330 660 660"
+  role="img"
+  aria-label="在暗夜之中，孕育一颗希望的小小种子"
+  set:html={inner}
+/>
+
+<style is:global>
+  /* set:html 内容拿不到 scoped 属性，故用全局样式并统一加 .astrolabe 前缀 */
+  .astrolabe {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+  }
+  .astrolabe .spin {
+    transform-origin: 0 0;
+    animation: astrolabe-spin 900s linear infinite;
+  }
+  .astrolabe .spin.rev {
+    animation-duration: 2400s;
+    animation-direction: reverse;
+  }
+  @keyframes astrolabe-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .astrolabe .ripple {
+    animation: astrolabe-ripple 9s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
+    transform-origin: 0 0;
+  }
+  .astrolabe .ripple.b {
+    animation-delay: -4.5s;
+  }
+  @keyframes astrolabe-ripple {
+    from {
+      r: 6;
+      opacity: 0.9;
+    }
+    to {
+      r: 140;
+      opacity: 0;
+    }
+  }
+  .astrolabe .lat {
+    font-family: var(--latin);
+    font-size: 11px;
+    fill: var(--accent);
+  }
+  /* 减少动效：站点开关与系统偏好均停止转动 */
+  html.reduce-motion .astrolabe :is(.spin, .ripple) {
+    animation: none;
+  }
+  html.reduce-motion .astrolabe .ripple {
+    opacity: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .astrolabe :is(.spin, .ripple) {
+      animation: none;
+    }
+    .astrolabe .ripple {
+      opacity: 0;
+    }
+  }
+</style>

@@ -133,15 +133,16 @@ export const defaultLocale = themeConfig.global.locale
 export const moreLocales = themeConfig.global.moreLocales
 export const allLocales = [defaultLocale, ...moreLocales]
 
-// Switchable color palettes. Each palette provides paper/ink/accent/hairline
-// tokens for both light and dark modes in src/styles/global.css.
+// 可切换配色：light/dark 为 <meta name="theme-color"> 用的纸色，swatch 为配色菜单色块。
+// 各配色的亮暗令牌定义在 src/styles/global.css。
 export const themePalettes = [
-  { id: 'paper', label: '宣', light: '#F7F3E9', dark: '#1C1B17' },
-  { id: 'silk', label: '绢', light: '#F4EBDB', dark: '#201913' },
-  { id: 'indigo', label: '黛', light: '#EDF0F2', dark: '#131A21' },
+  { id: 'brass', label: '铜', light: '#F2ECE0', dark: '#0C1018', swatch: '#B08D57' },
+  { id: 'silver', label: '银', light: '#F2F4F7', dark: '#0F1420', swatch: '#6F98A0' },
+  { id: 'verdigris', label: '青', light: '#EEF0E8', dark: '#0D1512', swatch: '#6E9A86' },
+  { id: 'ink', label: '墨', light: '#F4F3EF', dark: '#111111', swatch: '#8A877F' },
 ] as const
 
-// Hidden switchable color palettes. Unlocked via Konami code (↑↑↓↓←→←→BA).
+// 隐藏配色：Konami 码（↑↑↓↓←→←→BA）解锁。
 export const secretPalettes = [
-  { id: 'violet', label: '檀', light: '#F4F0F5', dark: '#1D1723' },
+  { id: 'violet', label: '檀', light: '#F4F0F5', dark: '#14101B', swatch: '#9A7FB0' },
 ] as const

@@ -4,8 +4,7 @@ interface Props {
   hm: string
   /** Chinese translation — rendered into aria-label only, never displayed. */
   zh: string
-  /** 'label' (default) tucks into the whitespace under a .label heading;
-     'epigraph' stands alone as an opening line (e.g. the homepage hero). */
+  /** 'label'（默认）位于页面标题下方；'epigraph' 作为独立题记行。 */
   variant?: 'label' | 'epigraph'
 }
 
@@ -18,17 +17,17 @@ const { hm, zh, variant = 'label' } = Astro.props
 
 <style>
   .page-chant {
-    /* Nest into the 40px whitespace below .label instead of adding height. */
-    margin: -26px 0 12px;
+    /* 位于 PageHead 标题下方 */
+    margin: 6px 0 0;
     font-family: "Hymmnos", var(--serif);
     font-size: 13px;
     letter-spacing: 0.06em;
-    color: var(--ink-faint);
+    color: var(--glyph);
   }
 
   .page-chant--epigraph {
-    margin: 0 0 22px;
-    font-size: 14px;
+    margin: 8px 0 0;
+    font-size: 15px;
     letter-spacing: 0.08em;
   }
 </style>

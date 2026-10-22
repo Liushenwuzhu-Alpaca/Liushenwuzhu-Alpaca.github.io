@@ -1,7 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content'
 import { getCollection, render } from 'astro:content'
-import HymmnosChant from '@/components/HymmnosChant.astro'
+import PageHead from '@/components/PageHead.astro'
 import { allLocales } from '@/config'
 import { getLangRouteParam } from '@/i18n/lang'
 import Layout from '@/layouts/Layout.astro'
@@ -27,37 +27,37 @@ const renderedMoments = await Promise.all(
 
 <Layout>
   <section aria-labelledby="now-title">
-    <h1 id="now-title" class="label">Now · 此刻</h1>
-    <HymmnosChant hm="Ma num ra gyen anw slep noes." zh="编织出正睡着的自己" />
-    <div class="heti">
-      <p>阅读GAD相关论文寻找研究推进方向</p>
-      <p>研究AI生成视频和图片</p>
-      <p>实习进行ai4pentest</p>
-      <p>学习Rust</p>
-      <p>推进图异常检测大研项目</p>
-    </div>
-    <div class="moments-list">
-      {renderedMoments.length === 0 && <p class="c-secondary">还没有动态，先去写一条。</p>}
-      {renderedMoments.map(({ moment, Content }) => (
-        <article class="moment-entry">
-          <span class="moment-marker"></span>
-          <div class="moment-body heti">
-            <time class="moment-date" datetime={moment.data.date.toISOString()}>
-              {moment.data.date.toLocaleDateString('zh-CN', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                weekday: 'long',
-              })}
-            </time>
-            <div class="moment-content">
-              <Content />
+    <PageHead id="now-title" kicker="Now" title="此刻" hm="Ma num ra gyen anw slep noes." zh="编织出正睡着的自己" icon="NOW" />
+    <div class="page-body">
+      <div class="heti">
+        <p>阅读GAD相关论文寻找研究推进方向</p>
+        <p>研究AI生成视频和图片</p>
+        <p>实习进行ai4pentest</p>
+        <p>学习Rust</p>
+        <p>推进图异常检测大研项目</p>
+      </div>
+      <div class="moments-list">
+        {renderedMoments.length === 0 && <p class="c-secondary">还没有动态，先去写一条。</p>}
+        {renderedMoments.map(({ moment, Content }) => (
+          <article class="moment-entry">
+            <span class="moment-marker"></span>
+            <div class="moment-body heti">
+              <time class="moment-date" datetime={moment.data.date.toISOString()}>
+                {moment.data.date.toLocaleDateString('zh-CN', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  weekday: 'long',
+                })}
+              </time>
+              <div class="moment-content">
+                <Content />
+              </div>
             </div>
-          </div>
-        </article>
-      ))}
+          </article>
+        ))}
+      </div>
     </div>
-
   </section>
 </Layout>
 

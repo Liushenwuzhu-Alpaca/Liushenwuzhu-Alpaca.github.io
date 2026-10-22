@@ -16,11 +16,6 @@
   line-height: 1.9;
 }
 
-/* Customized Post Title */
-.heti .post-title {
-  --at-apply: 'mb-2 mt-0 text-8.5 font-bold lg:text-9';
-}
-
 /* Headings */
 .heti :where(h1, h2, h3, h4, h5, h6) {
   --at-apply: 'mb-4 mt-1.5em scroll-mt-20 font-semibold';
@@ -29,7 +24,26 @@
   --at-apply: 'text-7 c-primary';
 }
 .heti :where(h2) {
-  --at-apply: 'text-6 c-primary';
+  --at-apply: 'c-primary';
+}
+/* 二级标题：左侧同心圆标记 */
+.heti h2 {
+  position: relative;
+  margin: 2.2em 0 0.8em;
+  padding-left: 44px;
+  font-size: 26px;
+  font-weight: 600;
+}
+.heti h2::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.665em;
+  width: 26px;
+  height: 26px;
+  margin-top: -13px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--line) 0 2.5px, transparent 3px 6px, var(--line) 6px 7px, transparent 7.5px 11px, var(--line) 11px 12px, transparent 12.5px);
 }
 .heti :where(h3) {
   --at-apply: 'text-5';
@@ -52,7 +66,9 @@
 
 /* Paragraphs */
 .heti :where(p:not(.no-heti):not(.no-heti *)) {
-  --at-apply: 'mb-4 text-pretty cjk:text-justify';
+  --at-apply: 'text-pretty';
+  margin: 0 0 1.3em;
+  text-align: justify;
 }
 
 /* Links: ink text with an accent hairline underline; full accent on hover. */
@@ -89,11 +105,47 @@
 
 /* Code Blocks */
 .heti :where(pre) {
-  --at-apply: 'overflow-auto px-4 py-3';
+  position: relative;
+  overflow: auto;
+  margin: 1.6em 0;
+  padding: 12px 16px;
   border: 1px solid var(--hairline);
+  border-radius: 2px;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
   transition: scrollbar-color 0.3s ease-out;
+}
+/* Shiki 代码块（<pre> 上带 data-language）：代码底色压过 Shiki 内联背景，左上角语言标签，右上角小圆环 */
+.heti :where(pre[data-language]) {
+  padding: 40px 22px 18px;
+  background: var(--code-bg) !important;
+  line-height: 1.75;
+}
+.heti pre[data-language]::before {
+  content: attr(data-language);
+  position: absolute;
+  top: 9px;
+  left: 22px;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.6;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+.heti pre[data-language]::after {
+  content: "";
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  box-shadow: inset 0 0 0 3px var(--code-bg), inset 0 0 0 4px var(--line);
+}
+/* 右上角已有复制按钮（右 0.55rem、宽 2rem），圆环挪到按钮左侧 */
+.heti .code-block-wrapper > pre[data-language]::after {
+  right: 50px;
 }
 .heti :where(pre):hover {
   scrollbar-color: var(--hairline) transparent;
@@ -105,7 +157,11 @@ html.dark .heti pre span {
   --at-apply: 'text-[var(--shiki-dark)]!';
 }
 .heti .code-block-wrapper {
-  --at-apply: 'my-6 relative';
+  --at-apply: 'relative';
+  margin: 1.6em 0;
+}
+.heti .code-block-wrapper > pre {
+  margin: 0;
 }
 .heti :is(h1, h2, h3, h4, h5, h6, .code-block-wrapper) + .code-block-wrapper {
   --at-apply: 'mt-4';
@@ -134,18 +190,35 @@ html.dark .heti pre span {
   direction: rtl;
 }
 
-/* Blockquotes */
-.heti :where(blockquote) {
-  --at-apply: 'my-6 px-4 py-0.5';
+/* Blockquotes：上下铜线，左侧点阵半圆 */
+.heti :where(blockquote:not([class*="admonition-"])) {
+  position: relative;
+  margin: 1.6em 0;
+  padding: 18px 26px 18px 64px;
+  font-size: 19px;
+  line-height: 1.75;
+  color: var(--ink);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.heti :where(blockquote:not([class*="admonition-"]))::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  width: 40px;
+  height: 40px;
+  margin-top: -20px;
+  border-radius: 50%;
+  background: repeating-radial-gradient(circle, var(--line) 0 1px, transparent 1px 5px);
+  -webkit-mask: linear-gradient(90deg, #000 55%, transparent 55%);
+  mask: linear-gradient(90deg, #000 55%, transparent 55%);
+}
+/* Admonitions 保持原有的左边线样式，类型色由 extension.css 覆盖 */
+.heti blockquote[class*="admonition-"] {
+  --at-apply: 'my-6 px-4 py-1.5 c-secondary';
   border-left: 2px solid var(--accent);
   opacity: 0.85;
-}
-/* Admonitions keep their own upright type; only prose quotes go italic. */
-.heti :where(blockquote:not([class*="admonition-"])) {
-  font-style: italic;
-}
-.heti blockquote[class*="admonition-"] {
-  --at-apply: 'py-1.5 c-secondary';
 }
 .heti blockquote blockquote {
   --at-apply: 'py-0';
@@ -161,6 +234,12 @@ html.dark .heti pre span {
 }
 .heti blockquote:has(+ blockquote) {
   --at-apply: 'mb-4';
+}
+@media (max-width: 760px) {
+  .heti :where(blockquote:not([class*="admonition-"])) {
+    padding-left: 54px;
+    font-size: 17px;
+  }
 }
 
 /* Tables */
@@ -216,6 +295,11 @@ html.dark .heti pre span {
 }
 .heti :where(li) {
   --at-apply: 'mt-0.25em list-unset';
+}
+.heti :where(ol) > li::marker {
+  font-family: var(--latin);
+  font-weight: 600;
+  color: var(--accent);
 }
 .heti :is(h1, h2, h3, h4, h5, h6, ul, ol) + :is(ul, ol) {
   --at-apply: 'mt-4';
@@ -281,9 +365,12 @@ html.dark .heti :where(u) {
   content: "*   *   *";
 }
 
-/* Bold */
+/* Bold：半高底色 */
 .heti :where(b, strong) {
   --at-apply: 'font-semibold';
+}
+.heti :where(strong) {
+  background: linear-gradient(transparent 70%, var(--hairline) 70%);
 }
 
 /* Italic */

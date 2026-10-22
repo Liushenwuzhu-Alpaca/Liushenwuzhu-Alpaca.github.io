@@ -1,6 +1,6 @@
 ---
 import type { ImageMetadata } from 'astro'
-import HymmnosChant from '@/components/HymmnosChant.astro'
+import PageHead from '@/components/PageHead.astro'
 import { allLocales } from '@/config'
 import { getLangRouteParam } from '@/i18n/lang'
 import Layout from '@/layouts/Layout.astro'
@@ -35,39 +35,40 @@ const isEmpty = photos.length === 0
 
 <Layout>
   <section aria-labelledby="photos-title">
-    <h1 id="photos-title" class="label">Photos · 相册</h1>
-    <HymmnosChant hm="Was apea ra vit anw bautifal ciel." zh="沉浸于幸福，凝望这美丽的世界" />
-    {isEmpty
+    <PageHead id="photos-title" kicker="Photos" title="相册" hm="Was apea ra vit anw bautifal ciel." zh="沉浸于幸福，凝望这美丽的世界" icon="PHOTOS" />
+    <div class="page-body">
+      {isEmpty
 ? (
-      <div class="empty-state">
-        <p class="empty-state__title">相册正在显影。</p>
-        <p class="empty-state__note">照片还在冲洗，留白也有光。</p>
-      </div>
-    )
+        <div class="empty-state">
+          <p class="empty-state__title">相册正在显影。</p>
+          <p class="empty-state__note">照片还在冲洗，留白也有光。</p>
+        </div>
+      )
 : (
-      <div class="gallery">
-        {photos.map(([path, module]) => {
-          const key = path.split('/').pop()?.replace(/\.\w+$/, '') ?? ''
-          const meta = descMap[key]
-          const { default: img } = module
-          const caption = meta?.desc ?? ''
-          const date = meta?.date ?? ''
-          return (
-            <figure class="photo-item">
-              <div class="photo-frame">
-                <img src={img.src} alt={caption || key} width={img.width} height={img.height} loading="lazy" />
-              </div>
-              {(caption || date) && (
-                <figcaption>
-                  {date && <time class="photo-date mono">{date}</time>}
-                  {caption && <p class="photo-desc">{caption}</p>}
-                </figcaption>
-              )}
-            </figure>
-          )
-        })}
-      </div>
-    )}
+        <div class="gallery">
+          {photos.map(([path, module]) => {
+            const key = path.split('/').pop()?.replace(/\.\w+$/, '') ?? ''
+            const meta = descMap[key]
+            const { default: img } = module
+            const caption = meta?.desc ?? ''
+            const date = meta?.date ?? ''
+            return (
+              <figure class="photo-item">
+                <div class="photo-frame">
+                  <img src={img.src} alt={caption || key} width={img.width} height={img.height} loading="lazy" />
+                </div>
+                {(caption || date) && (
+                  <figcaption>
+                    {date && <time class="photo-date mono">{date}</time>}
+                    {caption && <p class="photo-desc">{caption}</p>}
+                  </figcaption>
+                )}
+              </figure>
+            )
+          })}
+        </div>
+      )}
+    </div>
   </section>
 </Layout>
 
