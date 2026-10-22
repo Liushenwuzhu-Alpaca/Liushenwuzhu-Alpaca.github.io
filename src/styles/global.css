@@ -357,12 +357,12 @@ body > main {
   }
 }
 
-/* 咏唱名：普通拉丁字母，等宽小字 */
+/* 咏唱名（文章副标题）：塔语字形，纯装饰 */
 .chant {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--accent);
-  letter-spacing: 0.04em;
+  font-family: "Hymmnos", var(--serif);
+  font-size: 14px;
+  color: var(--glyph);
+  letter-spacing: 0.06em;
 }
 
 /* 行列表（首页、归档、标签页共用）：日期 / 图标 / 标题 / 标签 */

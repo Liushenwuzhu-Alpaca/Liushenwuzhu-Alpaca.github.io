@@ -82,7 +82,7 @@ function postTransitionName(post: HomePost) {
             <a class="card" href={getPostPath(slug, currentLang)} transition:name={postTransitionName(post)} data-disable-theme-toggle-transition>
               <ChantIcon name={post.data.hymmnos ?? slug} size={46} />
               <div>
-                {post.data.hymmnos && <span class="chant">{post.data.hymmnos}</span>}
+                {post.data.hymmnos && <span class="chant" aria-hidden="true">{post.data.hymmnos}</span>}
                 <h3>{post.data.title}</h3>
                 {description && <p>{description}</p>}
                 <div class="m">
@@ -112,7 +112,7 @@ function postTransitionName(post: HomePost) {
                 <ChantIcon name={post.data.hymmnos ?? slug} size={30} />
                 <div>
                   <h3>{post.data.title}</h3>
-                  {post.data.hymmnos && <span class="chant">{post.data.hymmnos}</span>}
+                  {post.data.hymmnos && <span class="chant" aria-hidden="true">{post.data.hymmnos}</span>}
                 </div>
                 <span class="tags">{post.data.tags.slice(0, 3).join(' · ')}</span>
               </a>
