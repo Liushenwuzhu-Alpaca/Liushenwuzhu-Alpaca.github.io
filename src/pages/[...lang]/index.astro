@@ -1,5 +1,6 @@
 ---
-import HymmnosChant from '@/components/HymmnosChant.astro'
+import Astrolabe from '@/components/Astrolabe.astro'
+import ChantIcon from '@/components/ChantIcon.astro'
 import Seal from '@/components/Seal.astro'
 import { allLocales } from '@/config'
 import { friends } from '@/data/friends'
@@ -7,10 +8,9 @@ import { projects as fallbackProjects } from '@/data/projects'
 import { getLangFromLocale, getLangRouteParam } from '@/i18n/lang'
 import { getLocalizedPath, getPostPath } from '@/i18n/path'
 import Layout from '@/layouts/Layout.astro'
-import { getPinnedPosts, getRegularPosts } from '@/utils/content'
+import { getPinnedPosts, getPosts } from '@/utils/content'
 import { getPostDescription } from '@/utils/description'
 import { getPinnedRepos } from '@/utils/github'
-import { getGrowthStage } from '@/utils/postmeta'
 import { getSolarTerm } from '@/utils/solarterm'
 import { getWritingStats } from '@/utils/stats'
 
@@ -21,14 +21,15 @@ export async function getStaticPaths() {
 }
 
 const currentLang = getLangFromLocale(Astro.currentLocale)
-const [pinnedPosts, recentPosts, writingStats] = await Promise.all([
+const [pinnedPosts, allPosts, writingStats] = await Promise.all([
   getPinnedPosts(currentLang),
-  getRegularPosts(currentLang),
+  getPosts(currentLang),
   getWritingStats(),
 ])
-const allPostCount = pinnedPosts.length + recentPosts.length
-const featuredPost = allPostCount >= 3 ? pinnedPosts[0] : undefined
-const recentPostRows = recentPosts.slice(0, 5)
+const featuredPosts = pinnedPosts.slice(0, 4)
+// 最近列表包含置顶文章
+const recentPostRows = allPosts.slice(0, 5)
+const featuredIds = new Set(featuredPosts.map(post => post.id))
 // Sync with the GitHub profile's pinned repos at build time; fall back to
 // the hand-maintained list in src/data/projects.ts when the fetch fails.
 const pinnedRepos = await getPinnedRepos('Liushenwuzhu-Alpaca')
@@ -47,430 +48,364 @@ const solarTerm = getSolarTerm(today)
 const season = ['冬', '冬', '春', '春', '春', '夏', '夏', '夏', '秋', '秋', '秋', '冬'][today.getMonth()]
 const heroMeta = `${solarTerm ?? season} · 建站第 ${writingStats.daysSinceLaunch} 日`
 const formatDate = (date: Date) => date.toISOString().split('T')[0]
-function postTransitionName(post: typeof recentPostRows[number]) {
-  const slug = post.data.abbrlink || post.id.replace(/\.(md|mdx)$/, '')
-  return `post-${slug}${currentLang ? `-${currentLang}` : ''}`
+type HomePost = typeof recentPostRows[number]
+const postSlug = (post: HomePost) => post.data.abbrlink || post.id.replace(/\.(md|mdx)$/, '')
+function postTransitionName(post: HomePost) {
+  return `post-${postSlug(post)}${currentLang ? `-${currentLang}` : ''}`
 }
 ---
 
 <Layout>
   <section class="hero" aria-labelledby="home-title">
-    <p class="hero-meta">{heroMeta}</p>
-    <div class="hero-chant">
-      <HymmnosChant
-        variant="epigraph"
-        hm="Wee touwaka ra pomb anw titilia dornpica oz ieeya, ween gauto"
-        zh="在暗夜之中，孕育一颗希望的小小种子"
-      />
+    <div>
+      <span class="kicker">{heroMeta}</span>
+      <h1 id="home-title">写技术学习，<br />也写<em>缓慢的思考</em>。</h1>
+      <p class="intro">你好，我是 Liushenwuzhu-Alpaca，一名网络空间安全专业学生。在这里整理技术学习笔记，也保留学业与生活中的片段。</p>
+      <div class="who">
+        <div class="ava"><img src="/avatar.jpg" alt="头像：一只羊驼" width="52" height="52" /></div>
+        <div class="meta"><b>Liushenwuzhu-Alpaca</b>USTC · 网络空间安全</div>
+        <Seal char="向" size={40} rotate={-4} />
+      </div>
     </div>
-    <h1 id="home-title" class="hero-title-balanced">写技术学习，也写<em>缓慢的思考</em>。</h1>
-    <p class="hero-intro">你好，我是 Liushenwuzhu-Alpaca，一名网络空间安全专业学生。在这里整理技术学习笔记，也保留学业与生活中的片段。</p>
-    <div class="hero-seal" aria-hidden="true"><Seal char="向" size={64} rotate={3} /></div>
+    <figure class="dial"><Astrolabe /></figure>
   </section>
 
-  {featuredPost && (() => {
-    const slug = featuredPost.data.abbrlink || featuredPost.id.replace(/\.(md|mdx)$/, '')
-    const description = getPostDescription(featuredPost, 'list')
-    const tag = featuredPost.data.tags[0]
-    return (
-      <section class="home-section" aria-labelledby="featured-label">
-        <p id="featured-label" class="section-label">FEATURED · 精选</p>
-        <a class="featured-card" href={getPostPath(slug, currentLang)} transition:name={postTransitionName(featuredPost)} data-disable-theme-toggle-transition>
-          <div>
-            <h2>{featuredPost.data.title}</h2>
-            {description && <p class="featured-excerpt">{description}</p>}
-            <span class="read-link">读下去 <span class="arrow">→</span></span>
-          </div>
-          <div class="featured-meta">
-            <time datetime={formatDate(featuredPost.data.published)}>{formatDate(featuredPost.data.published)}</time>
-            <span>{featuredPost.remarkPluginFrontmatter.minutes} 分钟</span>
-            {tag && <span class="featured-tag">{tag}</span>}
-          </div>
-        </a>
-      </section>
-    )
-  })()}
-
-  {recentPostRows.length > 0 && (
-    <section class="home-section" aria-labelledby="recent-label">
-      <p id="recent-label" class="section-label">RECENT · 近作</p>
-      <div class="post-rows">
-        {recentPostRows.map((post) => {
-          const slug = post.data.abbrlink || post.id.replace(/\.(md|mdx)$/, '')
-          const growth = getGrowthStage(post.data)
+  {featuredPosts.length > 0 && (
+    <section class="blk" aria-labelledby="featured-title">
+      <div class="rule"><span class="n">I</span><h2 id="featured-title">精选</h2></div>
+      <div class="feat">
+        {featuredPosts.map((post) => {
+          const slug = postSlug(post)
+          const description = getPostDescription(post, 'list')
+          const tag = post.data.tags[0]
           return (
-            <a class="post-row" href={getPostPath(slug, currentLang)} transition:name={postTransitionName(post)} data-disable-theme-toggle-transition>
-              <time class="post-date" datetime={formatDate(post.data.published)}>{formatDate(post.data.published)}</time>
-              <h2>{post.data.title}{growth.stage === 'seed' && <span class="growth-badge">{growth.label}</span>}</h2>
-              <span class="post-minutes">{post.remarkPluginFrontmatter.minutes} 分钟</span>
+            <a class="card" href={getPostPath(slug, currentLang)} transition:name={postTransitionName(post)} data-disable-theme-toggle-transition>
+              <ChantIcon name={post.data.hymmnos ?? slug} size={46} />
+              <div>
+                {post.data.hymmnos && <span class="chant">{post.data.hymmnos}</span>}
+                <h3>{post.data.title}</h3>
+                {description && <p>{description}</p>}
+                <div class="m">
+                  <time datetime={formatDate(post.data.published)}>{formatDate(post.data.published)}</time>
+                  <span>{post.remarkPluginFrontmatter.minutes} 分钟</span>
+                  {tag && <span>{tag}</span>}
+                </div>
+              </div>
             </a>
           )
         })}
       </div>
-      <a class="more-link" href={getLocalizedPath('/archive/', currentLang)}>全部文章 <span>→</span></a>
+    </section>
+  )}
+
+  {recentPostRows.length > 0 && (
+    <section class="blk" aria-labelledby="recent-title">
+      <div class="rule"><span class="n">II</span><h2 id="recent-title">最近</h2></div>
+      <ul class="list">
+        {recentPostRows.map((post) => {
+          const slug = postSlug(post)
+          return (
+            <li>
+              {/* 已在精选中出现的文章不再挂同名 transition，避免 view-transition-name 重复 */}
+              <a href={getPostPath(slug, currentLang)} transition:name={featuredIds.has(post.id) ? undefined : postTransitionName(post)} data-disable-theme-toggle-transition>
+                <time datetime={formatDate(post.data.published)}>{formatDate(post.data.published)}</time>
+                <ChantIcon name={post.data.hymmnos ?? slug} size={30} />
+                <div>
+                  <h3>{post.data.title}</h3>
+                  {post.data.hymmnos && <span class="chant">{post.data.hymmnos}</span>}
+                </div>
+                <span class="tags">{post.data.tags.slice(0, 3).join(' · ')}</span>
+              </a>
+            </li>
+          )
+        })}
+      </ul>
+      <a class="more" href={getLocalizedPath('/archive/', currentLang)}>全部文章 <span aria-hidden="true">→</span></a>
     </section>
   )}
 
   {homeProjects.length > 0 && (
-    <section class="home-section" aria-labelledby="projects-label">
-      <p id="projects-label" class="section-label">PROJECTS · 造物</p>
-      <div class="project-grid">
+    <section class="blk" aria-labelledby="projects-title">
+      <div class="rule"><span class="n">III</span><h2 id="projects-title">造物</h2></div>
+      <div class="feat">
         {homeProjects.map(project => (
-          <a class="project-card" href={project.url} target="_blank" rel="noopener">
-            <h2>{project.name} <span>→</span></h2>
-            {project.desc && <p>{project.desc}</p>}
-            {project.stars > 0 && <div class="project-stars">★ {project.stars}</div>}
-            <div class="project-tags">{project.tags.map(tag => <span>{tag}</span>)}</div>
+          <a class="card card--plain" href={project.url} target="_blank" rel="noopener">
+            <div>
+              <h3>{project.name} <span class="arr" aria-hidden="true">→</span></h3>
+              {project.desc && <p>{project.desc}</p>}
+              {(project.stars > 0 || project.tags.length > 0) && (
+                <div class="m">
+                  {project.stars > 0 && <span>★ {project.stars}</span>}
+                  {project.tags.map(tag => <span>{tag}</span>)}
+                </div>
+              )}
+            </div>
           </a>
         ))}
         {homeProjects.length < 2 && (
-          <div class="project-card project-card--empty">
-            <strong>下一个造物,正在酝酿</strong>
-            <small>空着比编的好</small>
+          <div class="card card--plain card--empty">
+            <div>
+              <h3>下一个造物，正在酝酿</h3>
+              <p>空着比编的好</p>
+            </div>
           </div>
         )}
       </div>
-      <a class="more-link" href={getLocalizedPath('/projects/', currentLang)}>全部项目 <span>→</span></a>
+      <a class="more" href={getLocalizedPath('/projects/', currentLang)}>全部项目 <span aria-hidden="true">→</span></a>
     </section>
   )}
 
   {homeFriends.length > 0 && (
-    <section class="home-section" aria-labelledby="friends-label">
-      <p id="friends-label" class="section-label">FRIENDS · 友邻</p>
-      <div class="friend-list">
+    <section class="blk" aria-labelledby="friends-title">
+      <div class="rule"><span class="n">IV</span><h2 id="friends-title">友邻</h2></div>
+      <ul class="list list--friends">
         {homeFriends.map(friend => (
-          <a class="friend" href={friend.url} target="_blank" rel="noopener">
-            {friend.avatar && <img src={friend.avatar} alt="" width="46" height="46" loading="lazy" data-fallback="/icons/favicon.svg" />}
-            <span class="friend-copy">
-              <strong>{friend.name}</strong>
-              {friend.desc && <span>{friend.desc}</span>}
-            </span>
-            <span class="friend-arrow" aria-hidden="true">→</span>
-          </a>
+          <li>
+            <a href={friend.url} target="_blank" rel="noopener">
+              {friend.avatar
+                ? <img src={friend.avatar} alt="" width="46" height="46" loading="lazy" data-fallback="/icons/favicon.svg" />
+                : <span class="f-ava" aria-hidden="true" />}
+              <div>
+                <h3>{friend.name}</h3>
+                {friend.desc && <span class="d">{friend.desc}</span>}
+              </div>
+              <span class="arr" aria-hidden="true">→</span>
+            </a>
+          </li>
         ))}
-      </div>
-      <a class="more-link" href={getLocalizedPath('/friends/', currentLang)}>全部友邻 <span>→</span></a>
+      </ul>
+      <a class="more" href={getLocalizedPath('/friends/', currentLang)}>全部友邻 <span aria-hidden="true">→</span></a>
     </section>
   )}
 </Layout>
 <script>
-  document.querySelectorAll<HTMLImageElement>('.friend img[data-fallback]').forEach((image) => {
+  // 友链头像加载失败时回退到站点图标
+  document.querySelectorAll<HTMLImageElement>('.list--friends img[data-fallback]').forEach((image) => {
     image.addEventListener('error', () => {
       image.src = image.dataset.fallback ?? '/icons/favicon.svg'
     }, { once: true })
   })
 </script>
 
-
 <style>
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* 首屏：左文右盘 */
   .hero {
-    padding: 110px 0 90px;
-    position: relative;
-  }
-
-  .hero-meta {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 640px;
+    gap: 56px;
     align-items: center;
-    color: var(--secondary);
-    display: flex;
-    font-family: var(--mono);
-    font-size: 13px;
-    gap: 14px;
-    letter-spacing: .12em;
-    margin: 0 0 34px;
+    padding: 56px 0 40px;
   }
-
-  .hero-meta::after {
-    background: var(--hairline);
-    content: "";
-    height: 1px;
-    width: 72px;
-  }
-
   .hero h1 {
-    font-size: clamp(42px, 6.4vw, 76px);
-    font-weight: 900;
-    letter-spacing: .01em;
-    line-height: 1.28;
-    margin: 0;
+    font-size: 50px;
+    line-height: 1.32;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin: 18px 0 22px;
   }
-
-  .hero-title-balanced {
-    max-width: 17ch;
-    text-wrap: balance;
-  }
-
-  .hero-chant {
-    color: var(--ink-faint);
-    max-width: 45ch;
-  }
-
   .hero h1 em {
+    font-style: normal;
     color: var(--accent);
-    font-style: italic;
-    text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent);
-    text-decoration-line: underline;
-    text-decoration-thickness: 1.5px;
-    text-underline-offset: 11px;
+    background: linear-gradient(transparent 82%, var(--hairline) 82%);
   }
-
-  .hero-intro {
-    color: var(--secondary);
-    font-size: 17.5px;
-    margin: 38px 0 0;
-    max-width: 560px;
+  .hero .intro {
+    color: var(--ink-soft);
+    max-width: 30em;
+    margin: 0 0 30px;
   }
-
-  .hero-seal {
-    position: absolute;
-    right: 40px;
-    top: 120px;
-  }
-
-  .home-section {
-    border-top: 1px solid var(--hairline);
-    padding: 64px 0;
-  }
-
-  .section-label {
+  .who {
+    display: flex;
     align-items: center;
-    color: var(--accent);
-    display: flex;
-    font-family: var(--mono);
-    font-size: 12.5px;
-    gap: 12px;
-    letter-spacing: .28em;
-    margin: 0 0 40px;
+    gap: 16px;
   }
-
-  .section-label::before {
-    background: var(--accent);
-    content: "";
-    height: 8px;
-    width: 8px;
-  }
-
-  .featured-card {
-    background: var(--paper-card);
-    border: none;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-1);
-    color: var(--ink);
-    display: grid;
-    gap: 40px;
-    grid-template-columns: 1fr auto;
-    padding: 56px 60px;
-    text-decoration: none;
-    transition: box-shadow .3s ease-out;
-  }
-
-  .featured-card:hover { box-shadow: var(--shadow-2); }
-
-  .featured-card h2 {
-    font-size: clamp(28px, 3.4vw, 40px);
-    font-weight: 700;
-    line-height: 1.5;
-    margin: 0;
-  }
-
-  .featured-excerpt {
-    color: var(--secondary);
-    margin: 18px 0 0;
-    max-width: 480px;
-  }
-
-  .read-link, .more-link {
-    align-items: center;
-    color: var(--accent);
-    display: inline-flex;
-    font-size: 16px;
-    font-weight: 600;
-    gap: 10px;
-    text-decoration: none;
-  }
-
-  .read-link { margin-top: 34px; }
-  .read-link .arrow { transition: transform .3s ease-out; }
-  .featured-card:hover .read-link .arrow { transform: translateX(6px); }
-
-  .featured-meta {
-    color: var(--secondary);
-    display: flex;
-    flex-direction: column;
-    font-family: var(--mono);
-    font-size: 13px;
-    line-height: 2.2;
-    text-align: right;
-    white-space: nowrap;
-  }
-
-  .featured-tag {
-    align-self: end;
-    border: 1px solid var(--hairline);
-    border-radius: var(--radius);
-    font-size: 12px;
-    line-height: normal;
-    margin-top: 4px;
-    padding: 2px 10px;
-  }
-
-  .post-rows { border-top: 1px solid var(--hairline); }
-
-  .post-row {
-    align-items: baseline;
-    border-bottom: 1px solid var(--hairline);
-    color: var(--ink);
-    display: grid;
-    gap: 28px;
-    grid-template-columns: 130px 1fr auto;
-    padding: 26px 8px;
-    text-decoration: none;
-    transition: background .3s ease-out;
-  }
-
-  .post-row:hover { background: color-mix(in srgb, var(--ink) 3%, transparent); }
-
-  .post-date, .post-minutes {
-    color: var(--secondary);
-    font-family: var(--mono);
-    font-size: 13px;
-  }
-
-  .post-row h2 {
-    font-size: 21px;
-    font-weight: 600;
-    line-height: 1.5;
-    margin: 0;
-    transition: color .3s ease-out;
-  }
-
-  .post-row:hover h2 { color: var(--accent); }
-
-  .growth-badge {
-    border: 1px solid color-mix(in srgb, var(--bamboo) 40%, transparent);
-    border-radius: var(--radius);
-    color: var(--bamboo);
-    font-family: var(--mono);
-    font-size: 11px;
-    margin-left: 12px;
-    padding: 1px 8px;
-    vertical-align: 3px;
-  }
-
-  .more-link { margin-top: 30px; }
-
-  .project-grid {
-    display: grid;
-    gap: 24px;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .project-card {
-    background: var(--paper-card);
-    border: none;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-1);
-    color: var(--ink);
-    padding: 36px 38px;
-    text-decoration: none;
-    transition: box-shadow .3s ease-out;
-  }
-
-  .project-card:hover { box-shadow: var(--shadow-2); }
-  .project-card:hover h2 { color: var(--accent); }
-
-  .project-stars {
-    color: var(--secondary);
-    font-family: var(--mono);
-    font-size: 12px;
-    margin-top: 16px;
-  }
-
-  .project-card h2 {
-    font-size: 22px;
-    font-weight: 700;
-    line-height: 1.5;
-    margin: 0;
-  }
-
-  .project-card h2 span, .friend-arrow { color: var(--accent); }
-
-  .project-card p {
-    color: var(--secondary);
-    font-size: 15.5px;
-    margin: 12px 0 0;
-  }
-
-  .project-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 24px;
-  }
-
-  .project-tags span {
-    border: 1px solid var(--hairline);
-    border-radius: var(--radius);
-    color: var(--secondary);
-    font-family: var(--mono);
-    font-size: 11.5px;
-    padding: 2px 10px;
-  }
-
-  .project-card--empty {
-    background: transparent;
-    border: 1px dashed var(--hairline);
-    box-shadow: none;
-    color: var(--secondary);
-    display: grid;
-    gap: 8px;
-    min-height: 220px;
-    place-content: center;
-    text-align: center;
-  }
-
-  .project-card--empty:hover {
-    box-shadow: none;
-  }
-
-  .project-card--empty strong { color: var(--ink); font-size: 19px; font-weight: 600; }
-  .project-card--empty small { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; }
-
-  .friend-list { border-top: 1px solid var(--hairline); }
-
-  .friend {
-    align-items: center;
-    border-bottom: 1px solid var(--hairline);
-    color: var(--ink);
-    display: flex;
-    gap: 18px;
-    padding: 22px 8px;
-    text-decoration: none;
-  }
-
-  .friend img {
-    border: 1px solid var(--hairline);
+  .ava {
+    width: 58px;
+    height: 58px;
+    flex: none;
+    box-sizing: border-box;
     border-radius: 50%;
-    height: 46px;
+    padding: 3px;
+    border: 1px solid var(--line);
+    box-shadow: 0 0 0 4px var(--paper), 0 0 0 5px var(--hairline);
+  }
+  .ava img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
     object-fit: cover;
-    width: 46px;
+    display: block;
+  }
+  .who .meta {
+    font-size: 14px;
+    color: var(--ink-faint);
+    line-height: 1.6;
+  }
+  .who .meta b {
+    display: block;
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 15px;
+  }
+  /* 印章推到行尾 */
+  .who :global(.seal) {
+    margin-left: auto;
   }
 
-  .friend-copy { align-items: baseline; display: flex; gap: 6px; }
-  .friend-copy strong { font-size: 18px; font-weight: 600; }
-  .friend-copy > span { color: var(--secondary); font-size: 14.5px; }
-  .friend-arrow { margin-left: auto; }
+  /* 星盘容器；盘面样式由 Astrolabe 组件自带 */
+  .dial {
+    position: relative;
+    width: 640px;
+    aspect-ratio: 1;
+    margin: 0;
+  }
 
-  @media (max-width: 720px) {
-    .hero { padding: 72px 0 64px; }
-    .hero-title-balanced { max-width: 15ch; }
-    .hero-seal { right: 18px; top: 86px; }
-    .hero-seal .seal { --seal-size: 40px !important; }
-    .featured-card { grid-template-columns: 1fr; padding: 36px 30px; }
-    .featured-meta { align-items: flex-start; text-align: left; }
-    .featured-tag { align-self: start; }
-    .post-row { gap: 10px 16px; grid-template-columns: 1fr auto; }
-    .post-date { grid-column: 1 / -1; }
-    .project-grid { grid-template-columns: 1fr; }
-    .friend-copy { align-items: flex-start; flex-direction: column; gap: 2px; }
+  /* 区块 */
+  section.blk {
+    margin-top: 76px;
+  }
+
+  /* 精选 / 造物：两列卡片 */
+  .feat {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border-top: 1px solid var(--hairline);
+  }
+  .card {
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    gap: 18px;
+    padding: 26px 26px 28px 4px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .card:nth-child(odd) {
+    border-right: 1px solid var(--hairline);
+    padding-right: 34px;
+  }
+  .card:nth-child(even) {
+    padding-left: 34px;
+  }
+  .card :global(.chant-icon) {
+    margin-top: 4px;
+    transition: transform 0.8s ease;
+  }
+  .card:hover :global(.chant-icon) {
+    transform: rotate(30deg);
+  }
+  /* .chant、.list 基础规则在 global.css */
+  .card h3 {
+    font-size: 20px;
+    line-height: 1.5;
+    margin: 4px 0 8px;
+    font-weight: 600;
+    transition: color 0.3s ease-out;
+  }
+  .card:hover h3 {
+    color: var(--accent);
+  }
+  .card p {
+    margin: 0 0 10px;
+    color: var(--ink-soft);
+    font-size: 15px;
+    line-height: 1.8;
+  }
+  .card .m {
+    font-size: 13px;
+    color: var(--ink-faint);
+  }
+  .card .m > * + *::before {
+    content: "·";
+    margin: 0 7px;
+    color: var(--line);
+  }
+
+  /* 造物卡片：无图标，单列 */
+  .card--plain {
+    grid-template-columns: 1fr;
+  }
+  .card--plain .arr {
+    color: var(--accent);
+  }
+  .card--empty h3,
+  .card--empty:hover h3 {
+    color: var(--ink-soft);
+  }
+  .card--empty p {
+    color: var(--ink-faint);
+  }
+
+  /* 最近 / 友邻：行列表基础规则见 global.css */
+
+  /* 友邻行：圆形头像 + 名字描述 + 箭头 */
+  .list--friends li a {
+    grid-template-columns: 46px 1fr auto;
+  }
+  .list--friends img,
+  .list--friends .f-ava {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 1px solid var(--hairline);
+    object-fit: cover;
+    display: block;
+    box-sizing: border-box;
+  }
+  .list--friends .d {
+    display: block;
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  .list--friends .arr {
+    color: var(--accent);
+    transition: transform 0.3s ease-out;
+  }
+  .list--friends li a:hover .arr {
+    transform: translateX(4px);
+  }
+
+  .more {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 22px;
+    font-size: 15px;
+    color: var(--accent);
+  }
+
+  @media (max-width: 1180px) {
+    .hero {
+      grid-template-columns: 1fr;
+    }
+    .dial {
+      width: min(640px, 100%);
+      margin: 0 auto;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .hero {
+      padding-top: 30px;
+      gap: 30px;
+    }
+    .hero h1 {
+      font-size: 32px;
+    }
+    .feat {
+      grid-template-columns: 1fr;
+    }
+    .card,
+    .card:nth-child(n) {
+      border-right: 0;
+      padding: 22px 0;
+    }
+    .list--friends li a {
+      grid-template-columns: 46px 1fr auto;
+    }
   }
 </style>

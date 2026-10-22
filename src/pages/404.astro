@@ -1,25 +1,28 @@
 ---
+import PageHead from '@/components/PageHead.astro'
 import Seal from '@/components/Seal.astro'
 import Layout from '@/layouts/Layout.astro'
 ---
 
 <Layout>
   <section aria-labelledby="not-found-title">
-    <h1 id="not-found-title" class="label">404 · 迷路</h1>
-    <p class="not-found-desc">
-      你要找的页面不存在，或已被移动。
-    </p>
-    <div class="chant-anchor">
-      <p class="hymmnos-chant" aria-label="到这里来">Rrha ki ra tie yor ini en nha</p>
-      <Seal char="迷" size={52} rotate={3} />
-    </div>
-    <div class="rows">
-      <a class="row" href="/">
-        <h3><span class="u">回到首页</span> <span class="arrow">-&gt;</span></h3>
-      </a>
-      <a class="row" href="/archive/">
-        <h3><span class="u">浏览全部文章</span> <span class="arrow">-&gt;</span></h3>
-      </a>
+    <PageHead id="not-found-title" kicker="404" title="迷路" icon="NOT_FOUND" />
+    <div class="page-body">
+      <p class="not-found-desc">
+        你要找的页面不存在，或已被移动。
+      </p>
+      <div class="chant-anchor">
+        <p class="hymmnos-chant" aria-label="到这里来">Rrha ki ra tie yor ini en nha</p>
+        <Seal char="迷" size={52} rotate={3} />
+      </div>
+      <div class="rows">
+        <a class="row" href="/">
+          <h3><span class="u">回到首页</span> <span class="arrow">-&gt;</span></h3>
+        </a>
+        <a class="row" href="/archive/">
+          <h3><span class="u">浏览全部文章</span> <span class="arrow">-&gt;</span></h3>
+        </a>
+      </div>
     </div>
   </section>
 </Layout>
@@ -30,8 +33,7 @@ import Layout from '@/layouts/Layout.astro'
     margin-bottom: 34px;
   }
 
-  /* Hymmnos chant ("come hither") summons the lost visitor home;
-     the seal marks the stray page. */
+  /* 塔语「到这里来」召唤迷路的访客回家；印章标记这一页走失了 */
   .chant-anchor {
     display: flex;
     align-items: flex-end;
@@ -43,12 +45,12 @@ import Layout from '@/layouts/Layout.astro'
   .hymmnos-chant {
     margin: 0;
     font-family: "Hymmnos", var(--serif);
-    font-size: 13px;
+    font-size: 15px;
     letter-spacing: 0.06em;
-    color: var(--secondary);
+    color: var(--glyph);
   }
 
-  /* One slow reveal, disabled under reduce-motion (SPEC §9). */
+  /* 只淡入一次，reduce-motion 下关闭 */
   :global(html:not(.reduce-motion)) .hymmnos-chant {
     animation: chant-reveal 1.2s ease-out both;
   }

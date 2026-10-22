@@ -1,6 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content'
-import HymmnosChant from '@/components/HymmnosChant.astro'
+import PageHead from '@/components/PageHead.astro'
 import { allLocales } from '@/config'
 import { getLangFromLocale, getLangRouteParam } from '@/i18n/lang'
 import Layout from '@/layouts/Layout.astro'
@@ -21,9 +21,8 @@ const { Content } = aboutEntry ? await render(aboutEntry) : { Content: null }
 
 <Layout>
   <section aria-labelledby="about-title">
-    <h1 id="about-title" class="label">About · 关于</h1>
-    <HymmnosChant hm="Ma num ra pic anw wasara oz mea, en tek tes dep." zh="我意识到了自己的丰富，并朝更深处前进" />
-    <div class="heti">
+    <PageHead id="about-title" kicker="About" title="关于" hm="Ma num ra pic anw wasara oz mea, en tek tes dep." zh="我意识到了自己的丰富，并朝更深处前进" icon="ABOUT" />
+    <div class="page-body heti">
       {Content
 ? <Content />
 : (

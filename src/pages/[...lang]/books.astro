@@ -1,5 +1,5 @@
 ---
-import HymmnosChant from '@/components/HymmnosChant.astro'
+import PageHead from '@/components/PageHead.astro'
 import { allLocales } from '@/config'
 import { getLangRouteParam } from '@/i18n/lang'
 import Layout from '@/layouts/Layout.astro'
@@ -44,48 +44,48 @@ return ''
 
 <Layout>
   <section aria-labelledby="shelf-title">
-    <h1 id="shelf-title" class="label">Shelf · 书单影单</h1>
-    <HymmnosChant hm="Ma apea ra fowrlle yor." zh="沉浸在幸福中，将你治愈" />
-
-    {isEmpty
+    <PageHead id="shelf-title" kicker="Shelf" title="书单影单" hm="Ma apea ra fowrlle yor." zh="沉浸在幸福中，将你治愈" icon="SHELF" />
+    <div class="page-body">
+      {isEmpty
 ? (
-      <div class="empty-state">
-        <p class="empty-state__title">下一册，尚待翻开。</p>
-        <p class="empty-state__note">清单整理中，空着比编的好。</p>
-      </div>
-    )
+        <div class="empty-state">
+          <p class="empty-state__title">下一册，尚待翻开。</p>
+          <p class="empty-state__note">清单整理中，空着比编的好。</p>
+        </div>
+      )
 : (
-      <>
-        {hasBooks && (
-          <>
-            <p class="group-heading">书</p>
-            <div class="rows">
-              {books.map(item => (
-                <div class="row">
-                  <h3 class="entry-title">{item.title}</h3>
-                  {item.review && <p class="entry-review">{item.review}</p>}
-                  {item.rating !== undefined && <p class="entry-rating mono">{stars(item.rating)}</p>}
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-        {hasMovies && (
-          <>
-            <p class="group-heading">影</p>
-            <div class="rows">
-              {movies.map(item => (
-                <div class="row">
-                  <h3 class="entry-title">{item.title}</h3>
-                  {item.review && <p class="entry-review">{item.review}</p>}
-                  {item.rating !== undefined && <p class="entry-rating mono">{stars(item.rating)}</p>}
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-      </>
-    )}
+        <>
+          {hasBooks && (
+            <>
+              <p class="group-heading">书</p>
+              <div class="rows">
+                {books.map(item => (
+                  <div class="row">
+                    <h3 class="entry-title">{item.title}</h3>
+                    {item.review && <p class="entry-review">{item.review}</p>}
+                    {item.rating !== undefined && <p class="entry-rating mono">{stars(item.rating)}</p>}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+          {hasMovies && (
+            <>
+              <p class="group-heading">影</p>
+              <div class="rows">
+                {movies.map(item => (
+                  <div class="row">
+                    <h3 class="entry-title">{item.title}</h3>
+                    {item.review && <p class="entry-review">{item.review}</p>}
+                    {item.rating !== undefined && <p class="entry-rating mono">{stars(item.rating)}</p>}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </>
+      )}
+    </div>
   </section>
 </Layout>
 
@@ -112,7 +112,7 @@ return ''
   .group-heading {
     font-family: var(--mono);
     font-size: 12px;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--accent);
     margin-bottom: 10px;

@@ -1,6 +1,5 @@
 ---
 import type { MarkdownHeading } from 'astro'
-import TocIcon from '@/assets/icons/toc-icon.svg'
 import { ui } from '@/i18n/ui'
 import { getPageInfo } from '@/utils/page'
 
@@ -18,27 +17,21 @@ const filteredHeadings = headings.filter(heading => heading.depth >= 2 && headin
 {filteredHeadings.length > 1 && (
   <div
     id="toc-container"
-    class="toc mb-6 border-l-2 border-solid pl-4 border-secondary/15 2xl:(max-w-[13rem] border-none pl-0 bg-secondary/0)"
+    class="toc"
   >
     <input
       type="checkbox"
       id="toc-toggle"
       hidden
     />
-    <div class="relative h-12 w-full">
+    <div class="toc-head">
       <label
         for="toc-toggle"
-        class="absolute inset-0 flex cursor-pointer items-center gap-2 2xl:(static flex transition-colors ease-out c-secondary/60 hover:c-primary)"
+        class="toc-label"
       >
-        <span id="toc-mobile-text">
+        <span id="toc-mobile-text" class="kicker">
           {currentUI.toc}
         </span>
-        <TocIcon
-          id="toc-desktop-icon"
-          aria-hidden="true"
-          class="ml-0 hidden aspect-square w-4.2 2xl:(mt-0 block origin-center active:scale-90!)"
-          fill="currentColor"
-        />
       </label>
     </div>
 
@@ -51,11 +44,7 @@ const filteredHeadings = headings.filter(heading => heading.depth >= 2 && headin
         <ul id="toc-links-list">
           {filteredHeadings.map(heading => (
             <li
-              class:list={{
-                'ml-0': heading.depth === 2,
-                'ml-4': heading.depth === 3,
-                'ml-8': heading.depth === 4,
-              }}
+              class={`toc-depth-${heading.depth}`}
             >
               <a
                 href={`#${heading.slug}`}
@@ -81,7 +70,7 @@ let observer: IntersectionObserver | null = null
 let ticking = false
 let lastLink: Element | null = null
 
-const isDesktop = window.matchMedia('(min-width: 1280px)')
+const isDesktop = window.matchMedia('(min-width: 1101px)')
 
 function getHeadingElements(tocList: HTMLElement) {
   return [...tocList.querySelectorAll<HTMLAnchorElement>('a[data-heading-id]')]
@@ -222,52 +211,148 @@ document.addEventListener('astro:before-swap', cleanupObserver)
 </script>
 
 <style>
-  /* Keep「目录」text on desktop (≥2xl); icon sits beside, not instead. */
-  @media (min-width: 1280px) {
+  /* 窄屏（≤1100px）：正文上方的折叠手风琴，点击标签展开 */
+  #toc-container {
+    margin-bottom: 1.5rem;
+    padding-left: 1rem;
+    border-left: 2px solid color-mix(in oklab, var(--secondary) 15%, transparent);
+  }
+
+  .toc-head {
+    position: relative;
+    width: 100%;
+    height: 3rem;
+  }
+
+  .toc-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+  }
+
+  /* 窄屏下三、四级标题缩进 */
+  .toc-depth-3 {
+    margin-left: 1rem;
+  }
+
+  .toc-depth-4 {
+    margin-left: 2rem;
+  }
+
+  /* 宽屏（>1100px）：右栏常驻目录，空心圆点轨道，当前项圆点填实 */
+  @media (min-width: 1101px) {
     #toc-container {
       margin-bottom: 0;
       padding-left: 0;
       border: 0;
-      background: transparent;
     }
 
+    .toc-head {
+      height: auto;
+    }
+
+    /* 常驻展开，标签只作标题，不再可点 */
+    .toc-label {
+      position: static;
+      display: block;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    /* 标签只显示 kicker 样式的「目录」 */
     #toc-mobile-text {
-      display: inline !important;
+      display: block;
+      margin: 0 0 12px;
+      font-weight: 400;
     }
 
-    #toc-desktop-icon {
-      display: inline-block !important;
-      margin-top: 0;
-      margin-left: 0.5rem;
-    }
-
-    #toc-links-list {
-      margin-bottom: 0.25rem;
-      row-gap: 0.25rem;
-    }
-
-    #toc-accordion-wrapper {
+    #toc-accordion-wrapper,
+    #toc-toggle:checked ~ #toc-accordion-wrapper {
       grid-template-rows: 1fr;
     }
 
-    #toc-toggle:checked ~ #toc-accordion-wrapper {
-      grid-template-rows: 0fr;
-    }
-
-    #toc-accordion-content {
-      max-height: calc(100vh - 27.5rem);
-      padding-right: 1.5rem;
-      overflow-y: auto;
-    }
-
+    #toc-accordion-content,
     #toc-toggle:checked ~ #toc-accordion-wrapper #toc-accordion-content {
-      overflow: hidden;
+      max-height: calc(100vh - 96px - 80px);
+      padding: 0 0 0 5px;
+      overflow-y: auto;
+      scrollbar-width: none;
     }
-  }
 
-  @media (min-width: 1536px) {
-    #toc-mobile-text {
-      display: inline !important;
+    #toc-links-list {
+      margin: 0;
+      padding: 0 0 0 14px;
+      border-left: 1px solid var(--hairline);
+    }
+
+    #toc-links-list > li {
+      position: relative;
+      margin: 0;
+      padding: 5px 0;
+      line-height: 1.55;
+      color: var(--ink-soft);
+    }
+
+    /* 轨道上的空心圆点 */
+    #toc-links-list > li::before {
+      content: "";
+      position: absolute;
+      left: -18.5px;
+      top: 13px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      transition: background-color 0.3s ease-out;
+    }
+
+    /* 三、四级标题：缩进，圆点缩小 */
+    #toc-links-list > li.toc-depth-3,
+    #toc-links-list > li.toc-depth-4 {
+      font-size: 13px;
+    }
+
+    #toc-links-list > li.toc-depth-3 {
+      padding-left: 12px;
+    }
+
+    #toc-links-list > li.toc-depth-4 {
+      padding-left: 24px;
+    }
+
+    #toc-links-list > li:is(.toc-depth-3, .toc-depth-4)::before {
+      left: -17.5px;
+      top: 14px;
+      width: 4px;
+      height: 4px;
+    }
+
+    #toc-links-list > li:has(> a.is-current)::before {
+      background: var(--line);
+    }
+
+    #toc-links-list a {
+      font-size: inherit;
+      font-weight: 400;
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.3s ease-out;
+    }
+
+    #toc-links-list a:hover {
+      color: var(--accent);
+    }
+
+    #toc-links-list a.is-current {
+      margin-left: 0;
+      padding-left: 0;
+      border-left: 0;
+      font-weight: 400;
+      color: var(--ink);
     }
   }
 </style>

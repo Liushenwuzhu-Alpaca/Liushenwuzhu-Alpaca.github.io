@@ -1,5 +1,5 @@
 ---
-import HymmnosChant from '@/components/HymmnosChant.astro'
+import PageHead from '@/components/PageHead.astro'
 import TagList from '@/components/TagList.astro'
 import { allLocales } from '@/config'
 import { getLangFromLocale, getLangRouteParam } from '@/i18n/lang'
@@ -18,11 +18,12 @@ const allTags = await getAllTags(currentLang)
 
 <Layout>
   <section aria-labelledby="tags-title">
-    <h1 id="tags-title" class="label">Tags · 标签</h1>
-    <HymmnosChant hm="Wee yea ra echrra anw fandel wart." zh="与万千言语共鸣" />
-    <TagList
-      tags={allTags}
-      lang={currentLang}
-    />
+    <PageHead id="tags-title" kicker="Tags" title="标签" hm="Wee yea ra echrra anw fandel wart." zh="与万千言语共鸣" icon="TAGS" />
+    <div class="page-body">
+      <TagList
+        tags={allTags}
+        lang={currentLang}
+      />
+    </div>
   </section>
 </Layout>

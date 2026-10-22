@@ -1,5 +1,5 @@
 ---
-import HymmnosChant from '@/components/HymmnosChant.astro'
+import PageHead from '@/components/PageHead.astro'
 import { allLocales } from '@/config'
 import { projects as fallbackProjects } from '@/data/projects'
 import { getLangRouteParam } from '@/i18n/lang'
@@ -39,29 +39,30 @@ const collaborations: { name: string, description: string, url: string, role?: s
 
 <Layout>
   <section aria-labelledby="projects-title">
-    <h1 id="projects-title" class="label">Projects · 造物</h1>
-    <HymmnosChant hm="Was yea ra waath ar ciel" zh="再生世界" />
-    <div class="rows">
-      {projects.map(project => (
-        <a class="row" href={project.url} target="_blank" rel="noopener">
-          <h3><span class="u">{project.name}</span> <span class="arrow">-&gt;</span></h3>
-          {project.description && <p>{project.description}</p>}
-          {project.stars !== null && project.stars > 0 && <p class="font-time text-3.5 c-secondary">★ {project.stars}</p>}
-        </a>
-      ))}
-    </div>
-
-    {collaborations.length > 0 && (
-      <h2 class="label mt-12">Collaborations · 协作</h2>
+    <PageHead id="projects-title" kicker="Projects" title="造物" hm="Was yea ra waath ar ciel" zh="再生世界" icon="PROJECTS" />
+    <div class="page-body">
       <div class="rows">
-        {collaborations.map(repo => (
-          <a class="row" href={repo.url} target="_blank" rel="noopener">
-            <h3><span class="u">{repo.name}</span> <span class="arrow">-&gt;</span></h3>
-            <p>{repo.description}</p>
-            {repo.role && <p class="font-time text-3.5 c-secondary">{repo.role}</p>}
+        {projects.map(project => (
+          <a class="row" href={project.url} target="_blank" rel="noopener">
+            <h3><span class="u">{project.name}</span> <span class="arrow">-&gt;</span></h3>
+            {project.description && <p>{project.description}</p>}
+            {project.stars !== null && project.stars > 0 && <p class="font-time text-3.5 c-secondary">★ {project.stars}</p>}
           </a>
         ))}
       </div>
-    )}
+
+      {collaborations.length > 0 && (
+        <h2 class="label mt-12">Collaborations · 协作</h2>
+        <div class="rows">
+          {collaborations.map(repo => (
+            <a class="row" href={repo.url} target="_blank" rel="noopener">
+              <h3><span class="u">{repo.name}</span> <span class="arrow">-&gt;</span></h3>
+              <p>{repo.description}</p>
+              {repo.role && <p class="font-time text-3.5 c-secondary">{repo.role}</p>}
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
   </section>
 </Layout>

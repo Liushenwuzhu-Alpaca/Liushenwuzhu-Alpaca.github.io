@@ -16,6 +16,9 @@ import '@/styles/global.css'
 import '@/styles/lqip.css'
 import '@/styles/markdown.css'
 import '@fontsource-variable/noto-serif-sc/index.css'
+import '@fontsource/cormorant-garamond/500.css'
+import '@fontsource/cormorant-garamond/600.css'
+import '@fontsource/cormorant-garamond/500-italic.css'
 import '@/styles/transition.css'
 
 interface Props {
@@ -26,7 +29,7 @@ interface Props {
 }
 
 const { postTitle, postDescription, postSlug, supportedLangs = [] } = Astro.props
-const { isHome, isPost } = getPageInfo(Astro.url.pathname)
+const { isPost } = getPageInfo(Astro.url.pathname)
 const fontStyle = themeConfig.global.fontStyle === 'serif' ? 'font-serif' : 'font-sans'
 const MarginBottom = isPost && themeConfig.comment.enabled
   ? 'mb-10' // Post page with comment
@@ -42,13 +45,11 @@ const MarginBottom = isPost && themeConfig.comment.enabled
 >
   <Head {postTitle} {postDescription} {postSlug} />
   <body>
-    <div class:list={['site-wrap', isHome && 'site-wrap--wide']}>
-      <Header supportedLangs={supportedLangs} />
-      <main class={MarginBottom} data-pagefind-body>
-        <slot />
-      </main>
-      <Footer />
-    </div>
+    <Header supportedLangs={supportedLangs} />
+    <main class:list={['wrap', MarginBottom]} data-pagefind-body>
+      <slot />
+    </main>
+    <Footer />
     <SoundEffect />
     <CodeCopyButton />
     <GithubCard />

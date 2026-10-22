@@ -1,5 +1,5 @@
 ---
-import HymmnosChant from '@/components/HymmnosChant.astro'
+import PageHead from '@/components/PageHead.astro'
 import { allLocales } from '@/config'
 import { getLangRouteParam } from '@/i18n/lang'
 import Layout from '@/layouts/Layout.astro'
@@ -12,10 +12,11 @@ export async function getStaticPaths() {
 ---
 
 <Layout>
-  <section class="heti" aria-labelledby="search-title">
-    <h1 id="search-title" class="label">Search · 搜索</h1>
-    <HymmnosChant hm="Was i ra knawa anw omnis." zh="迫不及待地，想要知晓一切" />
-    <div id="search" data-pagefind-ignore></div>
+  <section aria-labelledby="search-title">
+    <PageHead id="search-title" kicker="Search" title="搜索" hm="Was i ra knawa anw omnis." zh="迫不及待地，想要知晓一切" icon="SEARCH" />
+    <div class="page-body heti">
+      <div id="search" data-pagefind-ignore></div>
+    </div>
   </section>
 </Layout>
 

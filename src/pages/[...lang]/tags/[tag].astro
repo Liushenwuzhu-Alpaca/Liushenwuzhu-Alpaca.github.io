@@ -1,4 +1,5 @@
 ---
+import PageHead from '@/components/PageHead.astro'
 import PostList from '@/components/PostList.astro'
 import TagList from '@/components/TagList.astro'
 import { allLocales } from '@/config'
@@ -30,15 +31,17 @@ const supportedLangs = await getTagSupportedLangs(tag)
 
 <Layout supportedLangs={supportedLangs}>
   <section aria-labelledby="tag-post-title">
-    <h1 id="tag-post-title" class="label">{tag}</h1>
-    <TagList
-      tags={allTags}
-      currentTag={tag}
-      lang={currentLang}
-    />
-    <PostList
-      posts={posts}
-      lang={currentLang}
-    />
+    <PageHead id="tag-post-title" kicker="Tag" title={tag} icon={`TAG_${tag}`} />
+    <div class="page-body">
+      <TagList
+        tags={allTags}
+        currentTag={tag}
+        lang={currentLang}
+      />
+      <PostList
+        posts={posts}
+        lang={currentLang}
+      />
+    </div>
   </section>
 </Layout>

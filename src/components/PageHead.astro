@@ -1,0 +1,47 @@
+---
+import ChantIcon from '@/components/ChantIcon.astro'
+import HymmnosChant from '@/components/HymmnosChant.astro'
+
+interface Props {
+  /** h1 的 id，供 aria-labelledby 引用 */
+  id: string
+  kicker: string
+  title: string
+  /** 塔语原文，仅装饰 */
+  hm?: string
+  /** 中文译文，只进 aria-label */
+  zh?: string
+  /** 图标名，决定同心圆图标的形状 */
+  icon: string
+}
+
+const { id, kicker, title, hm, zh, icon } = Astro.props
+---
+
+<header class="ph">
+  <div class="ph-icon"><ChantIcon name={icon} size={150} /></div>
+  <div>
+    <span class="kicker">{kicker}</span>
+    <h1 id={id}>{title}</h1>
+    {hm && zh && <HymmnosChant hm={hm} zh={zh} variant="epigraph" />}
+  </div>
+</header>
+
+<style>
+  /* .ph / .ph-icon 网格与移动端规则在 global.css，此处只补子页面特有部分 */
+  .ph {
+    margin-bottom: 44px;
+  }
+  h1 {
+    font-size: 40px;
+    line-height: 1.38;
+    margin: 8px 0 0;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  @media (max-width: 760px) {
+    h1 {
+      font-size: 27px;
+    }
+  }
+</style>

@@ -1,5 +1,5 @@
 ---
-import HymmnosChant from '@/components/HymmnosChant.astro'
+import PageHead from '@/components/PageHead.astro'
 import PostList from '@/components/PostList.astro'
 import { allLocales } from '@/config'
 import { getLangFromLocale, getLangRouteParam } from '@/i18n/lang'
@@ -25,17 +25,23 @@ const postsByYear = await getPostsByYear(currentLang)
   color: var(--accent);
   margin-bottom: 8px;
 }
+/* 首个年份紧接页头，去掉重复的分隔线 */
+.home-section:first-child {
+  border-top: none;
+  padding-top: 0;
+}
 </style>
 
 <Layout>
   <section aria-labelledby="archive-title">
-    <h1 id="archive-title" class="label">Archive · 归档</h1>
-    <HymmnosChant hm="Was yea ra echrra anw memora oz ides." zh="与往昔的记忆共鸣" />
-    {Array.from(postsByYear.entries(), ([year, posts]) => (
-      <section class="home-section" aria-labelledby={`year-${year}`}>
-        <h3 id={`year-${year}`} class="year-title">{year}</h3>
-        <PostList posts={posts} lang={currentLang} />
-      </section>
-    ))}
+    <PageHead id="archive-title" kicker="Archive" title="归档" hm="Was yea ra echrra anw memora oz ides." zh="与往昔的记忆共鸣" icon="ARCHIVE" />
+    <div class="page-body">
+      {Array.from(postsByYear.entries(), ([year, posts]) => (
+        <section class="home-section" aria-labelledby={`year-${year}`}>
+          <h3 id={`year-${year}`} class="year-title">{year}</h3>
+          <PostList posts={posts} lang={currentLang} />
+        </section>
+      ))}
+    </div>
   </section>
 </Layout>

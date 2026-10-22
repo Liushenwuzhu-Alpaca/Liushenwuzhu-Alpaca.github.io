@@ -1,0 +1,39 @@
+---
+interface Props {
+  /** 咏唱名或页面标识，决定图标的环数与缺口方位 */
+  name: string
+  size?: number
+}
+
+const { name, size = 36 } = Astro.props
+
+// 按名称生成小同心圆图标：环数、缺口方位由名称的字符码决定，仅作视觉区分
+function chantIcon(name: string, size: number): string {
+  let s = 0
+  for (let i = 0; i < name.length; i++) s = (s * 31 + name.charCodeAt(i)) >>> 0
+  const rings = 2 + (s % 4)
+  const gap = ((s >> 3) % 12) * 30
+  const R = 15
+  let o = ''
+  for (let k = 1; k <= rings; k++) {
+    const r = (R * k) / rings
+    const a1 = ((gap - 14) * Math.PI) / 180
+    const a2 = ((gap + 14) * Math.PI) / 180
+    if (k === rings) {
+      // 最外环留一道缺口，像星盘上的指针槽
+      o += `<path d="M${(r * Math.sin(a2)).toFixed(2)} ${(-r * Math.cos(a2)).toFixed(2)}A${r} ${r} 0 1 1 ${(r * Math.sin(a1)).toFixed(2)} ${(-r * Math.cos(a1)).toFixed(2)}" fill="none" stroke="var(--line)" stroke-width="1.1"/>`
+    }
+    else {
+      o += `<circle r="${r.toFixed(2)}" fill="none" stroke="var(--line)" stroke-width="${k % 2 ? 0.7 : 1}"/>`
+    }
+  }
+  const g = (gap * Math.PI) / 180
+  o += `<line x1="0" y1="0" x2="${(17 * Math.sin(g)).toFixed(2)}" y2="${(-17 * Math.cos(g)).toFixed(2)}" stroke="var(--line)" stroke-width=".8"/>`
+  o += '<circle r="1.8" fill="var(--ink)"/>'
+  return `<svg class="chant-icon" width="${size}" height="${size}" viewBox="-18 -18 36 36" aria-hidden="true">${o}</svg>`
+}
+
+const svg = chantIcon(name, size)
+---
+
+<Fragment set:html={svg} />

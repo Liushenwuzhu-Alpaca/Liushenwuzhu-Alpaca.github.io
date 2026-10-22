@@ -2,16 +2,17 @@
 import type { CollectionEntry } from 'astro:content'
 import type { Language } from '@/i18n/config'
 import { getCollection, render } from 'astro:content'
+import ChantIcon from '@/components/ChantIcon.astro'
 import Comment from '@/components/Comment/Index.astro'
 import PostDate from '@/components/PostDate.astro'
 import PostNav from '@/components/PostNav.astro'
 import ReadingProgress from '@/components/ReadingProgress.astro'
 import RelatedPosts from '@/components/RelatedPosts.astro'
 import SeriesBox from '@/components/SeriesBox.astro'
-import TagList from '@/components/TagList.astro'
 import TOC from '@/components/Widgets/TOC.astro'
 import { allLocales } from '@/config'
 import { getLangFromLocale, getLangRouteParam } from '@/i18n/lang'
+import { getTagPath } from '@/i18n/path'
 import Layout from '@/layouts/Layout.astro'
 import { checkPostSlugDuplication, getAdjacentPosts, getRelatedPosts } from '@/utils/content'
 import { getPostDescription } from '@/utils/description'
@@ -90,6 +91,8 @@ const relatedPosts = await getRelatedPosts(slug, currentLang)
 const contentPath = `src/content/posts/${post.id}`
 const stage = getGrowthStage(post.data)
 const revisionCount = getRevisionCount(contentPath)
+const revisionHistoryUrl = `https://github.com/Liushenwuzhu-Alpaca/Liushenwuzhu-Alpaca.github.io/commits/main/${contentPath}`
+const { tags } = post.data
 ---
 <ReadingProgress />
 <Layout
@@ -98,148 +101,217 @@ const revisionCount = getRevisionCount(contentPath)
   postSlug={post.data.abbrlink || post.id.replace(/\.(md|mdx)$/, '')}
   supportedLangs={supportedLangs}
 >
-  <article class="heti post-layout">
-    <div class="post-header">
-      <a href="/archive/" class="post-back">← 全部文章</a>
-      <h1 class="post-title">
-        <span
-          transition:name={`post-${slug}${currentLang ? `-${currentLang}` : ''}`}
+  <article class="post">
+    <header class="ph">
+      <div class="ph-icon">
+        <ChantIcon name={post.data.hymmnos ?? slug} size={150} />
+      </div>
+      <div>
+        {post.data.hymmnos && <span class="ph-chant" aria-hidden="true">{post.data.hymmnos}</span>}
+        <h1 class="post-title">
+          <span
+            transition:name={`post-${slug}${currentLang ? `-${currentLang}` : ''}`}
+            data-disable-theme-toggle-transition
+          >
+            {post.data.title}
+          </span>
+        </h1>
+        <dl
+          id="post-date"
+          class="meta"
+          transition:name={`time-${slug}${currentLang ? `-${currentLang}` : ''}`}
           data-disable-theme-toggle-transition
         >
-          {post.data.title}
-        </span>
-      </h1>
-      {post.data.hymmnos && (
-        <p class="post-chant" aria-hidden="true">{post.data.hymmnos}</p>
-      )}
-
-      <div
-        id="post-date"
-        class="font-time post-meta mb-17.2 c-primary"
-        transition:name={`time-${slug}${currentLang ? `-${currentLang}` : ''}`}
-        data-disable-theme-toggle-transition
-      >
-        <PostDate
-          date={post.data.published}
-          updatedDate={post.data.updated}
-          minutes={remarkPluginFrontmatter.minutes}
-        />
-        <span class:list={['growth-stage', stage.stage === 'seed' && 'growth-stage--seed']}>
-          {stage.label}
-        </span>
+          <div>
+            <dt>DATE</dt>
+            <dd><PostDate date={post.data.published} updatedDate={post.data.updated} /></dd>
+          </div>
+          <div>
+            <dt>LENGTH</dt>
+            <dd>{remarkPluginFrontmatter.minutes} 分钟</dd>
+          </div>
+          {tags.length > 0 && (
+            <div>
+              <dt>TAGS</dt>
+              <dd>
+                {tags.map((tag, i) => (
+                  <>{i > 0 && ' / '}<a href={getTagPath(tag, currentLang)}>{tag}</a></>
+                ))}
+              </dd>
+            </div>
+          )}
+          {post.data.series && (
+            <div>
+              <dt>SERIES</dt>
+              <dd>{post.data.series}</dd>
+            </div>
+          )}
+          <div>
+            <dt>STATE</dt>
+            <dd class:list={[stage.stage === 'seed' && 'is-seed']}>{stage.label}</dd>
+          </div>
+          {revisionCount !== null && revisionCount > 1 && (
+            <div>
+              <dt>REV</dt>
+              <dd><a href={revisionHistoryUrl} target="_blank" rel="noopener noreferrer">{revisionCount} 次</a></dd>
+            </div>
+          )}
+        </dl>
       </div>
-    </div>
+    </header>
 
-    {post.data.toc && <aside class="post-toc"><TOC headings={headings} /></aside>}
+    <div class="layout">
+      {post.data.toc && <aside class="post-toc"><TOC headings={headings} /></aside>}
 
-    <div class="post-main">
-      <div id="post-content">
-        <Content />
-      </div>
-      <div id="post-copyright" />
-      {post.data.tags?.length > 0 && (
-        <hr class="hairline mt-12.6" />
-        <TagList
-          tags={post.data.tags}
-          lang={currentLang}
-        />
-      )}
-      {post.data.series && (
-        <SeriesBox series={post.data.series} currentId={slug} lang={currentLang} />
-      )}
-      {relatedPosts.length > 0 && (
-        <hr class="hairline mt-12.6" />
-        <RelatedPosts posts={relatedPosts} lang={currentLang} />
-      )}
-      {revisionCount !== null && revisionCount > 1 && (
-        <>
+      <div class="post-main heti">
+        <div id="post-content">
+          <Content />
+        </div>
+        <div id="post-copyright" />
+        {post.data.series && (
+          <SeriesBox series={post.data.series} currentId={slug} lang={currentLang} />
+        )}
+        {relatedPosts.length > 0 && (
           <hr class="hairline mt-12.6" />
-          <p class="mono text-3.5 c-secondary">{revisionCount} 次修订 · <a href={`https://github.com/Liushenwuzhu-Alpaca/Liushenwuzhu-Alpaca.github.io/commits/main/${contentPath}`} target="_blank" rel="noopener noreferrer" class="underline c-secondary">查看修订历史</a></p>
-        </>
-      )}
-      {(prev || next) && (
-        <hr class="hairline mt-12.6" />
-        <PostNav {prev} {next} lang={currentLang} />
-      )}
-      <Comment />
+          <RelatedPosts posts={relatedPosts} lang={currentLang} />
+        )}
+        {(prev || next) && (
+          <hr class="hairline mt-12.6" />
+          <PostNav {prev} {next} lang={currentLang} />
+        )}
+        <Comment />
+      </div>
     </div>
   </article>
 
   <style>
-    .post-meta {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      column-gap: 1rem;
-      row-gap: 0.5rem;
-    }
+    /* .ph / .ph-icon 网格与移动端规则在 global.css */
 
-    .post-meta :global(time),
-    .post-meta :global(span) {
-      margin-left: 0;
-    }
-
-    .growth-stage {
-      margin-left: 0;
+    /* 咏唱名是普通拉丁字母，用等宽字体，不用塔语字形 */
+    .ph-chant {
       font-family: var(--mono);
-      font-size: 12px;
-      color: var(--secondary);
-    }
-
-    .post-back {
-      display: inline-block;
-      margin-bottom: 12px;
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--secondary);
-      text-decoration: none;
-      transition: color 300ms ease-out;
-    }
-
-    .post-back:hover {
+      font-size: 12.5px;
+      letter-spacing: 0.1em;
       color: var(--accent);
     }
 
-    /* Hymmnos chant name (EXEC_/METHOD_ naming) under the post title. */
-    .post-chant {
-      margin: 0 0 14px;
-      font-family: "Hymmnos", var(--serif);
-      font-size: 13px;
-      letter-spacing: 0.08em;
-      color: var(--secondary);
+    .post-title {
+      max-width: 20em;
+      margin: 8px 0 16px;
+      font-size: 40px;
+      font-weight: 600;
+      line-height: 1.38;
+      letter-spacing: 0.01em;
     }
 
-    .growth-stage--seed {
-      display: inline-block;
-      padding: 1px 8px;
-      font-size: 11px;
-      line-height: 1.4;
-      color: var(--bamboo);
-      border: 1px solid color-mix(in srgb, var(--bamboo) 40%, transparent);
-      border-radius: 999px;
+    /* 元信息格子：等宽大写 dt + 正文 dd，竖线分隔 */
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      margin: 22px 0 0;
+      border-top: 1px solid var(--hairline);
     }
 
-    @media (min-width: 1280px) {
-      .post-layout {
-        display: grid;
-        grid-template-columns: 13rem minmax(0, 1fr);
-        column-gap: 2rem;
-        width: calc(100% + 15rem);
-        max-width: none;
-        margin-left: -15rem;
+    .meta div {
+      padding: 12px 26px 0 0;
+      margin-right: 26px;
+      border-right: 1px solid var(--hairline);
+    }
+
+    .meta div:last-child {
+      margin-right: 0;
+      border-right: 0;
+    }
+
+    .meta dt {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.14em;
+      color: var(--ink-faint);
+    }
+
+    .meta dd {
+      margin: 3px 0 0;
+      font-size: 15px;
+    }
+
+    .meta dd.is-seed {
+      color: var(--seal);
+    }
+
+    .meta a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.2s ease-out;
+    }
+
+    .meta a:hover {
+      color: var(--accent);
+    }
+
+    /* 正文 + 右侧目录 */
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 720px) 240px;
+      gap: 90px;
+      justify-content: center;
+      padding-top: 50px;
+    }
+
+    /* 没有目录（toc 关闭或标题不足）时正文单栏居中 */
+    .layout:not(:has(#toc-container)) {
+      grid-template-columns: minmax(0, 720px);
+    }
+
+    .layout:not(:has(#toc-container)) .post-toc {
+      display: none;
+    }
+
+    .post-main {
+      grid-row: 1;
+      grid-column: 1;
+      min-width: 0;
+      max-width: none;
+      font-size: 17px;
+      line-height: 1.85;
+    }
+
+    .post-toc {
+      position: sticky;
+      top: 96px;
+      grid-row: 1;
+      grid-column: 2;
+      align-self: start;
+      font-size: 14px;
+    }
+
+    /* 窄屏：单栏，目录以折叠形式放到正文上方 */
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: minmax(0, 720px);
+        gap: 0;
       }
 
-      .post-header,
-      .post-main {
-        grid-column: 2;
+      .post-main,
+      .post-toc {
+        grid-row: auto;
+        grid-column: 1;
       }
 
       .post-toc {
-        position: sticky;
-        top: 11.125rem;
-        grid-row: 1 / span 2;
-        grid-column: 1;
-        align-self: start;
+        position: static;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .post-title {
+        font-size: 27px;
+      }
+
+      /* 窄屏格子会换行，竖线分隔改为纯留白 */
+      .meta div {
+        margin-right: 0;
+        border-right: 0;
       }
     }
   </style>

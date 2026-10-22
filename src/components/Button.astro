@@ -1,7 +1,7 @@
 ---
 import type { Language } from '@/i18n/config'
 import LanguageSwitcherIcon from '@/assets/icons/language-switcher.svg'
-import { moreLocales } from '@/config'
+import { moreLocales, themePalettes } from '@/config'
 import { getNextGlobalLangPath, getNextSupportedLangPath } from '@/i18n/path'
 
 interface Props {
@@ -19,29 +19,50 @@ const nextUrl = supportedLangs.length > 0
   : getNextGlobalLangPath(currentPath) // Fallback to all languages when no supported languages data
 ---
 
-<!-- Theme Toggle -->
+<!-- 明暗切换：半月图标，aria-pressed 表示当前是否为暗色 -->
 <button
   id="theme-toggle-button"
-  class="theme-toggle mode-toggle"
+  class="tool-btn"
   type="button"
   aria-label="切换明暗模式"
->○ 日光</button>
+  aria-pressed="false"
+>
+  <svg width="16" height="16" viewBox="-8 -8 16 16" aria-hidden="true">
+    <circle r="6.5" fill="none" stroke="currentColor" />
+    <path d="M0-6.5A6.5 6.5 0 0 1 0 6.5Z" fill="currentColor" />
+    <circle r="1.2" fill="currentColor" />
+  </svg>
+</button>
 
-<!-- Palette Switcher -->
-<div id="palette-segments" class="palette-segments" role="group" aria-label="切换纸色">
-  <button class="palette-segment" type="button" data-palette-id="paper">宣</button>
-  <button class="palette-segment" type="button" data-palette-id="silk">绢</button>
-  <button class="palette-segment" type="button" data-palette-id="indigo">黛</button>
-</div>
+<!-- 配色切换：summary 为锚的下拉面板，色块按钮按 themePalettes 构建时生成 -->
+<details class="palette-menu">
+  <summary class="tool-btn" aria-label="切换配色">
+    <svg width="16" height="16" viewBox="-8 -8 16 16" aria-hidden="true">
+      <circle cx="0" cy="-2.6" r="3.6" fill="none" stroke="currentColor" />
+      <circle cx="-2.6" cy="1.9" r="3.6" fill="none" stroke="currentColor" />
+      <circle cx="2.6" cy="1.9" r="3.6" fill="none" stroke="currentColor" />
+    </svg>
+  </summary>
+  <div id="palette-segments" class="palette-panel" role="group" aria-label="切换配色">
+    {themePalettes.map(p => (
+      <button class="palette-segment" type="button" data-palette-id={p.id}>
+        <span class="swatch" style={`--sw:${p.swatch}`}></span>{p.label}
+      </button>
+    ))}
+  </div>
+</details>
 
 <!-- Language Switcher -->
 {showLanguageSwitcher && (
   <a
     id="language-switcher"
+    class="tool-btn"
     href={nextUrl}
     aria-label="Switch website language"
   >
     <LanguageSwitcherIcon
+      width={16}
+      height={16}
       aria-hidden="true"
       fill="currentColor"
     />
@@ -97,7 +118,11 @@ function renderSecretPalette() {
   button.type = 'button'
   button.className = 'palette-segment'
   button.dataset.paletteId = palette.id
-  button.textContent = palette.label
+  // 与构建时生成的按钮保持同一结构：色块 + 名称
+  const swatch = document.createElement('span')
+  swatch.className = 'swatch'
+  swatch.style.setProperty('--sw', palette.swatch)
+  button.append(swatch, palette.label)
   segments.append(button)
 }
 
@@ -122,9 +147,7 @@ function applyTheme(isDark: boolean) {
   document.dispatchEvent(new Event('theme-changed'))
 
   const themeButton = document.getElementById('theme-toggle-button')
-  if (themeButton) {
-    themeButton.textContent = isDark ? '◐ 夜色' : '○ 日光'
-  }
+  themeButton?.setAttribute('aria-pressed', String(isDark))
 }
 
 // Toggle theme mode
@@ -168,8 +191,20 @@ function handleThemeToggle(e: MouseEvent) {
 
   const paletteButton = e.target.closest<HTMLButtonElement>('[data-palette-id]')
   if (paletteButton?.dataset.paletteId) {
+    // 选中配色后收起菜单
+    paletteButton.closest('details')?.removeAttribute('open')
     runWithViewTransition(() => setPalette(paletteButton.dataset.paletteId!))
   }
+}
+
+// 点击配色菜单以外的区域时收起所有已展开的菜单
+function closePaletteMenus(e: MouseEvent) {
+  const target = e.target instanceof Node ? e.target : null
+  document.querySelectorAll<HTMLDetailsElement>('.palette-menu[open]').forEach((menu) => {
+    if (!target || !menu.contains(target)) {
+      menu.removeAttribute('open')
+    }
+  })
 }
 
 // Listen to system theme changes in real time
@@ -183,6 +218,7 @@ function handleSystemChange(event: MediaQueryListEvent) {
 }
 
 document.addEventListener('click', handleThemeToggle)
+document.addEventListener('click', closePaletteMenus)
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', handleSystemChange)
 
 // Konami code unlocks secret palettes (↑↑↓↓←→←→BA).
@@ -225,10 +261,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', han
 // Synchronize controls after the initial render and every Astro page swap.
 function initThemeButton() {
   const themeButton = document.getElementById('theme-toggle-button')
-  if (themeButton) {
-    const isDark = document.documentElement.classList.contains('dark')
-    themeButton.textContent = isDark ? '◐ 夜色' : '○ 日光'
-  }
+  themeButton?.setAttribute('aria-pressed', String(document.documentElement.classList.contains('dark')))
 
   renderSecretPalette()
   syncPaletteSegments()
@@ -238,65 +271,107 @@ initThemeButton()
 document.addEventListener('astro:page-load', initThemeButton)
 </script>
 
-<!-- Global: the 檀 secret segment is appended by JS and lacks Astro's scoped-style attribute. -->
+<!-- 全局样式：檀色块按钮由 JS 动态插入，拿不到 Astro 的 scoped 属性 -->
 <style is:global>
-  .mode-toggle,
-  .palette-segment {
-    font-family: var(--mono);
-    font-size: 12px;
-    line-height: 1.2;
-    cursor: pointer;
-  }
-
-  .mode-toggle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    min-height: 44px;
-    padding: 4px 10px;
-    color: var(--secondary);
-    background: transparent;
-    border: 1px solid var(--hairline);
-    border-radius: var(--radius);
-    letter-spacing: 0;
-    opacity: 1;
-    transition: color 300ms ease-out, border-color 300ms ease-out;
-  }
-
-  .mode-toggle:hover {
+  /* 圆形工具按钮：明暗切换、配色菜单锚点、语言切换共用 */
+  .tool-btn {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    margin: 0;
+    padding: 0;
     color: var(--accent);
-    border-color: var(--accent);
-    opacity: 1;
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 300ms ease-out;
   }
 
-  .palette-segments {
-    display: inline-flex;
-    overflow: hidden;
+  .tool-btn:hover {
+    background: var(--hairline);
+  }
+
+  .palette-menu {
+    position: relative;
+    flex: none;
+  }
+
+  /* 去掉 summary 默认的展开标记（含 extension.css 里的三角） */
+  .palette-menu > summary.tool-btn {
+    list-style: none;
+  }
+
+  .palette-menu > summary.tool-btn::-webkit-details-marker {
+    display: none;
+  }
+
+  .palette-menu > summary.tool-btn::before {
+    display: none;
+    content: none;
+  }
+
+  .palette-menu[open] > summary.tool-btn {
+    background: var(--hairline);
+  }
+
+  /* 下拉面板：以 summary 为锚，右对齐展开在下方 */
+  .palette-panel {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    z-index: 10;
+    display: grid;
+    gap: 2px;
+    min-width: 104px;
+    padding: 6px;
+    background: var(--paper-card);
     border: 1px solid var(--hairline);
-    border-radius: var(--radius);
+    border-radius: 4px;
+    box-shadow: var(--shadow-2);
   }
 
   .palette-segment {
-    display: inline-flex;
+    display: flex;
+    gap: 10px;
     align-items: center;
-    justify-content: center;
-    min-height: 44px;
-    min-width: 44px;
-    padding: 4px 11px;
-    color: var(--secondary);
-    background: transparent;
+    width: 100%;
+    min-height: 36px;
+    padding: 6px 12px 6px 8px;
+    color: var(--ink-soft);
+    font-family: var(--serif);
+    font-size: 14px;
+    line-height: 1.2;
+    text-align: left;
+    white-space: nowrap;
+    background: none;
     border: 0;
+    border-radius: 3px;
+    cursor: pointer;
     transition: color 300ms ease-out, background-color 300ms ease-out;
   }
 
   .palette-segment:hover {
-    color: var(--accent);
+    color: var(--ink);
+    background: var(--hairline);
   }
 
   .palette-segment.is-active {
-    color: var(--paper);
-    background: var(--ink);
+    color: var(--ink);
   }
 
+  /* 圆形色块；当前项外圈再套一道 line 色圆环 */
+  .palette-segment .swatch {
+    flex: none;
+    width: 14px;
+    height: 14px;
+    background: var(--sw);
+    border-radius: 50%;
+  }
+
+  .palette-segment.is-active .swatch {
+    box-shadow: 0 0 0 2px var(--paper-card), 0 0 0 3px var(--line);
+  }
 </style>

@@ -99,10 +99,6 @@ const pageImage = postSlug
   }}
 >
 (function () {
-  // Migrate the retired 'cinnabar' secret palette id to its violet successor.
-  if (localStorage.getItem('palette') === 'cinnabar') {
-    localStorage.setItem('palette', 'violet')
-  }
   // Check if current theme is dark
   // Priority: localStorage theme > default theme > system preference
   function isCurrentDark() {

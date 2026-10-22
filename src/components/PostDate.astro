@@ -9,7 +9,8 @@ type DateFormat = ThemeConfig['global']['dateFormat']
 interface Props {
   date: Date
   updatedDate?: Date
-  minutes: number
+  /** 阅读分钟数；不传则不渲染 */
+  minutes?: number
 }
 
 const { date, updatedDate, minutes } = Astro.props
@@ -81,6 +82,8 @@ function formatDate(date: Date, format: DateFormat) {
 )}
 
 <!-- reading time -->
-<span class={timeSpacingClass}>
-  {minutes} 分钟
-</span>
+{minutes !== undefined && (
+  <span class={timeSpacingClass}>
+    {minutes} 分钟
+  </span>
+)}

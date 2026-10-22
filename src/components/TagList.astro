@@ -34,11 +34,12 @@ const { tags, currentTag = '', lang } = Astro.props
     font-size: 14px;
     border-bottom: 1px solid var(--hairline);
     padding-bottom: 1px;
-    transition: opacity 0.2s ease, border-color 0.2s ease;
+    transition: opacity 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   }
   .tag-link:hover,
   .tag-link.tag-current {
     opacity: 1;
+    color: var(--accent);
     border-bottom-color: var(--accent);
   }
 </style>

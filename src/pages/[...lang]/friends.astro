@@ -1,5 +1,5 @@
 ---
-import HymmnosChant from '@/components/HymmnosChant.astro'
+import PageHead from '@/components/PageHead.astro'
 import { allLocales, themeConfig } from '@/config'
 import { friends } from '@/data/friends'
 import { getLangRouteParam } from '@/i18n/lang'
@@ -25,76 +25,77 @@ export async function getStaticPaths() {
 
 <Layout>
   <section aria-labelledby="friends-title">
-    <h1 id="friends-title" class="label">Links · 友邻</h1>
-    <HymmnosChant hm="Wee yea ra crannidale yora." zh="我会共享给你们" />
-    <div class="rows">
-      {friends.length > 0
+    <PageHead id="friends-title" kicker="Links" title="友邻" hm="Wee yea ra crannidale yora." zh="我会共享给你们" icon="LINKS" />
+    <div class="page-body">
+      <div class="rows">
+        {friends.length > 0
 ? (
-        friends.map(friend => (
-          <a class="row friend-row" href={friend.url}>
-            <div class="friend-main">
-              {friend.avatar && (
-                <img
-                  class="friend-avatar"
-                  src={friend.avatar}
-                  alt=""
-                  loading="lazy"
-                  width="48"
-                  height="48"
-                />
-              )}
-              <div class="friend-text">
-                <h3>
-                  <span class="u">{friend.name}</span> <span class="arrow">-&gt;</span>
-                </h3>
-                {friend.desc && <p>{friend.desc}</p>}
+          friends.map(friend => (
+            <a class="row friend-row" href={friend.url}>
+              <div class="friend-main">
+                {friend.avatar && (
+                  <img
+                    class="friend-avatar"
+                    src={friend.avatar}
+                    alt=""
+                    loading="lazy"
+                    width="48"
+                    height="48"
+                  />
+                )}
+                <div class="friend-text">
+                  <h3>
+                    <span class="u">{friend.name}</span> <span class="arrow">-&gt;</span>
+                  </h3>
+                  {friend.desc && <p>{friend.desc}</p>}
+                </div>
               </div>
-            </div>
-          </a>
-        ))
-      )
+            </a>
+          ))
+        )
 : (
-        <a class="row" href="/about/">
-          <h3>
-            <span class="u">还没有友链，欢迎到关于页找我交换。</span> <span class="arrow">-&gt;</span>
-          </h3>
-        </a>
-      )}
-    </div>
-  </section>
+          <a class="row" href="/about/">
+            <h3>
+              <span class="u">还没有友链，欢迎到关于页找我交换。</span> <span class="arrow">-&gt;</span>
+            </h3>
+          </a>
+        )}
+      </div>
 
-  <section aria-labelledby="site-info-title" class="site-info">
-    <h2 id="site-info-title" class="label">Site Info · 本站信息</h2>
-    <div class="info-card">
-      <img class="info-avatar" src="/avatar.jpg" alt="Liushenwuzhu-Alpaca 的头像" width="56" height="56" />
-      <dl class="info-list">
-        <div class="info-item">
-          <dt>名称</dt>
-          <dd>{siteInfo.name}</dd>
+      <section aria-labelledby="site-info-title" class="site-info">
+        <h2 id="site-info-title" class="label">Site Info · 本站信息</h2>
+        <div class="info-card">
+          <img class="info-avatar" src="/avatar.jpg" alt="Liushenwuzhu-Alpaca 的头像" width="56" height="56" />
+          <dl class="info-list">
+            <div class="info-item">
+              <dt>名称</dt>
+              <dd>{siteInfo.name}</dd>
+            </div>
+            <div class="info-item">
+              <dt>描述</dt>
+              <dd>{siteInfo.desc}</dd>
+            </div>
+            <div class="info-item">
+              <dt>地址</dt>
+              <dd class="mono">{siteInfo.url}</dd>
+            </div>
+            <div class="info-item">
+              <dt>头像</dt>
+              <dd class="mono">{siteInfo.avatar}</dd>
+            </div>
+          </dl>
+          <button
+            type="button"
+            class="copy-btn"
+            data-info={siteInfoJson}
+            onclick="const b=this;navigator.clipboard.writeText(b.dataset.info).then(()=>b.textContent='已复制',()=>b.textContent='复制失败');setTimeout(()=>{b.textContent='复制'},1200)"
+          >
+            复制
+          </button>
         </div>
-        <div class="info-item">
-          <dt>描述</dt>
-          <dd>{siteInfo.desc}</dd>
-        </div>
-        <div class="info-item">
-          <dt>地址</dt>
-          <dd class="mono">{siteInfo.url}</dd>
-        </div>
-        <div class="info-item">
-          <dt>头像</dt>
-          <dd class="mono">{siteInfo.avatar}</dd>
-        </div>
-      </dl>
-      <button
-        type="button"
-        class="copy-btn"
-        data-info={siteInfoJson}
-        onclick="const b=this;navigator.clipboard.writeText(b.dataset.info).then(()=>b.textContent='已复制',()=>b.textContent='复制失败');setTimeout(()=>{b.textContent='复制'},1200)"
-      >
-        复制
-      </button>
+        <p class="info-note">欢迎交换友链，点「复制」可得 JSON 格式的本站信息。</p>
+      </section>
     </div>
-    <p class="info-note">欢迎交换友链，点「复制」可得 JSON 格式的本站信息。</p>
   </section>
 </Layout>
 
